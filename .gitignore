@@ -1,0 +1,11 @@
+
+# Maven
+target/
+
+# data
+graph-cache/
+
+# Eclipse
+.project
+.classpath
+.settings/
