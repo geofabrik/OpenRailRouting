@@ -22,7 +22,6 @@ public class RailwayRoutingMain {
     private CmdArgs commandline_args;
     
     public static void main( String[] args ) {
-        System.out.println( "Hello World!" );
         new RailwayRoutingMain(CmdArgs.read(args));
     }
     
