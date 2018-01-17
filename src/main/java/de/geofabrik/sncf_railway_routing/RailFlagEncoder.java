@@ -15,6 +15,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
 public class RailFlagEncoder extends AbstractFlagEncoder {
 	
 	protected final Integer defaultSpeed = 25;
+	private int tk;
 	
 	public RailFlagEncoder() {
 		this(5, 5, 0);
@@ -34,7 +35,8 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
     
     public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);        
+        super(speedBits, speedFactor, maxTurnCosts);
+        tk = maxTurnCosts;
         maxPossibleSpeed = 150;
         init();
     }
@@ -120,7 +122,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     public String toString() {
-        return "rail";
+        return "rail_" + Long.toString(tk);
     }
 
 }
