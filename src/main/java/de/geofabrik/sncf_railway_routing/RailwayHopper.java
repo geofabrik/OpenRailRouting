@@ -3,6 +3,8 @@ package de.geofabrik.sncf_railway_routing;
 
 import static com.graphhopper.util.GHUtility.getEdge;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ import com.graphhopper.util.AngleCalc;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
 public class RailwayHopper extends GraphHopperOSM {
@@ -28,9 +31,6 @@ public class RailwayHopper extends GraphHopperOSM {
         return Math.abs(or1 -or2);
     }
 
-    /**
-     * Internal method to clean up the graph.
-     */
     protected void cleanUp() {
         super.cleanUp();
         AngleCalc angleCalc = new AngleCalc();
@@ -48,44 +48,34 @@ public class RailwayHopper extends GraphHopperOSM {
                     continue;
                 }
                 EdgeIterator iter = explorer.setBaseNode(start);
-                double prevOrientation = Double.MAX_VALUE;
-                int prevEdgeId = Integer.MAX_VALUE;
-                // We have to cache the first edge to have it available when we get the last edge.
-                double firstOrientation = Double.MAX_VALUE;
-                int firstEdgeId = Integer.MAX_VALUE;
+                // get list of IDs of edges
+                ArrayList<Integer> edges = new ArrayList<Integer>();
+                ArrayList<Integer> adjNodes = new ArrayList<Integer>();
                 while (iter.next()) {
-                    PointList points = null;
-                    // get geometry
-                    points = iter.fetchWayGeometry(3);
-                    // get orientation
-                    double lon1 = points.getLon(0);
-                    double lat1 = points.getLat(0);
-                    double lon2 = points.getLon(1);
-                    double lat2 = points.getLat(1);
-                    double orientation = angleCalc.calcOrientation(lat1, lon1, lat2, lon2);
-                    if (prevOrientation == Double.MAX_VALUE
-                            || prevEdgeId == Integer.MAX_VALUE) {
-                        prevOrientation = orientation;
-                        firstOrientation = orientation;
-                        prevEdgeId = iter.getEdge();
-                        firstEdgeId = iter.getEdge();
-                        continue;
-                    }
-                    // get difference
-                    double diff = getAngle(orientation, prevOrientation);
-                    if (diff < 0.75 * Math.PI || diff > 1.25 * Math.PI) {
-                        // We have to forbid this turn in both directions.
-                        tcs.addTurnInfo(prevEdgeId, iter.getBaseNode(), iter.getEdge(), tflags);
-                        tcs.addTurnInfo(iter.getEdge(), iter.getBaseNode(), prevEdgeId, tflags);
-                    }
-                    prevEdgeId = iter.getEdge();
-                    prevOrientation = orientation;
+                    edges.add(iter.getEdge());
+                    adjNodes.add(iter.getAdjNode());
                 }
-                // compare last and first edge
-                double diff = getAngle(prevOrientation, firstOrientation);
-                if (diff < 0.75 * Math.PI || diff > 1.25 * Math.PI) {
-                    tcs.addTurnInfo(prevEdgeId, iter.getBaseNode(), firstEdgeId, tflags);
-                    tcs.addTurnInfo(firstEdgeId, iter.getBaseNode(), prevEdgeId, tflags);
+                for (int i = 0; i < adjNodes.size(); ++i) {
+                    EdgeIteratorState fromEdge = ghs.getEdgeIteratorState(edges.get(i), adjNodes.get(i));
+                    PointList fromPoints = fromEdge.fetchWayGeometry(3);
+                    double fromLon = fromPoints.getLon(1);
+                    double fromLat = fromPoints.getLat(1);
+                    double centreLon = fromPoints.getLon(0);
+                    double centreLat = fromPoints.getLat(0);
+                    double fromOrientation = angleCalc.calcOrientation(centreLat, centreLon, fromLat, fromLon);
+                    for (int j = i + 1; j < adjNodes.size(); ++j) {
+                        EdgeIteratorState toEdge = ghs.getEdgeIteratorState(edges.get(j), adjNodes.get(j));
+                        PointList toPoints = toEdge.fetchWayGeometry(3);
+                        double toLon = toPoints.getLon(1);
+                        double toLat = toPoints.getLat(1);
+                        double toOrientation = angleCalc.calcOrientation(centreLat, centreLon, toLat, toLon);
+                        double diff = getAngle(fromOrientation, toOrientation);
+                        if (diff < 0.75 * Math.PI || diff > 1.25 * Math.PI) {
+                            // We have to forbid this turn in both directions.
+                            tcs.addTurnInfo(fromEdge.getEdge(), start, toEdge.getEdge(), tflags);
+                            tcs.addTurnInfo(toEdge.getEdge(), start, fromEdge.getEdge(), tflags);
+                        }
+                    }
                 }
             }
         }
