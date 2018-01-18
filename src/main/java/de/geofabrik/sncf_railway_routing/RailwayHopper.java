@@ -1,12 +1,9 @@
 package de.geofabrik.sncf_railway_routing;
 
 
-import static com.graphhopper.util.GHUtility.getEdge;
-
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.EncodingManager;
@@ -22,7 +19,13 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
 public class RailwayHopper extends GraphHopperOSM {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public RailwayHopper(final CmdArgs args) {
+        if (args.get("datareader.file", "").equals("")) {
+            logger.error("Missing argument datareader.file=<OSM file>");
+            System.exit(1);
+        }
         setEncodingManager(new EncodingManager(new RailFlagEncoder(5, 5, 0), new RailFlagEncoder(5, 5, 1)));
         super.init(args);
     }

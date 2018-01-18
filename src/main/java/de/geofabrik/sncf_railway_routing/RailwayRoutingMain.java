@@ -38,7 +38,6 @@ public class RailwayRoutingMain {
     }
     
     private void importOSM() {
-        hopper.setOSMFile(commandline_args.get("datasource", ""));
         hopper.importOrLoad();
         hopper.close();
     }
