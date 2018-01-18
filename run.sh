@@ -13,5 +13,4 @@ fi
 
 JAVA_OPTS="$JAVA_OPTS -Xmx500m -Xms50m"
 
-#echo "$JAVA" $JAVA_OPTS -jar $JAR "$@" jetty.port=8981
-exec "$JAVA" $JAVA_OPTS -jar $JAR "$@" jetty.port=8981
+exec "$JAVA" $JAVA_OPTS -jar $JAR "$@" jetty.port=8981 jetty.resourcebase=graphhopper_webapp
