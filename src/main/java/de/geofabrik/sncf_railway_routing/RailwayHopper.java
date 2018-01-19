@@ -3,12 +3,16 @@ package de.geofabrik.sncf_railway_routing;
 
 import java.util.ArrayList;
 
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TurnWeighting;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.AngleCalc;
@@ -26,12 +30,22 @@ public class RailwayHopper extends GraphHopperOSM {
             logger.error("Missing argument datareader.file=<OSM file>");
             System.exit(1);
         }
-        setEncodingManager(new EncodingManager(new RailFlagEncoder(5, 5, 0), new RailFlagEncoder(5, 5, 1)));
+        setEncodingManager(new EncodingManager(new RailFlagEncoder(5, 5, 0), new RailFlagEncoder(5, 5, 2)));
         super.init(args);
     }
 
     private double getAngle(double or1, double or2) {
-        return Math.abs(or1 -or2);
+        return Math.abs(or1 - or2);
+    }
+
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
+        FlagEncoder encoder = weighting.getFlagEncoder();
+        if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED)) {
+            RailTurnWeighting tw = new RailTurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
+            tw.setDefaultUTurnCost(60 * 5);
+            return tw;
+        }
+        return weighting;
     }
 
     protected void cleanUp() {
@@ -43,7 +57,8 @@ public class RailwayHopper extends GraphHopperOSM {
             if (!encoder.supports(TurnWeighting.class)) {
                 continue;
             }
-            long tflags = encoder.getTurnFlags(true, 0);
+            long tflagsRestricted = encoder.getTurnFlags(true, 0);
+            long tflagsAvoid = encoder.getTurnFlags(false, ((RailFlagEncoder) encoder).getMaxTurnCosts() - 1);
             EdgeExplorer explorer = ghs.createEdgeExplorer();
             int nodes = ghs.getNodes();
             for (int start = 0; start < nodes; start++) {
@@ -73,10 +88,13 @@ public class RailwayHopper extends GraphHopperOSM {
                         double toLat = toPoints.getLat(1);
                         double toOrientation = angleCalc.calcOrientation(centreLat, centreLon, toLat, toLon);
                         double diff = getAngle(fromOrientation, toOrientation);
-                        if (diff < 0.75 * Math.PI || diff > 1.25 * Math.PI) {
+                        if (diff < 0.3 * Math.PI || diff > 1.7 * Math.PI) {
+                            tcs.addTurnInfo(fromEdge.getEdge(), start, toEdge.getEdge(), tflagsAvoid);
+                            tcs.addTurnInfo(toEdge.getEdge(), start, fromEdge.getEdge(), tflagsAvoid);
+                        } else if (diff < 0.75 * Math.PI || diff > 1.25 * Math.PI) {
                             // We have to forbid this turn in both directions.
-                            tcs.addTurnInfo(fromEdge.getEdge(), start, toEdge.getEdge(), tflags);
-                            tcs.addTurnInfo(toEdge.getEdge(), start, fromEdge.getEdge(), tflags);
+                            tcs.addTurnInfo(fromEdge.getEdge(), start, toEdge.getEdge(), tflagsRestricted);
+                            tcs.addTurnInfo(toEdge.getEdge(), start, fromEdge.getEdge(), tflagsRestricted);
                         }
                     }
                 }

@@ -4,19 +4,13 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.PMap;
 
-import java.util.Arrays;
-import java.util.TreeMap;
-
-import static com.graphhopper.routing.util.PriorityCode.*;
-
 public class RailFlagEncoder extends AbstractFlagEncoder {
-	
+
 	protected final Integer defaultSpeed = 25;
 	private int tk;
-	
+
 	public RailFlagEncoder() {
 		this(5, 5, 0);
 	}
@@ -33,7 +27,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public RailFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
-    
+
     public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
         tk = maxTurnCosts;
@@ -41,11 +35,15 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         init();
     }
 
+    public int getMaxTurnCosts() {
+        return tk;
+    }
+
 	@Override
     public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
         return oldRelationFlags;
     }
-    
+
     @Override
     public long acceptWay(ReaderWay way) {
         if (way.hasTag("railway", "rail")) {
@@ -53,7 +51,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
         return 0;
     }
-    
+
     @Override
     public int defineWayBits(int index, int shift) {
         // first two bits are reserved for route handling in superclass
@@ -62,7 +60,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         		maxPossibleSpeed);
         return shift + speedEncoder.getBits();
     }
-    
+
     protected double getSpeed(ReaderWay way) {
     	if (way.hasTag("service", "siding")) {
     		return 40;
@@ -77,7 +75,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     	}
 		return defaultSpeed;
     }
-    
+
     @Override
     public long handleWayTags(ReaderWay way, long allowed, long relationFlags) {
         if (!isAccept(allowed)) {
@@ -91,7 +89,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         flags |= directionBitMask;
         return flags;
     }
-    
+
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
     	if (way.hasTag("usage", "main")) {
     		return 140;
