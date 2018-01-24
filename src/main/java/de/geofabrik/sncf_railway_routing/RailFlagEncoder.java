@@ -10,15 +10,16 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
 	protected final Integer defaultSpeed = 25;
 	private int tk;
+	private String name;
 
 	public RailFlagEncoder() {
-		this(5, 5, 0);
+		this(5, 5, 0, "rail");
 	}
 
     public RailFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 5),
                 properties.getDouble("speedFactor", 10),
-        properties.getBool("turn_costs", false) ? 1 : 0);
+        properties.getBool("turn_costs", false) ? 1 : 0, "rail");
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", false));
@@ -28,8 +29,9 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         this(new PMap(propertiesStr));
     }
 
-    public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, String name) {
         super(speedBits, speedFactor, maxTurnCosts);
+        this.name = name;
         tk = maxTurnCosts;
         maxPossibleSpeed = 150;
         init();
@@ -114,13 +116,12 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
 	@Override
 	public int getVersion() {
-		// TODO Auto-generated method stub
-		return 0;
+	    return 0;
 	}
 
     @Override
     public String toString() {
-        return "rail_" + Long.toString(tk);
+        return name;
     }
 
 }
