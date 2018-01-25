@@ -1,16 +1,26 @@
 package de.geofabrik.sncf_railway_routing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.PMap;
 
+import de.geofabrik.sncf_railway_routing.util.MultiValueChecker;
+
 public class RailFlagEncoder extends AbstractFlagEncoder {
 
 	protected final Integer defaultSpeed = 25;
 	private int tk;
 	private String name;
+	private ArrayList<String> electrifiedValues;
+	private ArrayList<Integer> acceptedVoltages;
+	private ArrayList<Double> acceptedFrequencies;
+	private ArrayList<Integer> acceptedGauges;
+	private double speedFactor;
 
 	public RailFlagEncoder() {
 		this(5, 5, 0, "rail");
@@ -19,10 +29,10 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public RailFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 5),
                 properties.getDouble("speedFactor", 10),
-        properties.getBool("turn_costs", false) ? 1 : 0, "rail");
+        properties.getInt("max_turn_costs", 3),
+        properties.get("name", ""));
         this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
-        this.setBlockByDefault(properties.getBool("block_barriers", false));
+        initFromProperties(properties);
 	}
 
     public RailFlagEncoder(String propertiesStr) {
@@ -31,14 +41,64 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
     public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, String name) {
         super(speedBits, speedFactor, maxTurnCosts);
+        if (name.equals("")) {
+            throw new IllegalArgumentException("The name of an encoder must not be an empty string.");
+        }
         this.name = name;
         tk = maxTurnCosts;
-        maxPossibleSpeed = 150;
         init();
+    }
+
+    protected void initFromProperties(PMap properties) {
+        super.init();
+        if (this.properties == null) {
+            this.properties = properties;
+        } else {
+            this.properties.put(properties);
+        }
+        // electrified values
+        String electrifiedProps = properties.get("electrifiedValues", "");
+        if (!electrifiedProps.equals("")) {
+            this.electrifiedValues = new ArrayList<String>(Arrays.asList(properties.get("electrifiedValues", "").split(";")));
+        } else {
+            this.electrifiedValues = new ArrayList<String>();
+        }
+
+        this.acceptedVoltages = new ArrayList<Integer>();
+        for (String v : properties.get("acceptedVoltages", "").split(";")) {
+            if (!v.equals("")) {
+                this.acceptedVoltages.add(Integer.parseInt(v));
+            }
+        }
+
+        this.acceptedFrequencies = new ArrayList<Double>();
+        for (String v : properties.get("acceptedFrequencies", "").split(";")) {
+            if (!v.equals("")) {
+                this.acceptedFrequencies.add(Double.parseDouble(v));
+            }
+        }
+
+        this.acceptedGauges = new ArrayList<Integer>();
+        for (String v : properties.get("acceptedGauges", "").split(";")) {
+            if (!v.equals("")) {
+                this.acceptedGauges.add(Integer.parseInt(v));
+            }
+        }
+
+        this.maxPossibleSpeed = properties.getInt("max_speed", 100);
+        this.speedFactor = properties.getDouble("speedFactor", 0.9);
     }
 
     public int getMaxTurnCosts() {
         return tk;
+    }
+
+    public void setSpeedFactor(double factor) {
+        speedFactor = factor;
+    }
+
+    public void setMaxPossibleSpeed(int speed) {
+        maxPossibleSpeed = speed;
     }
 
 	@Override
@@ -46,9 +106,32 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         return oldRelationFlags;
     }
 
+    public boolean hasCompatibleElectricity(ReaderWay way) {
+        if (electrifiedValues.isEmpty()) {
+            return true;
+        }
+        String electrified = way.getTag("electrified");
+        if (electrified == null) {
+            return true;
+        }
+        if (electrifiedValues.contains(electrified) || electrified.equals("yes")) {
+            String voltage = way.getTag("voltage");
+            String frequency = way.getTag("frequency");
+            if (MultiValueChecker.tagContainsInt(voltage, acceptedVoltages, true)
+                    && MultiValueChecker.tagContainsDouble(frequency, acceptedFrequencies, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasCompatibleGauge(ReaderWay way) {
+        return MultiValueChecker.tagContainsInt(way.getTag("gauge"), acceptedGauges, true);
+    }
+
     @Override
     public long acceptWay(ReaderWay way) {
-        if (way.hasTag("railway", "rail")) {
+        if (way.hasTag("railway", "rail") && hasCompatibleElectricity(way) && hasCompatibleGauge(way)) {
         	return acceptBit;
         }
         return 0;
@@ -90,6 +173,21 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         flags = setSpeed(flags, speed);
         flags |= directionBitMask;
         return flags;
+    }
+
+    /**
+     * @param way needed to retrieve tags
+     * @param speed speed guessed e.g. from the road type or other tags
+     * @return The assumed speed.
+     */
+    protected double applyMaxSpeed(ReaderWay way, double speed) {
+        double maxSpeed = getMaxSpeed(way);
+        if (maxSpeed <= 0) {
+            maxSpeed = speed;
+        } else if (maxSpeed > this.maxPossibleSpeed) {
+            maxSpeed = this.maxPossibleSpeed;
+        }
+        return maxSpeed * speedFactor;
     }
 
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {

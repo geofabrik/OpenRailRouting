@@ -30,7 +30,8 @@ public class RailwayHopper extends GraphHopperOSM {
             logger.error("Missing argument datareader.file=<OSM file>");
             System.exit(1);
         }
-        setEncodingManager(new EncodingManager(new RailFlagEncoder(5, 5, 2, "rail")));
+        String[] encoderNames = {"freight_electric_15kVAC", "freight_electric_diesel"};
+        setEncodingManager(new EncodingManager(RailFlagEncoderFactory.craeateEncoders(encoderNames)));
         super.init(args);
     }
 
