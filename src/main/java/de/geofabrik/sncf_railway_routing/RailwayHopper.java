@@ -30,7 +30,8 @@ public class RailwayHopper extends GraphHopperOSM {
             logger.error("Missing argument datareader.file=<OSM file>");
             System.exit(1);
         }
-        String[] encoderNames = {"freight_electric_15kVAC", "freight_electric_diesel"};
+        setTraversalMode(TraversalMode.EDGE_BASED_2DIR);
+        String[] encoderNames = {"freight_electric_15kvac", "freight_electric_diesel"};
         setEncodingManager(new EncodingManager(RailFlagEncoderFactory.craeateEncoders(encoderNames)));
         super.init(args);
     }
@@ -43,7 +44,7 @@ public class RailwayHopper extends GraphHopperOSM {
         FlagEncoder encoder = weighting.getFlagEncoder();
         if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED)) {
             RailTurnWeighting tw = new RailTurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
-            tw.setDefaultUTurnCost(60 * 5);
+            tw.setDefaultUTurnCost(60 * 30);
             return tw;
         }
         return weighting;
