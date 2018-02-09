@@ -1,10 +1,10 @@
 package de.geofabrik.sncf_railway_routing;
 
-import java.io.File;
+import java.net.URL;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -37,7 +37,7 @@ import com.graphhopper.util.InstructionList;
 public class RailwayRoutingMain {
     private RailwayHopper hopper;
     private CmdArgs commandline_args;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LogManager.getLogger(RailwayRoutingMain.class);
     
     public static void main( String[] args ) {
         new RailwayRoutingMain(CmdArgs.read(args));
