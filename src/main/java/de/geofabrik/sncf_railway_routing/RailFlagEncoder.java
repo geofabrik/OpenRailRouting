@@ -90,7 +90,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
 
         this.maxPossibleSpeed = properties.getInt("max_speed", 100);
-        this.speedCorrectionFactor = properties.getDouble("speedFactor", 0.9);
+        this.speedCorrectionFactor = properties.getDouble("speedCorrectionFactor", 0.9);
     }
 
     public int getMaxTurnCosts() {

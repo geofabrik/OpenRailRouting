@@ -58,6 +58,22 @@ public class RailFlagEncoderTest {
         assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
         assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
     }
+
+    /**
+     * TGV test
+     */
+    @Test
+    public void testSpeedTGV100track() {
+        PMap properties = new PMap();
+        properties.put("name", "tgv");
+        properties.put("max_speed", 319);
+        properties.put("speedFactor", 11);
+        RailFlagEncoder encoderTGV = new RailFlagEncoder(properties);
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("maxspeed", "100");
+        assertEquals(100 * 0.9, encoderTGV.applyMaxSpeed(way, 100), 0.0);
+        assertEquals(100 * 0.9, encoderTGV.applyMaxSpeed(way, 50), 0.0);
+    }
     
     @Test
     public void testElectricalCompatibilityMultiAC() {
