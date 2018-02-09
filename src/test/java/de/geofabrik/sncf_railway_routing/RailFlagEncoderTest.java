@@ -26,7 +26,7 @@ public class RailFlagEncoderTest {
     @Before
     public void setUp() {
         encoder = new RailFlagEncoder();
-        encoder.setSpeedFactor(0.9);
+        encoder.setSpeedCorrectionFactor(0.9);
     }
 
     @Test
@@ -34,9 +34,9 @@ public class RailFlagEncoderTest {
         encoder.setMaxPossibleSpeed(50);
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed", "50");
-        assertEquals(encoder.applyMaxSpeed(way, 50), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 100), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 25), 50 * 0.9, 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
     }
 
     @Test
@@ -44,9 +44,9 @@ public class RailFlagEncoderTest {
         encoder.setMaxPossibleSpeed(50);
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed", "100");
-        assertEquals(encoder.applyMaxSpeed(way, 50), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 100), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 25), 50 * 0.9, 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
     }
 
     @Test
@@ -54,9 +54,9 @@ public class RailFlagEncoderTest {
         encoder.setMaxPossibleSpeed(100);
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed", "50");
-        assertEquals(encoder.applyMaxSpeed(way, 50), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 100), 50 * 0.9, 0.0);
-        assertEquals(encoder.applyMaxSpeed(way, 25), 50 * 0.9, 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
+        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
     }
     
     @Test

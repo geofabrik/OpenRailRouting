@@ -20,15 +20,19 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 	private ArrayList<Integer> acceptedVoltages;
 	private ArrayList<Double> acceptedFrequencies;
 	private ArrayList<Integer> acceptedGauges;
-	private double speedFactor;
+	private double speedCorrectionFactor;
 
 	public RailFlagEncoder() {
 		this(5, 5, 0, "rail");
 	}
 
+	public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+	    this(speedBits, speedFactor, maxTurnCosts, "rail");
+	}
+
     public RailFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 5),
-                properties.getDouble("speedFactor", 10),
+                properties.getDouble("speedFactor", 5),
         properties.getInt("max_turn_costs", 3),
         properties.get("name", ""));
         this.properties = properties;
@@ -86,15 +90,15 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
 
         this.maxPossibleSpeed = properties.getInt("max_speed", 100);
-        this.speedFactor = properties.getDouble("speedFactor", 0.9);
+        this.speedCorrectionFactor = properties.getDouble("speedFactor", 0.9);
     }
 
     public int getMaxTurnCosts() {
         return tk;
     }
 
-    public void setSpeedFactor(double factor) {
-        speedFactor = factor;
+    public void setSpeedCorrectionFactor(double factor) {
+        speedCorrectionFactor = factor;
     }
 
     public void setMaxPossibleSpeed(int speed) {
@@ -187,7 +191,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         } else if (maxSpeed > this.maxPossibleSpeed) {
             maxSpeed = this.maxPossibleSpeed;
         }
-        return maxSpeed * speedFactor;
+        return maxSpeed * speedCorrectionFactor;
     }
 
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
