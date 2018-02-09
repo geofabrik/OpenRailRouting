@@ -10,13 +10,13 @@ public class RailFlagEncoderFactory {
     public static FlagEncoder createFlagEncoder(String name) {
         PMap properties = new PMap();
         properties.put("name", name);
-        if (name.equals("freight_electric_15kVAC")) {
+        if (name.equals("freight_electric_15kvac")) {
             properties.put("electrifiedValues", "contact_line");
             properties.put("acceptedVoltages", "15000");
             properties.put("acceptedFrequencies", "16.7;16.67");
             properties.put("acceptedGauges", "1435");
             properties.put("max_speed", 90);
-        } else if (name.equals("freight_electric_diesel")) {
+        } else if (name.equals("freight_diesel")) {
             properties.put("electrifiedValues", "");
             properties.put("acceptedGauges", "1435");
             properties.put("max_speed", 90);
