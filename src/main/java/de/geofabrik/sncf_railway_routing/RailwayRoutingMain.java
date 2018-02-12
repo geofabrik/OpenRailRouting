@@ -1,6 +1,18 @@
 package de.geofabrik.sncf_railway_routing;
 
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -29,6 +41,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.InstructionList;
+
+import de.geofabrik.sncf_railway_routing.util.PatternMatching;
 
 /**
  * Hello world!
@@ -63,7 +77,7 @@ public class RailwayRoutingMain {
     }
 
     private void match() {
-        logger.info("loading graph from cache");
+        logger.info("Loading graph from cache at {}", hopper.getGraphHopperLocation());
         hopper.load(hopper.getGraphHopperLocation());
         List<FlagEncoder> flagEncoders = hopper.getEncodingManager().fetchEdgeEncoders();
         FlagEncoder selectedEncoder = null;
@@ -74,10 +88,7 @@ public class RailwayRoutingMain {
             }
         }
         if (selectedEncoder == null) {
-            //TODO throw exception
-            System.err.println("No encoding manager selected. Please use the 'vehicle' parameter.");
-            logger.error("No encoding manager selected. Please use the 'vehicle' parameter.");
-            System.exit(1);
+            throw new IllegalArgumentException("No encoding manager selected. Please use the 'vehicle' parameter.");
         }
         int gpsAccuracy = commandline_args.getInt("gps_accuracy", 40);
 
@@ -96,24 +107,34 @@ public class RailwayRoutingMain {
 
         String inputPath = commandline_args.get("gpx.location", "");
         if (inputPath.equals("")) {
-            //TODO throw exception
-            System.err.println("No input file given.");
-            System.exit(1);
+            throw new IllegalArgumentException("No input file was given. Please use the option gpx.location=*.");
         }
+        int lastSeparator = PatternMatching.patternSplitDirFile(inputPath);
+        LinkedList<Path> files = PatternMatching.getFileList(inputPath, lastSeparator);
 
-        List<GPXEntry> inputGPXEntries = new GPXFile().doImport(inputPath).getEntries();
-        MatchResult mr = mapMatching.doWork(inputGPXEntries);
-        System.out.println(inputPath);
-        System.out.println("\tmatches:\t" + mr.getEdgeMatches().size());
-        System.out.println("\tgpx length:\t" + mr.getGpxEntriesLength() + " vs " + mr.getMatchLength());
-        System.out.println("\tgpx time:\t" + mr.getGpxEntriesMillis() / 1000f + " vs " + mr.getMatchMillis() / 1000f);
+        for (Path f : files) {
+            InputStream inputStream;
+            try {
+                logger.info("Matching GPX track {} on the graph.", f.toString());
+                inputStream = Files.newInputStream(f);
+                List<GPXEntry> inputGPXEntries = new GPXFile().doImport(inputStream, 50).getEntries();
+                MatchResult mr = mapMatching.doWork(inputGPXEntries);
+                System.out.println(inputPath);
+                System.out.println("\tmatches:\t" + mr.getEdgeMatches().size());
+                System.out.println("\tgpx length:\t" + mr.getGpxEntriesLength() + " vs " + mr.getMatchLength());
+                System.out.println("\tgpx time:\t" + mr.getGpxEntriesMillis() / 1000f + " vs " + mr.getMatchMillis() / 1000f);
 
-        String outFile = inputPath + ".res.gpx";
-        System.out.println("\texport results to:" + outFile);
+                String outFile = inputPath + ".res.gpx";
+                System.out.println("\texport results to:" + outFile);
 
-        //TODO find a way without an instruction list
-        InstructionList il = null;
-        new GPXFile(mr, il).doExport(outFile);
+                //TODO find a way without an instruction list
+                InstructionList il = null;
+                new GPXFile(mr, il).doExport(outFile);
+            } catch (IOException e) {
+                logger.error("Received IOException while reading GPX file {} from input stream: {}",
+                        f.toString(), e.toString());
+            }
+        }
         hopper.close();
 }
     
