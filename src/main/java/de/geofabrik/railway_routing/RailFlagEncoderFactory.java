@@ -1,4 +1,4 @@
-package de.geofabrik.sncf_railway_routing;
+package de.geofabrik.railway_routing;
 
 import java.util.LinkedList;
 

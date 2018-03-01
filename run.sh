@@ -1,4 +1,4 @@
-JAR=target/sncf_railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+JAR=target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
 if [ "$JAVA" = "" ]; then
  JAVA=java

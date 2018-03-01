@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>de.geofabrik</groupId>
-  <artifactId>sncf_railway_routing</artifactId>
+  <artifactId>railway_routing</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>sncf_railway_routing</name>
+  <name>railway_routing</name>
 
   <properties>
 	          <maven.compiler.source>1.8</maven.compiler.source>
@@ -62,7 +62,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>de.geofabrik.sncf_railway_routing.RailwayRoutingMain</mainClass>
+                            <mainClass>de.geofabrik.railway_routing.RailwayRoutingMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -79,7 +79,7 @@
           <manifest>
             <addClasspath>true</addClasspath>
 	    <classpathPrefix>lib/</classpathPrefix>
-            <mainClass>de.geofabrik.sncf_railway_routing.RailwayRoutingMain</mainClass>
+            <mainClass>de.geofabrik.railway_routing.RailwayRoutingMain</mainClass>
           </manifest>
         </archive>
       </configuration>

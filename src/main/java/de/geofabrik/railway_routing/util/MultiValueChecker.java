@@ -1,4 +1,4 @@
-package de.geofabrik.sncf_railway_routing.util;
+package de.geofabrik.railway_routing.util;
 
 import java.util.ArrayList;
 

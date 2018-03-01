@@ -1,4 +1,4 @@
-package de.geofabrik.sncf_railway_routing.util;
+package de.geofabrik.railway_routing.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.geofabrik.sncf_railway_routing.RailwayRoutingMain;
+import de.geofabrik.railway_routing.RailwayRoutingMain;
 
 public class PatternMatching {
     private static final Logger logger = LogManager.getLogger(RailwayRoutingMain.class);

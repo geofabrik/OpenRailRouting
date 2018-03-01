@@ -1,4 +1,4 @@
-package de.geofabrik.sncf_railway_routing;
+package de.geofabrik.railway_routing;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.InstructionList;
 
-import de.geofabrik.sncf_railway_routing.util.PatternMatching;
+import de.geofabrik.railway_routing.util.PatternMatching;
 
 /**
  * Hello world!

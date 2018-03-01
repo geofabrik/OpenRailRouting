@@ -1,4 +1,4 @@
-package de.geofabrik.sncf_railway_routing;
+package de.geofabrik.railway_routing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +9,7 @@ import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.PMap;
 
-import de.geofabrik.sncf_railway_routing.util.MultiValueChecker;
+import de.geofabrik.railway_routing.util.MultiValueChecker;
 
 public class RailFlagEncoder extends AbstractFlagEncoder {
 
