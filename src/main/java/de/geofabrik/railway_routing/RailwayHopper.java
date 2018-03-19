@@ -68,8 +68,7 @@ public class RailwayHopper extends GraphHopperOSM {
         tcs.addTurnInfo(toEdge, viaNode, fromEdge, flags);
     }
 
-    protected void cleanUp() {
-        super.cleanUp();
+    public void postProcessing() {
         AngleCalc angleCalc = new AngleCalc();
         GraphHopperStorage ghs = getGraphHopperStorage();
         TurnCostExtension tcs = (TurnCostExtension) ghs.getExtension();
@@ -106,5 +105,6 @@ public class RailwayHopper extends GraphHopperOSM {
                 }
             }
         }
+        super.postProcessing();
     }
 }
