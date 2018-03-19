@@ -20,6 +20,7 @@ public class RailFlagEncoderFactory {
             properties.put("electrifiedValues", "");
             properties.put("acceptedGauges", "1435");
             properties.put("max_speed", 90);
+            properties.put("enableSRTM", "true");
         } else if (name.equals("tgv_15kvac25kvac1.5kvdc")) {
             properties.put("electrifiedValues", "contact_line");
             properties.put("acceptedVoltages", "15000;25000;1500");
