@@ -61,7 +61,7 @@ public class RailwayRoutingMain {
         commandline_args = args;
         String action = commandline_args.get("action", "");
         hopper = new RailwayHopper(args);
-        hopper.setGraphHopperLocation("./graph-cache");
+        hopper.setGraphHopperLocation(commandline_args.get("graph.location", "./graph-cache"));
         if (action.equals("import")) {
             importOSM();
         } else if (action.equals("web")) {
@@ -88,7 +88,7 @@ public class RailwayRoutingMain {
             }
         }
         if (selectedEncoder == null) {
-            throw new IllegalArgumentException("No encoding manager selected. Please use the 'vehicle' parameter.");
+            throw new IllegalArgumentException("No encoding manager selected. Please use the 'profile' parameter.");
         }
         int gpsAccuracy = commandline_args.getInt("gps_accuracy", 40);
 

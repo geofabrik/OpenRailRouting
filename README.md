@@ -55,12 +55,14 @@ The tool currently supports three different actions:
 Required arguments:
 
 * `datareader.file=$PATH`: path to OSM file
+* `graph.location=./graph-cache`: directory where the graph should be written to (default: `./graph-cache`)
 
 ### Web
 
 Required arguments:
 
 * `datareader.file=$PATH`: path to OSM file
+* `graph.location=./graph-cache`: directory where the graph should be read from (default: `./graph-cache`)
 * `jetty.port=$PORT`: port to be opened by Jetty
 * `jetty.resourcebase=$PATH`: path to webserver document root (if you want to have a web interface
   instead just a plain API). This is usually the path to `web/src/main/webapp/` in the Graphhopper
@@ -71,6 +73,7 @@ Required arguments:
 Required arguments:
 
 * `datareader.file=$PATH`: path to OSM file
+* `graph.location=./graph-cache`: directory where the graph should be read from (default: `./graph-cache`)
 * `gpx.location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
   like `/path/to/dir/mytracks/*.gpx`. The resulting routes will be written as GPX files to same
   directory but `.res.gpx` will be appended to their file names.
