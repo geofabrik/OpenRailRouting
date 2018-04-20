@@ -31,7 +31,7 @@ public class RailwayHopper extends GraphHopperOSM {
             System.exit(1);
         }
         setTraversalMode(TraversalMode.EDGE_BASED_2DIR);
-        String[] encoderNames = {"freight_electric_15kvac", "freight_diesel", "tgv_15kvac25kvac1.5kvdc", "tgv_25kvac1.5kvdc3kvdc"};
+        String[] encoderNames = args.get("profiles", "freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc").split(",");
         setEncodingManager(new EncodingManager(RailFlagEncoderFactory.craeateEncoders(encoderNames)));
         super.init(args);
     }

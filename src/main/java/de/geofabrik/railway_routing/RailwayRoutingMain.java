@@ -81,14 +81,14 @@ public class RailwayRoutingMain {
         hopper.load(hopper.getGraphHopperLocation());
         List<FlagEncoder> flagEncoders = hopper.getEncodingManager().fetchEdgeEncoders();
         FlagEncoder selectedEncoder = null;
-        String profile = commandline_args.get("profile", "");
+        String profile = commandline_args.get("vehicle", "");
         for (FlagEncoder encoder : flagEncoders) {
             if (encoder.toString().equals(profile)) {
                 selectedEncoder = encoder;
             }
         }
         if (selectedEncoder == null) {
-            throw new IllegalArgumentException("No encoding manager selected. Please use the 'profile' parameter.");
+            throw new IllegalArgumentException("No encoding manager selected. Please use the 'vehicle' parameter.");
         }
         int gpsAccuracy = commandline_args.getInt("gps_accuracy", 40);
 

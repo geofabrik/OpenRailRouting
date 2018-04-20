@@ -57,6 +57,16 @@ Required arguments:
 * `datareader.file=$PATH`: path to OSM file
 * `graph.location=./graph-cache`: directory where the graph should be written to (default: `./graph-cache`)
 
+Optional arguments:
+
+* `profiles=freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc`:
+  flag encoders to be used. Following encoders are available:
+  * `freight_electric_15kvac_25kvac`
+  * `freight_diesel`
+  * `tgv_15kvac25kvac1.5kvdc`
+  * `tgv_25kvac1.5kvdc3kvdc`
+  * `freight_electric_25kvac1.5kvdc3kvdc`
+
 ### Web
 
 Required arguments:
@@ -67,6 +77,7 @@ Required arguments:
 * `jetty.resourcebase=$PATH`: path to webserver document root (if you want to have a web interface
   instead just a plain API). This is usually the path to `web/src/main/webapp/` in the Graphhopper
   repository.
+* `profile=<flag_encoders>`: this must be the same as used for the import
 
 ### Match
 
@@ -77,12 +88,13 @@ Required arguments:
 * `gpx.location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
   like `/path/to/dir/mytracks/*.gpx`. The resulting routes will be written as GPX files to same
   directory but `.res.gpx` will be appended to their file names.
+* `vehicle=$VEHICLE`: routing profile to be used.
+* `profile=<flag_encoders>`: this must be the same as used for the import
 
 Optional arguments:
 
 * `gps_accuracy=$NUMBER`: GPS accuracy in metres
 * `max_nodes_to_visit=$NUMBER`
-* `vehicle=$VEHICLE`: routing profile to be used.
 
 ## License
 
