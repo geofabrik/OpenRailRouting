@@ -1,6 +1,6 @@
 # OpenStreetMap based routing on railway tracks
 
-This is a prototype of a routing engine for railways based on the
+This is a prototype of a routing engine for railways based on a forked version of the
 [GraphHopper](https://github.com/graphhopper/graphhopper) routing engine and OpenStreetMap data.
 
 Following features are currently supported:
@@ -8,6 +8,7 @@ Following features are currently supported:
 * simple routing requests
 * map matching
 * taking turn angles into account (to avoid U-turns on points)
+* disabling turns on railway crossings (OSM tag `railway=railway_crossing`)
 * using only tracks which have a compatible gauge
 * not using tracks without catenary if it is an electrical locomotive/electrical multiple unit
 * distinction between third rails and catenary
@@ -16,7 +17,6 @@ Following features are currently supported:
 
 Lacking features:
 
-* disabling turns on railway crossings (OSM tag `railway=railway_crossing`)
 * avoiding the usage of the opposite track (on double-track lines)
 * taking the low acceleration and the long breaking distances of trains into account
 * many profiles
@@ -25,11 +25,11 @@ Lacking features:
 
 ## Building
 
-This project uses Maven 3.x for building. You can invoke Maven on command line to build this project
-by calling
+This project uses Maven 3.x for building. The forked GraphHopper is provided as a Git submodule.
 
 ```sh
-mvn clean compile assembly:single
+git submodule init
+bash build.sh
 ```
 
 JUnit 4.x is used for unit tests.
@@ -39,27 +39,32 @@ JUnit 4.x is used for unit tests.
 To run the routing engine, execute
 
 ```sh
-java -Xmx500m -Xms50m -Dlog4j2.configurationFile=logging.xml \
-  -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar action=$ACTION \
-  datareader.file=$OSMFILE jetty.port=$JETTY_PORT jetty.resourcebase=graphhopper_webapp
+java -Xmx2500m -Xms50m -Dgraphhopper.prepare.ch.weightings=no \
+  -Dgraphhopper.datareader.file=$OSMFILE -Dgraphhopper.profiles=freight_diesel \
+  -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar $ACTION $CONFIG_FILE $OPTARG
 ```
 
-The tool currently supports three different actions:
+The tool currently supports three different actions (`$ACTION` above):
 
-* `action=import` to import the graph (graph will be stored at the subdirectory `graph-cache/`)
-* `action=web` to run the web interface on port `$JETTY_PORT`
-* `action=match` do map matching. The additional argument . Following optional ar
+* `import` to import the graph (graph will be stored at the subdirectory `graph-cache/`)
+* `web` to run the web interface on the port specified in a YAML configuration file (see
+  `config.yml` as an example)
+* `match` do map matching. This command needs additional arguments called `$OPTARG` above.
+
+All commands have some arguments to be handed over as Java system variables using the `-Dkey=value`
+option of the JVM. These arguments can also be given using the YAML file.
 
 ### Import
 
 Required arguments:
 
-* `datareader.file=$PATH`: path to OSM file
-* `graph.location=./graph-cache`: directory where the graph should be written to (default: `./graph-cache`)
+* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
+* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be written to
+  (default: `./graph-cache`)
 
 Optional arguments:
 
-* `profiles=freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc`:
+* `-Dgraphhopper.profiles=freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc`:
   flag encoders to be used. Following encoders are available:
   * `freight_electric_15kvac_25kvac`
   * `freight_diesel`
@@ -71,30 +76,33 @@ Optional arguments:
 
 Required arguments:
 
-* `datareader.file=$PATH`: path to OSM file
-* `graph.location=./graph-cache`: directory where the graph should be read from (default: `./graph-cache`)
-* `jetty.port=$PORT`: port to be opened by Jetty
-* `jetty.resourcebase=$PATH`: path to webserver document root (if you want to have a web interface
-  instead just a plain API). This is usually the path to `web/src/main/webapp/` in the Graphhopper
-  repository.
-* `profile=<flag_encoders>`: this must be the same as used for the import
+* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
+* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+  (default: `./graph-cache`)
+* `-Dserver.applicationConnector.port=$PORT`: port to be opened by Jetty
+* `-Dgraphhopper.profiles=<flag_encoders>`: this must be the same as used for the import
 
 ### Match
 
 Required arguments:
 
-* `datareader.file=$PATH`: path to OSM file
-* `graph.location=./graph-cache`: directory where the graph should be read from (default: `./graph-cache`)
-* `gpx.location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
+* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
+* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+  (default: `./graph-cache`)
+
+Followoing arguments have to be provided (not as Java system variables). You can retriev this list
+by calling
+`java -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar match config.yml`
+
+* `--gpx-location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
   like `/path/to/dir/mytracks/*.gpx`. The resulting routes will be written as GPX files to same
   directory but `.res.gpx` will be appended to their file names.
-* `vehicle=$VEHICLE`: routing profile to be used.
-* `profile=<flag_encoders>`: this must be the same as used for the import
+* `-V VEHICLE`, `--vehicle=$VEHICLE`: routing profile to be used.
 
 Optional arguments:
 
-* `gps_accuracy=$NUMBER`: GPS accuracy in metres
-* `max_nodes_to_visit=$NUMBER`
+* `-a NUMBER`, `--gps-accuracy=NUMBER`: GPS accuracy in metres (default: 40)
+* `--max_nodes=NUMBER`: maximum number of nodes to visit between two trackpoints (default: 10,000)
 
 ## License
 

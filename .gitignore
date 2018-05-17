@@ -1,6 +1,8 @@
-
 # Maven
 target/
+
+# Maven repository for forked GraphHopper
+maven_repository/
 
 # data
 graph-cache/

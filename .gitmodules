@@ -1,0 +1,3 @@
+[submodule "graphhopper"]
+	path = graphhopper
+	url = https://github.com/nakaner/graphhopper.git

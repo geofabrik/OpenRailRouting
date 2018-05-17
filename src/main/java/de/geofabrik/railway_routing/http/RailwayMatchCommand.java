@@ -1,103 +1,98 @@
-package de.geofabrik.railway_routing;
+package de.geofabrik.railway_routing.http;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.servlet.GuiceFilter;
-import com.google.inject.util.Modules;
-import com.graphhopper.GraphHopper;
-import com.graphhopper.http.GHServer;
-import com.graphhopper.http.GraphHopperModule;
-import com.graphhopper.http.GraphHopperServletModule;
+import org.apache.logging.log4j.Logger;
 import com.graphhopper.matching.GPXFile;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.InstructionList;
 
+import de.geofabrik.railway_routing.RailwayHopper;
+import de.geofabrik.railway_routing.RailwayRoutingMain;
 import de.geofabrik.railway_routing.util.PatternMatching;
+import io.dropwizard.cli.ConfiguredCommand;
+import io.dropwizard.setup.Bootstrap;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
 
-/**
- * Hello world!
- *
- */
-public class RailwayRoutingMain {
-    private RailwayHopper hopper;
-    private CmdArgs commandline_args;
-    private static final Logger logger = LogManager.getLogger(RailwayRoutingMain.class);
-    
-    public static void main( String[] args ) {
-        new RailwayRoutingMain(CmdArgs.read(args));
+public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerConfiguration> {
+    public RailwayMatchCommand() {
+        super("match", "matches GPX tracks to the railway network");
     }
     
-    private RailwayRoutingMain(CmdArgs args) {
-        commandline_args = args;
-        String action = commandline_args.get("action", "");
-        hopper = new RailwayHopper(args);
+    @Override
+    public void configure(Subparser subparser) {
+        super.configure(subparser);
+        subparser.addArgument("-V", "--vehicle")
+                .dest("vehicle")
+                .type(String.class)
+                .required(true)
+                .help("profile to use");
+        subparser.addArgument("-a", "--gps-accuracy")
+                .dest("gps-accuracy")
+                .type(Double.class)
+                .required(false)
+                .setDefault(40)
+                .help("GPS measurement accuracy");
+        subparser.addArgument("--max-nodes")
+                .dest("max_nodes_to_visit")
+                .type(Integer.class)
+                .required(false)
+                .setDefault(10000)
+                .help("maximum number of nodes to visit between two trackpoints");
+        subparser.addArgument("--gpx-location")
+                .dest("gpx_location")
+                .type(String.class)
+                .required(true)
+                .help("GPX input file(s). The argument may be a glob pattern.");
+    }
+
+    @Override
+    protected void run(Bootstrap<RailwayRoutingServerConfiguration> bootstrap, Namespace namespace, RailwayRoutingServerConfiguration configuration) throws Exception {
+        configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
+        CmdArgs commandline_args = configuration.getGraphHopperConfiguration();
+        RailwayHopper hopper = new RailwayHopper(configuration.getGraphHopperConfiguration());
         hopper.setGraphHopperLocation(commandline_args.get("graph.location", "./graph-cache"));
-        if (action.equals("import")) {
-            importOSM();
-        } else if (action.equals("web")) {
-            web();
-        } else if (action.equals("match")) {
-            match();
-        }
-    }
-    
-    private void importOSM() {
-        hopper.importOrLoad();
-        hopper.close();
-    }
+//        graphHopper.start();
+//        graphHopper.stop();
+        
 
-    private void match() {
+        final Logger logger = LogManager.getLogger(RailwayMatchCommand.class);
         logger.info("Loading graph from cache at {}", hopper.getGraphHopperLocation());
         hopper.load(hopper.getGraphHopperLocation());
         List<FlagEncoder> flagEncoders = hopper.getEncodingManager().fetchEdgeEncoders();
         FlagEncoder selectedEncoder = null;
-        String profile = commandline_args.get("vehicle", "");
+        String profile = namespace.get("vehicle");
         for (FlagEncoder encoder : flagEncoders) {
             if (encoder.toString().equals(profile)) {
                 selectedEncoder = encoder;
             }
         }
         if (selectedEncoder == null) {
-            throw new IllegalArgumentException("No encoding manager selected. Please use the 'vehicle' parameter.");
+            throw new IllegalArgumentException("No valid encoding manager selected. Please use the 'vehicle' parameter.");
         }
-        int gpsAccuracy = commandline_args.getInt("gps_accuracy", 40);
+        double gpsAccuracy = namespace.getDouble("gps-accuracy");
 
         FastestWeighting fastestWeighting = new FastestWeighting(selectedEncoder);
         Weighting turnWeighting = hopper.createTurnWeighting(hopper.getGraphHopperStorage(),
                 fastestWeighting, hopper.getTraversalMode());
         AlgorithmOptions opts = AlgorithmOptions.start()
                 .traversalMode(hopper.getTraversalMode())
-                .maxVisitedNodes(commandline_args.getInt("max_nodes_to_visit", 10000))
+                .maxVisitedNodes(namespace.getInt("max_nodes_to_visit"))
                 .weighting(turnWeighting)
                 .hints(new HintsMap().put("vehicle", profile))
                 .build();
@@ -105,7 +100,7 @@ public class RailwayRoutingMain {
         MapMatching mapMatching = new MapMatching(hopper, opts);
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
 
-        String inputPath = commandline_args.get("gpx.location", "");
+        String inputPath = namespace.getString("gpx_location");
         if (inputPath.equals("")) {
             throw new IllegalArgumentException("No input file was given. Please use the option gpx.location=*.");
         }
@@ -136,39 +131,5 @@ public class RailwayRoutingMain {
             }
         }
         hopper.close();
-}
-    
-    private void web() {
-        try {
-            Injector injector = Guice.createInjector(new AbstractModule() {
-                @Override
-                protected void configure() {
-                    binder().requireExplicitBindings();
-
-                    install(Modules.override(new GraphHopperModule(commandline_args)).with(new AbstractModule() {
-
-                        @Override
-                        protected void configure() {
-                            bind(RailwayHopper.class).toInstance(hopper);
-                        }
-
-                        @Singleton
-                        @Provides
-                        protected GraphHopper createGraphHopper(CmdArgs args) {
-                            return hopper;
-                        }
-                    }));
-
-                    install(new GraphHopperServletModule(commandline_args));
-
-                    bind(GuiceFilter.class);
-                }
-            });
-            new GHServer(commandline_args).start(injector);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        // do not close as server is running in its own thread and needs open graphhopper
-        // hopper.close();
     }
 }

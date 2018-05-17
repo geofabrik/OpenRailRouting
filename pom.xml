@@ -13,20 +13,37 @@
 	          <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-        <dependency>
+    <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>0.9.0</version>
-        </dependency>
-        <dependency>
+            <version>0.11.0-SNAPSHOT</version>
+            <!--<scope>system</scope>
+            <systemPath>${basedir}/graphhopper/core/target/graphhopper-core-0.11-SNAPSHOT.jar</systemPath>-->
+          </dependency>
+          <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-reader-osm</artifactId>
+            <version>0.11.0-SNAPSHOT</version>
+            <!--<scope>system</scope>
+            <systemPath>${basedir}/graphhopper/reader-osm/target/graphhopper-reader-osm-0.11-SNAPSHOT.jar</systemPath>-->
+          </dependency>
+          <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-web</artifactId>
-            <version>0.9.0</version>
-        </dependency>
+            <version>0.11.0-SNAPSHOT</version>
+            <!--<scope>system</scope>
+            <systemPath>${basedir}/graphhopper/web/target/graphhopper-web-0.11-SNAPSHOT.jar</systemPath>-->
+            <!--<exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>-->
+          </dependency>
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-core</artifactId>
@@ -36,8 +53,36 @@
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-web</artifactId>
             <version>0.9.0</version>
+          </dependency>
+        <!-- needed by de.geofabrik.railway_routing.CrossingsSetHook -->
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc</artifactId>
+            <version>0.7.2</version>
+          </dependency>
+        <!-- required for dropwizard -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>21.0</version>
         </dependency>
-      <dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard-bundles</groupId>
+            <artifactId>dropwizard-configurable-assets-bundle</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <version>1.2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
         <version>2.10.0</version>
@@ -62,7 +107,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>de.geofabrik.railway_routing.RailwayRoutingMain</mainClass>
+                            <mainClass>de.geofabrik.railway_routing.http.RailwayRoutingApplication</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -86,4 +131,11 @@
     </plugin>-->
         </plugins>
     </build>
+    <repositories>
+      <repository>
+        <id>forked-graphhopper.local</id>
+        <name>forked-graphhopper</name>
+        <url>file:${project.basedir}/maven_repository</url>
+      </repository>
+    </repositories>
 </project>
