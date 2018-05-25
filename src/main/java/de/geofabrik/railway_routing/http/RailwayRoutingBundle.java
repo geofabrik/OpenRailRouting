@@ -152,6 +152,7 @@ public class RailwayRoutingBundle implements ConfiguredBundle<GraphHopperBundleC
 
         environment.jersey().register(NearestResource.class);
         environment.jersey().register(RouteResource.class);
+        environment.jersey().register(MatchResource.class);
         environment.jersey().register(I18NResource.class);
         environment.jersey().register(InfoResource.class);
 
