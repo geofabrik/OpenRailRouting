@@ -38,9 +38,8 @@ public class RailwayHopper extends GraphHopperOSM {
     private IntSet crossingsSet = null;
 
     public RailwayHopper(final CmdArgs args) {
-        args.merge(CmdArgs.readFromSystemProperties());
         if (args.get("datareader.file", "").equals("")) {
-            logger.error("Missing argument datareader.file=<OSM file>");
+            logger.error("Missing argument graphhopper.datareader.file=<OSM file>");
             System.exit(1);
         }
         setTraversalMode(TraversalMode.EDGE_BASED_2DIR);

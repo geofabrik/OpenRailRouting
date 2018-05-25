@@ -22,7 +22,6 @@ import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.InstructionList;
 
 import de.geofabrik.railway_routing.RailwayHopper;
-import de.geofabrik.railway_routing.RailwayRoutingMain;
 import de.geofabrik.railway_routing.util.PatternMatching;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;

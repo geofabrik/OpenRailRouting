@@ -16,10 +16,9 @@ import java.util.LinkedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.geofabrik.railway_routing.RailwayRoutingMain;
 
 public class PatternMatching {
-    private static final Logger logger = LogManager.getLogger(RailwayRoutingMain.class);
+    private static final Logger logger = LogManager.getLogger(PatternMatching.class);
     
     public static int patternSplitDirFile(String pattern) {
         if (!pattern.contains("*") && !pattern.contains("?")) {

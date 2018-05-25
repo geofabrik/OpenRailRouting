@@ -33,7 +33,6 @@ import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetail;
 
-import de.geofabrik.railway_routing.RailwayRoutingMain;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
