@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Railway Routing Map Matching Demo</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet-gpx/gpx.js"></script>
+    <script src="filesaver/FileSaver.min.js"></script>
+</head>
+<body>
+    <div id="leftform">
+        <div class="form">
+            <label for="files" class="caption">Select GPX input file:</label>
+            <input type="file" id="files" name="files" style="max-width: 240px; margin-top: 10px; margin-bottom 10px;"/>
+            <label for="parameters" class="caption">Query parameters:</label>
+            <fieldset id="parameters">
+                <label for="vehicle">Profile</label>
+                <select name="vehicle" id="vehicle" size="4"></select>
+                <label for="gpsAccurracy">GPS accuracy</label>
+                <input type="number" id="gpsAccuracy" min="0" value="40" step="1"/>
+                <label for="maxNodes">maximum number of nodes</label>
+                <input type="number" id="maxNodes" min="100" value="10000" step="100"/>
+            </fieldset>
+            <button id="upload">Match</button>
+            <button id="save" type="button" disabled>Save</button>
+        </div>
+        <div id="results">
+            <h3>Results</h3>
+            <ul>
+                <li id="trackLength"></li>
+            </ul>
+        </div>
+        <p id="errors" class="errors"></p>
+        <img id="loading" src="images/loading.svg" width="48" height="48">
+    </div>
+    <div id="mapid"></div>
+    <script src="application.js"></script>
+</body>
+</html>

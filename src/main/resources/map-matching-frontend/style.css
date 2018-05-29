@@ -1,0 +1,73 @@
+html, body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-family: sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: stretch;
+}
+
+div#leftform {
+    width: 300px;
+    height: 100%;
+    background-color: #eee;
+    padding: 5px 5px 5px 5px;
+}
+
+div#mapid {
+    height: 100%;
+    flex-grow: 1;
+}
+
+div#leftform > div.form {
+    margin-bottom: 20px;
+}
+
+div.form label {
+    display: block;
+    margin-top: 10px;
+}
+
+div.form label.caption {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+div.form button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+img#loading {
+    animation: spin 2s steps(9) infinite;
+    display: none;
+    margin-left: 10px;
+}
+
+div#results {
+    display: none;
+}
+
+div#results > ul {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+p.errors {
+    color: red;
+    display: none;
+}

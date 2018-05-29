@@ -11,7 +11,7 @@ graphhopper:
   # This property must not be set for railway routing. Use graphhopper.profiles instead
   # graph.flag_encoders: car
 
-  profiles: freight_diesel
+  profiles: freight_diesel,tgv_15kvac25kvac1.5kvdc
 
 
   # Enable turn restrictions for car or motorcycle.
@@ -137,9 +137,10 @@ graphhopper:
 # the Java resource path. Helpful for development of the web client.
 # Assumes that the web module is the working directory.
 #
-# assets:
-#  overrides:
-#    /maps: web/src/main/resources/assets/
+assets:
+ overrides:
+   /maps: src/main/resources/assets/
+   /map-matching: src/main/resources/map-matching-frontend/
 
 # Dropwizard server configuration
 server:

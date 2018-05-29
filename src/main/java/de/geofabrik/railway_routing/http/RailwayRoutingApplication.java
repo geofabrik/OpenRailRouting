@@ -20,6 +20,7 @@ import io.dropwizard.Application;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
 
 public final class RailwayRoutingApplication extends Application<RailwayRoutingServerConfiguration> {
 
@@ -30,7 +31,15 @@ public final class RailwayRoutingApplication extends Application<RailwayRoutingS
     @Override
     public void initialize(Bootstrap<RailwayRoutingServerConfiguration> bootstrap) {
         bootstrap.addBundle(new RailwayRoutingBundle());
-        bootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/maps/", "index.html"));
+        bootstrap.addBundle(
+            new ConfiguredAssetsBundle(
+                    ImmutableMap.<String, String>builder()
+                    .put("/assets/", "/maps/")
+                    .put("/map-matching-frontend/", "/map-matching/")
+                    .build(),
+            "index.html"
+            )
+        );
         bootstrap.addCommand(new RailwayImportCommand());
         bootstrap.addCommand(new RailwayMatchCommand());
     }
