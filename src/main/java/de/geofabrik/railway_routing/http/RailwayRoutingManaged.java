@@ -1,5 +1,7 @@
 package de.geofabrik.railway_routing.http;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import com.graphhopper.GraphHopper;
@@ -15,8 +17,8 @@ public class RailwayRoutingManaged implements Managed {
     private final RailwayHopper graphHopper;
     
     @Inject
-    public RailwayRoutingManaged(CmdArgs configuration) {
-        graphHopper = (RailwayHopper) new RailwayHopper(configuration).forServer();
+    public RailwayRoutingManaged(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig) {
+        graphHopper = (RailwayHopper) new RailwayHopper(configuration, encoderConfig).forServer();
         graphHopper.setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"));
 //        graphHopper.init(configuration);
     }

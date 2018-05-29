@@ -1,5 +1,8 @@
 package de.geofabrik.railway_routing.http;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +24,9 @@ public class RailwayRoutingServerConfiguration extends Configuration implements 
     @JsonProperty
     private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
 
+    @JsonProperty
+    private final List<FlagEncoderConfiguration> flagEncoderProperties = new ArrayList<FlagEncoderConfiguration>();
+
     public RailwayRoutingServerConfiguration() {
     }
 
@@ -32,5 +38,9 @@ public class RailwayRoutingServerConfiguration extends Configuration implements 
     @Override
     public AssetsConfiguration getAssetsConfiguration() {
         return assets;
+    }
+
+    public List<FlagEncoderConfiguration> getFlagEncoderConfigurations() {
+        return flagEncoderProperties;
     }
 }

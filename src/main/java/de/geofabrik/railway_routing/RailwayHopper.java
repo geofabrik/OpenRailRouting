@@ -5,6 +5,9 @@ import static com.graphhopper.util.Helper.getMemInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,20 +34,41 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
+import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
+
 public class RailwayHopper extends GraphHopperOSM {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** set of internal node IDs which are tagged with railway=railway_crossing in OSM */
     private IntSet crossingsSet = null;
 
-    public RailwayHopper(final CmdArgs args) {
+    public RailwayHopper(final CmdArgs args, final List<FlagEncoderConfiguration> encoderConfigs) {
         if (args.get("datareader.file", "").equals("")) {
             logger.error("Missing argument graphhopper.datareader.file=<OSM file>");
             System.exit(1);
         }
         setTraversalMode(TraversalMode.EDGE_BASED_2DIR);
-        String[] encoderNames = args.get("profiles", "freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc").split(",");
-        setEncodingManager(new EncodingManager(RailFlagEncoderFactory.craeateEncoders(encoderNames)));
+        String[] knownEncoderNames = RailFlagEncoderFactory.getKnownEncoderNames();
+        HashSet<String> knownEncoders = new HashSet<String>(Arrays.asList(knownEncoderNames));
+        String[] encoderNames = args.get("profiles", "").split(",");
+        FlagEncoder[] encoders = new FlagEncoder[encoderNames.length];
+        for (int i = 0; i < encoderNames.length; ++i) {
+            String encoderName = encoderNames[i];
+            if (knownEncoders.contains(encoderName)) {
+                encoders[i] = RailFlagEncoderFactory.createFlagEncoder(encoderName);
+            } else {
+                for (FlagEncoderConfiguration c : encoderConfigs) {
+                    if (c.getName().equals(encoderName)) {
+                        encoders[i] = RailFlagEncoderFactory.createFlagEncoder(c);
+                        break;
+                    }
+                }
+                if (encoders[i] == null) {
+                    throw new IllegalArgumentException("Could not find properties for flag encoder '" + encoderName + "'");
+                }
+            }
+        }
+        setEncodingManager(new EncodingManager(encoders));
         super.init(args);
     }
 

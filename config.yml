@@ -1,5 +1,25 @@
-graphhopper:
+# encoder properties
+flagEncoderProperties:
+  - name: tgv_all
+    electrified: contact_line
+    voltages: 15000;25000;1500;3000
+    frequencies: 16.7;16.67;50;0
+    gauges: 1435
+    maxspeed: 319
+    speedFactor: 11
+  - name: non_tgv
+    gauges: 1435
+    maxspeed: 120
+    speedFactor: 5
+  - name: alltracks
+    maxspeed: 120
+    speedFactor: 5
+  - name: allelectric
+    maxspeed: 140
+    speedFactor: 6
+    electrified: contact_line,yes
 
+graphhopper:
   # OpenStreetMap input file
   # datareader.file: some.pbf
 
@@ -11,8 +31,7 @@ graphhopper:
   # This property must not be set for railway routing. Use graphhopper.profiles instead
   # graph.flag_encoders: car
 
-  profiles: freight_diesel,tgv_15kvac25kvac1.5kvdc
-
+  profiles: alltracks,allelectric
 
   # Enable turn restrictions for car or motorcycle.
   # graph.flag_encoders: car|turn_costs=true

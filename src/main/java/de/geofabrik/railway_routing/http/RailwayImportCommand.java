@@ -13,9 +13,11 @@ public class RailwayImportCommand extends ConfiguredCommand<RailwayRoutingServer
     }
 
     @Override
-    protected void run(Bootstrap<RailwayRoutingServerConfiguration> bootstrap, Namespace namespace, RailwayRoutingServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<RailwayRoutingServerConfiguration> bootstrap, Namespace namespace,
+            RailwayRoutingServerConfiguration configuration) throws Exception {
         configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
-        final RailwayRoutingManaged graphHopper = new RailwayRoutingManaged(configuration.getGraphHopperConfiguration());
+        final RailwayRoutingManaged graphHopper = new RailwayRoutingManaged(configuration.getGraphHopperConfiguration(),
+                configuration.getFlagEncoderConfigurations());
         graphHopper.start();
         graphHopper.stop();
     }

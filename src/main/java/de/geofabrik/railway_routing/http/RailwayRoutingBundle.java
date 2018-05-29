@@ -1,6 +1,7 @@
 package de.geofabrik.railway_routing.http;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -37,7 +38,7 @@ import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class RailwayRoutingBundle implements ConfiguredBundle<GraphHopperBundleConfiguration> {
+public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServerConfiguration> {
 
     static class TranslationMapFactory implements Factory<TranslationMap> {
 
@@ -124,15 +125,15 @@ public class RailwayRoutingBundle implements ConfiguredBundle<GraphHopperBundleC
 
     }
 
-    @Override
-    public void run(GraphHopperBundleConfiguration configuration, Environment environment) throws Exception {
+    public void run(RailwayRoutingServerConfiguration configuration, Environment environment) throws Exception {
         configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
 
-        runRailwayRouting(configuration.getGraphHopperConfiguration(), environment);
+        runRailwayRouting(configuration.getGraphHopperConfiguration(), configuration.getFlagEncoderConfigurations(),
+                environment);
     }
 
-    private void runRailwayRouting(CmdArgs configuration, Environment environment) {
-        final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration);
+    private void runRailwayRouting(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
+        final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration, encoderConfig);
         environment.lifecycle().manage(graphHopperManaged);
         environment.jersey().register(new AbstractBinder() {
             @Override

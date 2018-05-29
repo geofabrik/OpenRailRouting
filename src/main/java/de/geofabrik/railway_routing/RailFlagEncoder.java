@@ -13,6 +13,14 @@ import de.geofabrik.railway_routing.util.MultiValueChecker;
 
 public class RailFlagEncoder extends AbstractFlagEncoder {
 
+    public static final String NAME = "name";
+    public static final String ELECTRIFIED = "electrifiedValues";
+    public static final String VOLATAGES = "acceptedVoltages";
+    public static final String FREQUENCIES = "acceptedFrequencies";
+    public static final String GAUGES = "acceptedGauges";
+    public static final String MAXSPEED = "max_speed";
+    public static final String SPEED_FACTOR = "speedFactor";
+
 	protected final Integer defaultSpeed = 25;
 	private int tk;
 	private String name;
@@ -32,9 +40,9 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
     public RailFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 5),
-                properties.getDouble("speedFactor", 5),
+                properties.getDouble(SPEED_FACTOR, 5),
         properties.getInt("max_turn_costs", 3),
-        properties.get("name", ""));
+        properties.get(NAME, ""));
         this.properties = properties;
         initFromProperties(properties);
 	}
@@ -61,7 +69,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
             this.properties.put(properties);
         }
         // electrified values
-        String electrifiedProps = properties.get("electrifiedValues", "");
+        String electrifiedProps = properties.get(ELECTRIFIED, "");
         if (!electrifiedProps.equals("")) {
             this.electrifiedValues = new ArrayList<String>(Arrays.asList(properties.get("electrifiedValues", "").split(";")));
         } else {
@@ -69,27 +77,27 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
 
         this.acceptedVoltages = new ArrayList<Integer>();
-        for (String v : properties.get("acceptedVoltages", "").split(";")) {
+        for (String v : properties.get(VOLATAGES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedVoltages.add(Integer.parseInt(v));
             }
         }
 
         this.acceptedFrequencies = new ArrayList<Double>();
-        for (String v : properties.get("acceptedFrequencies", "").split(";")) {
+        for (String v : properties.get(FREQUENCIES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedFrequencies.add(Double.parseDouble(v));
             }
         }
 
         this.acceptedGauges = new ArrayList<Integer>();
-        for (String v : properties.get("acceptedGauges", "").split(";")) {
+        for (String v : properties.get(GAUGES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedGauges.add(Integer.parseInt(v));
             }
         }
 
-        this.maxPossibleSpeed = properties.getInt("max_speed", 100);
+        this.maxPossibleSpeed = properties.getInt(MAXSPEED, 100);
         this.speedCorrectionFactor = properties.getDouble("speedCorrectionFactor", 0.9);
     }
 

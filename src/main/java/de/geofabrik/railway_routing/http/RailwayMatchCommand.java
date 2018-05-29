@@ -64,7 +64,8 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
     protected void run(Bootstrap<RailwayRoutingServerConfiguration> bootstrap, Namespace namespace, RailwayRoutingServerConfiguration configuration) throws Exception {
         configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
         CmdArgs commandline_args = configuration.getGraphHopperConfiguration();
-        RailwayHopper hopper = new RailwayHopper(configuration.getGraphHopperConfiguration());
+        RailwayHopper hopper = new RailwayHopper(configuration.getGraphHopperConfiguration(),
+                configuration.getFlagEncoderConfigurations());
         hopper.setGraphHopperLocation(commandline_args.get("graph.location", "./graph-cache"));
 //        graphHopper.start();
 //        graphHopper.stop();
