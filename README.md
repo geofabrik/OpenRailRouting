@@ -19,7 +19,6 @@ Lacking features:
 
 * avoiding the usage of the opposite track (on double-track lines)
 * taking the low acceleration and the long breaking distances of trains into account
-* many profiles
 * a lot of features which would need data which is not in OSM (incline, structure gauges)
 
 
@@ -33,6 +32,50 @@ bash build.sh
 ```
 
 JUnit 4.x is used for unit tests.
+
+## Configuration
+
+Configuration happens via a YAML file which is given as a positional parameter
+when starting the routing engine.  Most parts of the configuration are
+identical to GraphHopper. However, one part is different – the flag encoders
+(aka routing profiles):
+
+```yaml
+# This section sets the properties of the flag encoders like maximum speed,
+# supported power systems, supported gauges and the factor to use to encode the speed
+# values.
+#
+# Properties of flagEncoderProperties:
+#   name: name of the flag encoder – used by the API
+#   electrified: list of compatible values of the OSM tag electrified=* separated by semicola – as a string
+#   voltages: list of compatible values of the OSM tag voltage=* separated by semicola – as a string
+#   frequencies: list of compatible values of the OSM tag frequency=* separated by semicola – as a string
+#   gauges: list of compatible values of the OSM tag gauge=* separated by semicola – as a string
+#   maxspeed: maximum speed of this flag encoder in kph
+#   speedFactor: divisor for divide speed values by to encode them in the flags of an edge of the graph
+#
+# If electrified, voltages, frequencies or gauges is missing, the profile accepts any value. This is recommended for
+# an all-gauge diesel engine.
+flagEncoderProperties:
+  - name: tgv_all
+    electrified: contact_line
+    voltages: 15000;25000;1500;3000
+    frequencies: 16.7;16.67;50;0
+    gauges: 1435
+    maxspeed: 319
+    speedFactor: 11
+  - name: non_tgv
+    gauges: 1435
+    maxspeed: 120
+    speedFactor: 5
+
+graphhoper:
+  # Use the 'profiles' property. graph.flag_encoders is not supported!
+  profiles: tgv_all,non_tgv
+
+  # Any other values can be found in the GraphHopper documentation and are explained in the exemplary configuration in this repository
+```
+
 
 ## Running
 
@@ -56,16 +99,13 @@ option of the JVM. These arguments can also be given using the YAML file.
 
 ### Import
 
-Required arguments:
+Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
 
-* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
-* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be written to
+* `graphhopper.datareader.file=$PATH`: path to OSM file
+* `graphhopper.graph.location=./graph-cache`: directory where the graph should be written to
   (default: `./graph-cache`)
-
-Optional arguments:
-
-* `-Dgraphhopper.profiles=freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc`:
-  flag encoders to be used. Following encoders are available:
+* `graphhopper.profiles=freight_electric_15kvac_25kvac,freight_diesel,tgv_15kvac25kvac1.5kvdc,tgv_25kvac1.5kvdc3kvdc`:
+  flag encoders to be used. Following encoders are available but you can define more on your own:
   * `freight_electric_15kvac_25kvac`
   * `freight_diesel`
   * `tgv_15kvac25kvac1.5kvdc`
@@ -74,20 +114,20 @@ Optional arguments:
 
 ### Web
 
-Required arguments:
+Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
 
-* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
-* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+* `graphhopper.datareader.file=$PATH`: path to OSM file
+* `graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
   (default: `./graph-cache`)
-* `-Dserver.applicationConnector.port=$PORT`: port to be opened by Jetty
-* `-Dgraphhopper.profiles=<flag_encoders>`: this must be the same as used for the import
+* `server.applicationConnector.port=$PORT`: port to be opened by Jetty
+* `graphhopper.profiles=<flag_encoders>`: this must be the same as used for the import
 
 ### Match
 
-Required arguments:
+Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
 
-* `-Dgraphhopper.datareader.file=$PATH`: path to OSM file
-* `-Dgraphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+* `graphhopper.datareader.file=$PATH`: path to OSM file
+* `graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
   (default: `./graph-cache`)
 
 Followoing arguments have to be provided (not as Java system variables). You can retriev this list
@@ -99,7 +139,7 @@ by calling
   directory but `.res.gpx` will be appended to their file names.
 * `-V VEHICLE`, `--vehicle=$VEHICLE`: routing profile to be used.
 
-Optional arguments:
+Optional command line arguments:
 
 * `-a NUMBER`, `--gps-accuracy=NUMBER`: GPS accuracy in metres (default: 40)
 * `--max_nodes=NUMBER`: maximum number of nodes to visit between two trackpoints (default: 10,000)
