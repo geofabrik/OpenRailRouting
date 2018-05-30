@@ -1,3 +1,9 @@
+/*
+ *  This file contains code of the GraphHopper project. See the
+ *  THIRD_PARTY.md file distributed with this work for additional
+ *  information regarding copyright ownership.
+ */
+
 package de.geofabrik.railway_routing.http;
 
 import com.graphhopper.util.CmdArgs;
