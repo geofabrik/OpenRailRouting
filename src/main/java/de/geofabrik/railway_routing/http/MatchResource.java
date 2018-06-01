@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.http.WebHelper;
 import com.graphhopper.matching.GPXFile;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
@@ -65,7 +64,7 @@ public class MatchResource {
         try {
             encoder = encodingManager.getEncoder(vehicleStr);
         } catch (IllegalArgumentException err) {
-            throw new WebApplicationException(WebHelper.errorResponse(new IllegalArgumentException("Vehicle not supported: " + vehicleStr), true));
+            throw new WebApplicationException("Vehicle not supported: " + vehicleStr);
         }
         FastestWeighting fastestWeighting = new FastestWeighting(encoder);
         Weighting turnWeighting = hopper.createTurnWeighting(hopper.getGraphHopperStorage(),
@@ -92,7 +91,7 @@ public class MatchResource {
         } catch (java.lang.RuntimeException err) {
             took = sw.stop().getSeconds();
             logger.error(logStr + ", took:" + took + ", error:" + err);
-            throw new WebApplicationException(WebHelper.errorResponse(err, true));
+            throw new WebApplicationException(err);
         }
     }
 }

@@ -8,31 +8,40 @@ package de.geofabrik.railway_routing.http;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
+import com.bedatadriven.jackson.datatype.jts.JtsModule;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperAPI;
 //import com.graphhopper.http.GraphHopperBundle;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
-import com.graphhopper.http.resources.I18NResource;
-import com.graphhopper.http.resources.InfoResource;
-import com.graphhopper.http.resources.NearestResource;
-import com.graphhopper.http.resources.RouteResource;
+import com.graphhopper.jackson.GraphHopperModule;
+import com.graphhopper.resources.I18NResource;
+import com.graphhopper.resources.InfoResource;
+import com.graphhopper.resources.NearestResource;
+import com.graphhopper.resources.RouteResource;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
@@ -128,7 +137,27 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
-
+        bootstrap.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        bootstrap.getObjectMapper().registerModule(new JtsModule());
+        bootstrap.getObjectMapper().registerModule(new GraphHopperModule());
+        bootstrap.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        // Because VirtualEdgeIteratorState has getters which throw Exceptions.
+        // http://stackoverflow.com/questions/35359430/how-to-make-jackson-ignore-properties-if-the-getters-throw-exceptions
+        bootstrap.getObjectMapper().registerModule(new SimpleModule().setSerializerModifier(new BeanSerializerModifier() {
+            @Override
+            public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+                return beanProperties.stream().map(bpw -> new BeanPropertyWriter(bpw) {
+                    @Override
+                    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
+                        try {
+                            super.serializeAsField(bean, gen, prov);
+                        } catch (Exception e) {
+                            // Ignoring expected exception, see above.
+                        }
+                    }
+                }).collect(Collectors.toList());
+            }
+        }));
     }
 
     public void run(RailwayRoutingServerConfiguration configuration, Environment environment) throws Exception {
