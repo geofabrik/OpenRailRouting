@@ -103,8 +103,7 @@ public class RailwayHopper extends GraphHopperOSM {
     }
 
     public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
-        FlagEncoder encoder = weighting.getFlagEncoder();
-        if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED)) {
+        if (!tMode.equals(TraversalMode.NODE_BASED)) {
             RailTurnWeighting tw = new RailTurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
             tw.setDefaultUTurnCost(60 * 30);
             return tw;

@@ -57,12 +57,12 @@
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-core</artifactId>
-            <version>0.9.0</version>
+            <version>0.10.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-web</artifactId>
-            <version>0.9.0</version>
+            <version>0.10.0-RC1</version>
           </dependency>
         <!-- needed by de.geofabrik.railway_routing.CrossingsSetHook -->
         <dependency>
