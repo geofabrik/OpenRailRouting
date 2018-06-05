@@ -10,7 +10,7 @@ function displayError(message) {
 // load available flag encoders
 function loadInfos() {
     var xhr = new XMLHttpRequest();
-    var url = '/railway_routing/info?type=json';
+    var url = '/info?type=json';
     xhr.open('GET', url, true);
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.responseType = "json";
@@ -155,7 +155,7 @@ function displayGPX(gpxData) {
 function retrieveResult(gpxData) {
     showLoading(true);
     var xhr = new XMLHttpRequest();
-    var url = "/railway_routing/match?";
+    var url = "/match?";
     url += "&gpsAccuracy=" + document.getElementById('gpsAccuracy').value;
     url += "&maxNodes=" + document.getElementById('maxNodes').value;
     url += "&vehicle=" + document.getElementById('vehicle').value;
