@@ -169,6 +169,7 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
     private void runRailwayRouting(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
         final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration, encoderConfig);
+        graphHopperManaged.getGraphHopper().setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"));
         environment.lifecycle().manage(graphHopperManaged);
         environment.jersey().register(new AbstractBinder() {
             @Override
