@@ -156,9 +156,10 @@ function retrieveResult(gpxData) {
     showLoading(true);
     var xhr = new XMLHttpRequest();
     var url = "/match?";
-    url += "&gpsAccuracy=" + document.getElementById('gpsAccuracy').value;
-    url += "&maxNodes=" + document.getElementById('maxNodes').value;
+    url += "&gps_accuracy=" + document.getElementById('gpsAccuracy').value;
+    url += "&max_visited_nodes=" + document.getElementById('maxNodes').value;
     url += "&vehicle=" + document.getElementById('vehicle').value;
+    url += "&type=gpx&gpx.route=false";
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-type", "application/gpx+xml");
     xhr.responseType = "text";
