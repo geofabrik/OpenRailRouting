@@ -20,6 +20,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public static final String GAUGES = "acceptedGauges";
     public static final String MAXSPEED = "max_speed";
     public static final String SPEED_FACTOR = "speedFactor";
+    public static final String ACCEPT_YARD_SPUR = "yardSpur";
 
 	protected final Integer defaultSpeed = 25;
 	private int tk;
@@ -29,6 +30,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 	private ArrayList<Double> acceptedFrequencies;
 	private ArrayList<Integer> acceptedGauges;
 	private double speedCorrectionFactor;
+	private boolean acceptYardSpur;
 
 	public RailFlagEncoder() {
 		this(5, 5, 0, "rail");
@@ -99,6 +101,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
         this.maxPossibleSpeed = properties.getInt(MAXSPEED, 100);
         this.speedCorrectionFactor = properties.getDouble("speedCorrectionFactor", 0.9);
+        this.acceptYardSpur = properties.getBool(ACCEPT_YARD_SPUR, true);
     }
 
     public int getMaxTurnCosts() {
@@ -122,7 +125,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         if (electrifiedValues.isEmpty()) {
             return true;
         }
-        String electrified = way.getTag("electrified");
+        String electrified = way.getTag("electrified", null);
         if (electrified == null) {
             return true;
         }
@@ -141,12 +144,19 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         return MultiValueChecker.tagContainsInt(way.getTag("gauge"), acceptedGauges, true);
     }
 
+    public boolean isYardSpur(ReaderWay way) {
+        return way.hasTag("service", "yard") || way.hasTag("service", "spur");
+    }
+
     @Override
     public long acceptWay(ReaderWay way) {
-        if (way.hasTag("railway", "rail") && hasCompatibleElectricity(way) && hasCompatibleGauge(way)) {
-        	return acceptBit;
+        if (!way.hasTag("railway", "rail") || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
+            return 0;
         }
-        return 0;
+        if (!acceptYardSpur && isYardSpur(way)) {
+            return 0;
+        }
+        return acceptBit;
     }
 
     @Override

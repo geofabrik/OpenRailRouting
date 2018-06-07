@@ -15,6 +15,7 @@ public class FlagEncoderConfiguration {
     private String gauges = "";
     private String speedFactor = "5";
     private String maxspeed = "90";
+    private String yardSpur = "true";
 
     @JsonProperty
     public String getName() {
@@ -51,6 +52,11 @@ public class FlagEncoderConfiguration {
         return maxspeed;
     }
 
+    @JsonProperty
+    public String getYardSpur() {
+        return yardSpur;
+    }
+
 
     @JsonProperty
     public void setName(String value) {
@@ -85,5 +91,10 @@ public class FlagEncoderConfiguration {
     @JsonProperty
     public void setMaxspeed(String value) {
         maxspeed = value;
+    }
+
+    @JsonProperty
+    public void setYardSpur(String value) {
+        yardSpur = value;
     }
 }
