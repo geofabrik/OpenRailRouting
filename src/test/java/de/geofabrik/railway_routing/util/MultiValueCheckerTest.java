@@ -20,6 +20,22 @@ public class MultiValueCheckerTest {
     }
 
     @Test
+    public void testEmptyListInt() {
+        ArrayList<Integer> intList = new ArrayList<Integer>();
+        tagValue = "1435;1000";
+        assertTrue(MultiValueChecker.tagContainsInt(tagValue, intList, true));
+        assertFalse(MultiValueChecker.tagContainsInt(tagValue, intList, false));
+    }
+
+    @Test
+    public void testEmptyListDouble() {
+        ArrayList<Double> doubleList = new ArrayList<Double>();
+        tagValue = "1435;1000";
+        assertTrue(MultiValueChecker.tagContainsDouble(tagValue, doubleList, true));
+        assertFalse(MultiValueChecker.tagContainsDouble(tagValue, doubleList, false));
+    }
+
+    @Test
     public void testTagContainsInt() {
         tagValue = "1435;1000";
         permittedInt.add(1435);
