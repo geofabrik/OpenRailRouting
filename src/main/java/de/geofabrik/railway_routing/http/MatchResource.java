@@ -1,6 +1,8 @@
 package de.geofabrik.railway_routing.http;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -40,17 +41,19 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.Constants;
-import com.graphhopper.util.DouglasPeucker;
+import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PathMerger;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.TranslationMap;
+import com.opencsv.bean.CsvToBeanBuilder;
+
+import de.geofabrik.railway_routing.InputCSVEntry;
 
 import static com.graphhopper.util.Parameters.Routing.*;
 
@@ -70,14 +73,69 @@ public class MatchResource {
         this.trMap = trMap;
     }
 
+    private List<GPXEntry> readCSV(InputStream inputStream, double defaultSpeed, char separator, char quoteChar) {
+        try {
+            List<InputCSVEntry> inputEntries = new CsvToBeanBuilder<InputCSVEntry>(new InputStreamReader(inputStream))
+                    .withType(InputCSVEntry.class)
+                    .withSeparator(separator)
+                    .withQuoteChar(quoteChar)
+                    .build()
+                    .parse();
+            InputCSVEntry last = null;
+            ArrayList<GPXEntry> result = new ArrayList<GPXEntry>(inputEntries.size());
+            DistanceCalc distCalc = Helper.DIST_PLANE;
+            long millis = 0;
+            for (InputCSVEntry entry: inputEntries) {
+                if (last != null) {
+                    millis += Math.round(distCalc.calcDist(last.getLatitude(), last.getLongitude(),
+                            entry.getLatitude(), entry.getLongitude()) * 3600 / defaultSpeed);
+                    last = entry;
+                }
+                result.add(entry.toGPXEntry(millis));
+            }
+            return result;
+        } catch (NumberFormatException e) {
+            throw new java.lang.RuntimeException(e.toString());
+        }
+    }
+
+    public List<GPXEntry> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar) {
+        if (contentType.equals(MediaType.APPLICATION_XML) || contentType.equals("application/gpx+xml")) {
+            return new GPXFile().doImport(inputStream, 50).getEntries();
+        }
+        if (contentType.equals("text/csv")) {
+            return readCSV(inputStream, 50, separator, quoteChar);
+        }
+        if (!contentType.equals(null)) {
+            throw new java.lang.RuntimeException("Unsupported input MIME type");
+        }
+        // guess input type
+        System.out.println("guessing file type");
+        InputStreamReader isr = new InputStreamReader(inputStream);
+        char[] beginning = new char[5];
+        try {
+            isr.read(beginning, 0, 5);
+        } catch (IOException e) {
+            throw new java.lang.RuntimeException(e.toString());
+        }
+        String declaration = String.valueOf(beginning);
+        if (declaration.equals("<?xml")) {
+            return new GPXFile().doImport(inputStream, 50).getEntries();
+        }
+        return readCSV(inputStream, 50, separator, quoteChar);
+    }
+
     @POST
-    @Consumes({MediaType.APPLICATION_XML, "application/gpx+xml"})
+    // @Consumes({MediaType.APPLICATION_XML, "application/gpx+xml", "text/csv"})
+    // We don't declare @Consumes types here because otherwise request without a Content-type header would fail.
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/gpx+xml"})
     public Response doPost(
             InputStream inputStream,
             @Context HttpServletRequest httpReq,
             @Context UriInfo uriInfo,
             @QueryParam("type") @DefaultValue("json") String outType,
+            @QueryParam("csv.separator") @DefaultValue(";") char separator,
+            @QueryParam("csv.quoteChar") @DefaultValue("\"") char quoteChar,
             @QueryParam(INSTRUCTIONS) @DefaultValue("true") boolean instructions,
             @QueryParam(CALC_POINTS) @DefaultValue("true") boolean calcPoints,
             @QueryParam("points_encoded") @DefaultValue("true") boolean pointsEncoded,
@@ -116,7 +174,7 @@ public class MatchResource {
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
         float took = 0;
         try {
-            List<GPXEntry> inputGPXEntries = new GPXFile().doImport(inputStream, 50).getEntries();
+            List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), separator, quoteChar);
             MatchResult mr = mapMatching.doWork(inputGPXEntries);
             com.graphhopper.routing.Path path = mapMatching.calcPath(mr);
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
