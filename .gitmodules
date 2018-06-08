@@ -1,3 +1,6 @@
 [submodule "graphhopper"]
 	path = graphhopper
 	url = https://github.com/nakaner/graphhopper.git
+[submodule "doc/api"]
+	path = doc/api
+	url = https://github.com/geofabrik/railway-routing-api.git
