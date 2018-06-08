@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
@@ -48,6 +47,7 @@ import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PathMerger;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.TranslationMap;
@@ -64,7 +64,7 @@ public class MatchResource {
     private final GraphHopper hopper;
     private final EncodingManager encodingManager;
     private final TranslationMap trMap;
-    
+
     @Inject
     public MatchResource(GraphHopper graphHopper, EncodingManager encodingManager,
             TranslationMap trMap) {
@@ -125,6 +125,19 @@ public class MatchResource {
         return readCSV(inputStream, 50, separator, quoteChar);
     }
 
+    private String getCSVOutput(PathWrapper path, char separator) {
+        PointList points = path.getPoints();
+        StringBuilder str = new StringBuilder(points.getSize() * 2 * 15);
+        str.append("longitude").append(separator).append("latitude\n");
+        for (int i = 0; i < points.getSize(); ++i) {
+            str.append(Double.toString(points.getLon(i)))
+                .append(separator)
+                .append(Double.toString(points.getLat(i)))
+                .append('\n');
+        }
+        return str.toString();
+    }
+
     @POST
     // @Consumes({MediaType.APPLICATION_XML, "application/gpx+xml", "text/csv"})
     // We don't declare @Consumes types here because otherwise request without a Content-type header would fail.
@@ -134,8 +147,9 @@ public class MatchResource {
             @Context HttpServletRequest httpReq,
             @Context UriInfo uriInfo,
             @QueryParam("type") @DefaultValue("json") String outType,
-            @QueryParam("csv.separator") @DefaultValue(";") char separator,
-            @QueryParam("csv.quoteChar") @DefaultValue("\"") char quoteChar,
+            @QueryParam("csv_input.separator") @DefaultValue(";") char csvInputSeparator,
+            @QueryParam("csv_input.quoteChar") @DefaultValue("\"") char quoteChar,
+            @QueryParam("csv_output.separator") @DefaultValue(";") char csvOutputSeparator,
             @QueryParam(INSTRUCTIONS) @DefaultValue("true") boolean instructions,
             @QueryParam(CALC_POINTS) @DefaultValue("true") boolean calcPoints,
             @QueryParam("points_encoded") @DefaultValue("true") boolean pointsEncoded,
@@ -174,7 +188,7 @@ public class MatchResource {
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
         float took = 0;
         try {
-            List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), separator, quoteChar);
+            List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
             MatchResult mr = mapMatching.doWork(inputGPXEntries);
             com.graphhopper.routing.Path path = mapMatching.calcPath(mr);
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
@@ -190,14 +204,19 @@ public class MatchResource {
             GHResponse rsp = new GHResponse();
             rsp.add(pathWrapper);
 
+            took = sw.stop().getSeconds();
+            logger.info(logStr + ", took:" + took);
+            long time = timeString != null ? Long.parseLong(timeString) : System.currentTimeMillis();
             if (writeGPX) {
-                took = sw.stop().getSeconds();
-                logger.info(logStr + ", took:" + took);
-                long time = timeString != null ? Long.parseLong(timeString) : System.currentTimeMillis();
                 return Response.ok(rsp.getBest().getInstructions().createGPX(trackName, time, false, withRoute, withTrack, withWayPoints, Constants.VERSION), "application/gpx+xml").
                         header("Content-Disposition", "attachment;filename=" + "GraphHopper.gpx").
                         header("X-GH-Took", "" + Math.round(took * 1000)).
                         build();
+            } else if ("csv".equalsIgnoreCase(outType)) {
+                return Response.ok(getCSVOutput(rsp.getBest(), csvOutputSeparator), "text/csv")
+                        .header("Content-Disposition", "attachment;filename=" + "GraphHopper.csv")
+                        .header("X-GH-Took", "" + Math.round(took * 1000))
+                        .build();
             } else {
                 ObjectNode map = WebHelper.jsonObject(rsp, instructions, calcPoints, false, pointsEncoded, took);
 
@@ -222,7 +241,6 @@ public class MatchResource {
                         build();
             }
         } catch (java.lang.RuntimeException err) {
-            took = sw.stop().getSeconds();
             logger.error(logStr + ", took:" + took + ", error:" + err);
             return WebHelper.errorResponse(err, writeGPX);
         }
