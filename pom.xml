@@ -62,7 +62,7 @@
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-core</artifactId>
-            <version>0.10.0-RC1</version>
+            <version>0.11-SNAPSHOT</version>
             <exclusions>
               <exclusion>
                 <!-- exclude graphhopper-core because it is already included directly but the map matching module brings in an older version -->
@@ -78,12 +78,17 @@
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-map-matching-web</artifactId>
-            <version>0.10.0-RC1</version>
+            <version>0.11-SNAPSHOT</version>
             <exclusions>
               <exclusion>
                 <!-- exclude graphhopper-core because it is already included directly but the map matching module brings in an older version -->
                 <groupId>com.graphhopper</groupId>
                 <artifactId>graphhopper-core</artifactId>
+              </exclusion>
+              <exclusion>
+                <!-- exclude graphhopper-core because it is already included directly but the map matching module brings in an older version -->
+                <groupId>com.graphhopper</groupId>
+                <artifactId>graphhopper-map-matching-core</artifactId>
               </exclusion>
               <exclusion>
                   <groupId>org.slf4j</groupId>

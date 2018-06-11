@@ -159,6 +159,7 @@ function retrieveResult(gpxData) {
     url += "&gps_accuracy=" + document.getElementById('gpsAccuracy').value;
     url += "&max_visited_nodes=" + document.getElementById('maxNodes').value;
     url += "&vehicle=" + document.getElementById('vehicle').value;
+    url += "&fill_gaps=" + document.getElementById('fillGaps').checked;
     url += "&type=gpx&gpx.route=false";
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-type", "application/gpx+xml");

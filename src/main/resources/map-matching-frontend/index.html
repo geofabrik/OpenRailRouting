@@ -23,6 +23,10 @@
                 <input type="number" id="gpsAccuracy" min="0" value="40" step="1"/>
                 <label for="maxNodes">maximum number of nodes</label>
                 <input type="number" id="maxNodes" min="100" value="10000" step="100"/>
+		<label>
+                    <input type="checkbox" name="fill_gaps" id="fillGaps" value="true" checked>
+		    fill gaps with simple routing requests
+                </label>
             </fieldset>
             <button id="upload">Match</button>
             <button id="save" type="button" disabled>Save</button>

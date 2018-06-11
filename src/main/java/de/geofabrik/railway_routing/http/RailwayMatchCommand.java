@@ -7,8 +7,13 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
 import com.graphhopper.matching.GPXFile;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
@@ -112,8 +117,9 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
             try {
                 logger.info("Matching GPX track {} on the graph.", f.toString());
                 inputStream = Files.newInputStream(f);
-                List<GPXEntry> inputGPXEntries = new GPXFile().doImport(inputStream, 50).getEntries();
-                MatchResult mr = mapMatching.doWork(inputGPXEntries);
+                Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
+                List<GPXEntry> inputGPXEntries = new GPXFile().doImport(doc, 50).getEntries();
+                MatchResult mr = mapMatching.doWork(inputGPXEntries, false);
                 System.out.println(inputPath);
                 System.out.println("\tmatches:\t" + mr.getEdgeMatches().size());
                 System.out.println("\tgpx length:\t" + mr.getGpxEntriesLength() + " vs " + mr.getMatchLength());

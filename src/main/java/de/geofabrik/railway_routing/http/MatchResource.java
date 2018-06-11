@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +19,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
@@ -34,6 +39,7 @@ import com.graphhopper.matching.GPXFile;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
 import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
@@ -51,6 +57,7 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.TranslationMap;
+import com.graphhopper.util.shapes.GHPoint;
 import com.opencsv.bean.CsvToBeanBuilder;
 
 import de.geofabrik.railway_routing.InputCSVEntry;
@@ -99,9 +106,12 @@ public class MatchResource {
         }
     }
 
-    public List<GPXEntry> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar) {
+    public List<GPXEntry> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar)
+            throws SAXException, IOException, ParserConfigurationException {
+        Document doc;
         if (contentType.equals(MediaType.APPLICATION_XML) || contentType.equals("application/gpx+xml")) {
-            return new GPXFile().doImport(inputStream, 50).getEntries();
+            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
+            return new GPXFile().doImport(doc, 50).getEntries();
         }
         if (contentType.equals("text/csv")) {
             return readCSV(inputStream, 50, separator, quoteChar);
@@ -120,7 +130,8 @@ public class MatchResource {
         }
         String declaration = String.valueOf(beginning);
         if (declaration.equals("<?xml")) {
-            return new GPXFile().doImport(inputStream, 50).getEntries();
+            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
+            return new GPXFile().doImport(doc, 50).getEntries();
         }
         return readCSV(inputStream, 50, separator, quoteChar);
     }
@@ -163,7 +174,8 @@ public class MatchResource {
             @QueryParam("gpx.millis") String timeString,
             @QueryParam("traversal_keys") @DefaultValue("false") boolean enableTraversalKeys,
             @QueryParam(MAX_VISITED_NODES) @DefaultValue("3000") int maxVisitedNodes,
-            @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy) {
+            @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy,
+            @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) {
         StopWatch sw = new StopWatch().start();
         boolean writeGPX = "gpx".equalsIgnoreCase(outType);
         instructions = writeGPX || instructions;
@@ -189,19 +201,48 @@ public class MatchResource {
         float took = 0;
         try {
             List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
-            MatchResult mr = mapMatching.doWork(inputGPXEntries);
-            com.graphhopper.routing.Path path = mapMatching.calcPath(mr);
-            Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
             PathMerger pathMerger = new PathMerger().
                     setEnableInstructions(instructions).
                     setPathDetailsBuilders(hopper.getPathDetailsBuilderFactory(), pathDetails);
             PathWrapper pathWrapper = new PathWrapper();
-            pathMerger.doWork(pathWrapper, Collections.singletonList(path), tr);
+            Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
+            List<MatchResult> matchResultsList = new ArrayList<MatchResult>(2);
+            List<Path> mergedPaths = new ArrayList<Path>(3);
+            while (mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
+                // fill gap with normal routing if matching in the last iteration of this loop ended at a gap
+                if (mapMatching.matchingAttempted() &&
+                        mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
+                    List<GHPoint> points = new ArrayList<GHPoint>();
+                    points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints()));
+                    points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints() + 1));
+                    System.out.println("requesting gap filler: " + points);
+                    GHRequest request =  new GHRequest(points);
+                    WebHelper.initHints(request.getHints(), uriInfo.getQueryParameters());
+                    request.setVehicle(encodingManager.getEncoder(vehicleStr).toString()).
+                        setLocale(localeStr).
+                        setPathDetails(pathDetails).
+                        getHints().
+                        put(CALC_POINTS, calcPoints).
+                        put(INSTRUCTIONS, instructions);
+                    GHResponse response = new GHResponse();
+                    List<Path> paths = hopper.calcPaths(request, response);
+                    if (response.hasErrors()) {
+                        logger.error("  Failed to calc a path to fill a gap in the map matching: " + response.getErrors().toString());
+                        return WebHelper.errorResponse(response.getErrors(), writeGPX);
+                    } else {
+                        mergedPaths.add(paths.get(0));
+                    }
+                }
+                MatchResult mr = mapMatching.doWork(inputGPXEntries, !fillGaps);
+                mergedPaths.add(mr.getMergedPath());
+                matchResultsList.add(mr);
+            }
 
             // GraphHopper thinks an empty path is an invalid path, and further that an invalid path is still a path but
             // marked with a non-empty list of Exception objects. I disagree, so I clear it.
             pathWrapper.getErrors().clear();
             GHResponse rsp = new GHResponse();
+            pathMerger.doWork(pathWrapper, mergedPaths, tr);
             rsp.add(pathWrapper);
 
             took = sw.stop().getSeconds();
@@ -220,27 +261,37 @@ public class MatchResource {
             } else {
                 ObjectNode map = WebHelper.jsonObject(rsp, instructions, calcPoints, false, pointsEncoded, took);
 
+                double matchLength = 0, gpxEntriesLength = 0;
+                int matchMillis = 0, gpxEntriesMillis = 0;
+                List<Integer> traversalKeylist = new ArrayList<>();
+                for (MatchResult mr : matchResultsList) {
+                    matchLength += mr.getMatchLength();
+                    matchMillis += mr.getMatchMillis();
+                    gpxEntriesLength += mr.getGpxEntriesLength();
+                    gpxEntriesMillis += mr.getGpxEntriesMillis();
+                    if (enableTraversalKeys) {
+                        for (EdgeMatch em : mr.getEdgeMatches()) {
+                            EdgeIteratorState edge = em.getEdgeState();
+                            // encode edges as traversal keys which includes orientation, decode simply by multiplying with 0.5
+                            traversalKeylist.add(GHUtility.createEdgeKey(edge.getBaseNode(), edge.getAdjNode(), edge.getEdge(), false));
+                        }
+                    }
+                }
                 Map<String, Object> matchStatistics = new HashMap<>();
-                matchStatistics.put("distance", mr.getMatchLength());
-                matchStatistics.put("time", mr.getMatchMillis());
-                matchStatistics.put("original_distance", mr.getGpxEntriesLength());
-                matchStatistics.put("original_time", mr.getGpxEntriesMillis());
+                matchStatistics.put("distance", matchLength);
+                matchStatistics.put("time", matchMillis);
+                matchStatistics.put("original_distance", gpxEntriesLength);
+                matchStatistics.put("original_time", gpxEntriesMillis);
                 map.putPOJO("map_matching", matchStatistics);
 
                 if (enableTraversalKeys) {
-                    List<Integer> traversalKeylist = new ArrayList<>();
-                    for (EdgeMatch em : mr.getEdgeMatches()) {
-                        EdgeIteratorState edge = em.getEdgeState();
-                        // encode edges as traversal keys which includes orientation, decode simply by multiplying with 0.5
-                        traversalKeylist.add(GHUtility.createEdgeKey(edge.getBaseNode(), edge.getAdjNode(), edge.getEdge(), false));
-                    }
                     map.putPOJO("traversal_keys", traversalKeylist);
                 }
                 return Response.ok(map).
                         header("X-GH-Took", "" + Math.round(took * 1000)).
                         build();
             }
-        } catch (java.lang.RuntimeException err) {
+        } catch (java.lang.RuntimeException | SAXException | IOException | ParserConfigurationException err) {
             logger.error(logStr + ", took:" + took + ", error:" + err);
             return WebHelper.errorResponse(err, writeGPX);
         }

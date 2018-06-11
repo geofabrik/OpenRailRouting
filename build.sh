@@ -15,5 +15,9 @@ mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=web-bundl
 mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=web-api/target/graphhopper-web-api-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-web-api -Dpackaging=jar -Dversion=0.11.0-SNAPSHOT
 mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=api/target/graphhopper-api-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-api -Dpackaging=jar -Dversion=0.11.0-SNAPSHOT
 mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=reader-osm/target/graphhopper-reader-osm-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-reader-osm -Dpackaging=jar -Dversion=0.11.0-SNAPSHOT
+cd $BASEDIR/map-matching/
+mvn --projects matching-web,matching-core -am -DskipTests=true compile package
+mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=matching-core/target/graphhopper-map-matching-core-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-map-matching-core -Dpackaging=jar -Dversion=0.11-SNAPSHOT
+mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=matching-web/target/graphhopper-map-matching-web-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-map-matching-web -Dpackaging=jar -Dversion=0.11-SNAPSHOT
 cd $BASEDIR
 mvn compile assembly:single -U
