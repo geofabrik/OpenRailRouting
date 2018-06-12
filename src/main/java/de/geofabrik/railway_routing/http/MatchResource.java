@@ -120,7 +120,6 @@ public class MatchResource {
             throw new java.lang.RuntimeException("Unsupported input MIME type");
         }
         // guess input type
-        System.out.println("guessing file type");
         InputStreamReader isr = new InputStreamReader(inputStream);
         char[] beginning = new char[5];
         try {
@@ -215,7 +214,6 @@ public class MatchResource {
                     List<GHPoint> points = new ArrayList<GHPoint>();
                     points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints()));
                     points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints() + 1));
-                    System.out.println("requesting gap filler: " + points);
                     GHRequest request =  new GHRequest(points);
                     WebHelper.initHints(request.getHints(), uriInfo.getQueryParameters());
                     request.setVehicle(encodingManager.getEncoder(vehicleStr).toString()).
