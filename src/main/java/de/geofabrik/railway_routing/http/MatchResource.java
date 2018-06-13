@@ -207,7 +207,7 @@ public class MatchResource {
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
             List<MatchResult> matchResultsList = new ArrayList<MatchResult>(2);
             List<Path> mergedPaths = new ArrayList<Path>(3);
-            while (mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
+            do {
                 // fill gap with normal routing if matching in the last iteration of this loop ended at a gap
                 if (mapMatching.matchingAttempted() &&
                         mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
@@ -234,7 +234,7 @@ public class MatchResource {
                 MatchResult mr = mapMatching.doWork(inputGPXEntries, !fillGaps);
                 mergedPaths.add(mr.getMergedPath());
                 matchResultsList.add(mr);
-            }
+            } while (mapMatching.hasPointsToBeMatched());
 
             // GraphHopper thinks an empty path is an invalid path, and further that an invalid path is still a path but
             // marked with a non-empty list of Exception objects. I disagree, so I clear it.
