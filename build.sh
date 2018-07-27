@@ -20,4 +20,4 @@ mvn --projects matching-web,matching-core -am -DskipTests=true compile package
 mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=matching-core/target/graphhopper-map-matching-core-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-map-matching-core -Dpackaging=jar -Dversion=0.11-SNAPSHOT
 mvn deploy:deploy-file -Durl=file://$(pwd)/../maven_repository/ -Dfile=matching-web/target/graphhopper-map-matching-web-0.11-SNAPSHOT.jar -DgroupId=com.graphhopper -DartifactId=graphhopper-map-matching-web -Dpackaging=jar -Dversion=0.11-SNAPSHOT
 cd $BASEDIR
-mvn compile assembly:single -U
+MAVEN_OPTS=-Xss20m mvn compile assembly:single -U
