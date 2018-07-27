@@ -25,7 +25,7 @@ public class RailwayRoutingManaged implements Managed {
     @Inject
     public RailwayRoutingManaged(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig) {
         graphHopper = (RailwayHopper) new RailwayHopper(configuration, encoderConfig).forServer();
-//        graphHopper.setGraphHopperLocation(configuration.get("graphhopper.graph.location", "./graph-cache"));
+        graphHopper.setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"));
 //        graphHopper.init(configuration);
     }
     
