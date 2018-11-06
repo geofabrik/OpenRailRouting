@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,15 +30,19 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.MultiException;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.http.WebHelper;
 import com.graphhopper.matching.EdgeMatch;
-import com.graphhopper.matching.GPXFile;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
+import com.graphhopper.matching.gpx.Gpx;
+import com.graphhopper.matching.gpx.Trk;
+import com.graphhopper.matching.gpx.Trkseg;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
@@ -106,12 +111,27 @@ public class MatchResource {
         }
     }
 
+    private List<GPXEntry> importGpx(InputStream inputStream) {
+        XmlMapper xmlMapper = new XmlMapper();
+        Gpx gpx;
+        try {
+            gpx = xmlMapper.readValue(inputStream, Gpx.class);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to parse GPX data stream.");
+        }
+        if (gpx.trk == null) {
+            throw new IllegalArgumentException("No tracks found in GPX document. Are you using waypoints or routes instead?");
+        }
+        if (gpx.trk.size() > 1) {
+            throw new IllegalArgumentException("GPX documents with multiple tracks not supported yet.");
+        }
+        return gpx.trk.get(0).getEntries();
+    }
+
     public List<GPXEntry> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar)
             throws SAXException, IOException, ParserConfigurationException {
-        Document doc;
         if (contentType.equals(MediaType.APPLICATION_XML) || contentType.equals("application/gpx+xml")) {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
-            return new GPXFile().doImport(doc, 50).getEntries();
+            return importGpx(inputStream);
         }
         if (contentType.equals("text/csv")) {
             return readCSV(inputStream, 50, separator, quoteChar);
@@ -129,8 +149,7 @@ public class MatchResource {
         }
         String declaration = String.valueOf(beginning);
         if (declaration.equals("<?xml")) {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
-            return new GPXFile().doImport(doc, 50).getEntries();
+            return importGpx(inputStream);
         }
         return readCSV(inputStream, 50, separator, quoteChar);
     }
@@ -146,6 +165,28 @@ public class MatchResource {
                 .append('\n');
         }
         return str.toString();
+    }
+
+    // copied from com.graphhopper.resources.RouteResource
+    static void initHints(HintsMap m, MultivaluedMap<String, String> parameterMap) {
+        for (Map.Entry<String, List<String>> e : parameterMap.entrySet()) {
+            if (e.getValue().size() == 1) {
+                m.put(e.getKey(), e.getValue().get(0));
+            } else {
+                // Do nothing.
+                // TODO: this is dangerous: I can only silently swallow
+                // the forbidden multiparameter. If I comment-in the line below,
+                // I get an exception, because "point" regularly occurs
+                // multiple times.
+                // I think either unknown parameters (hints) should be allowed
+                // to be multiparameters, too, or we shouldn't use them for
+                // known parameters either, _or_ known parameters
+                // must be filtered before they come to this code point,
+                // _or_ we stop passing unknown parameters alltogether..
+                //
+                // throw new WebApplicationException(String.format("This query parameter (hint) is not allowed to occur multiple times: %s", e.getKey()));
+            }
+        }
     }
 
     @POST
@@ -166,15 +207,12 @@ public class MatchResource {
             @QueryParam("vehicle") @DefaultValue("car") String vehicleStr,
             @QueryParam("locale") @DefaultValue("en") String localeStr,
             @QueryParam(Parameters.DETAILS.PATH_DETAILS) List<String> pathDetails,
-            @QueryParam("gpx.trackname") @DefaultValue("GraphHopper Track") String trackName,
-            @QueryParam("gpx.route") @DefaultValue("true") boolean withRoute /* default to false for the route part in next API version, see #437 */,
+            @QueryParam("gpx.route") @DefaultValue("true") boolean withRoute,
             @QueryParam("gpx.track") @DefaultValue("true") boolean withTrack,
-            @QueryParam("gpx.waypoints") @DefaultValue("false") boolean withWayPoints,
-            @QueryParam("gpx.millis") String timeString,
             @QueryParam("traversal_keys") @DefaultValue("false") boolean enableTraversalKeys,
             @QueryParam(MAX_VISITED_NODES) @DefaultValue("3000") int maxVisitedNodes,
             @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy,
-            @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) {
+            @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) throws Exception {
         StopWatch sw = new StopWatch().start();
         boolean writeGPX = "gpx".equalsIgnoreCase(outType);
         instructions = writeGPX || instructions;
@@ -184,7 +222,7 @@ public class MatchResource {
         try {
             encoder = encodingManager.getEncoder(vehicleStr);
         } catch (IllegalArgumentException err) {
-            throw new WebApplicationException("Vehicle not supported: " + vehicleStr);
+            throw new IllegalArgumentException("Vehicle not supported: " + vehicleStr);
         }
         FastestWeighting fastestWeighting = new FastestWeighting(encoder);
         Weighting turnWeighting = hopper.createTurnWeighting(hopper.getGraphHopperStorage(),
@@ -215,7 +253,7 @@ public class MatchResource {
                     points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints()));
                     points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints() + 1));
                     GHRequest request =  new GHRequest(points);
-                    WebHelper.initHints(request.getHints(), uriInfo.getQueryParameters());
+                    initHints(request.getHints(), uriInfo.getQueryParameters());
                     request.setVehicle(encodingManager.getEncoder(vehicleStr).toString()).
                         setLocale(localeStr).
                         setPathDetails(pathDetails).
@@ -226,7 +264,7 @@ public class MatchResource {
                     List<Path> paths = hopper.calcPaths(request, response);
                     if (response.hasErrors()) {
                         logger.error("  Failed to calc a path to fill a gap in the map matching: " + response.getErrors().toString());
-                        return WebHelper.errorResponse(response.getErrors(), writeGPX);
+                        throw new MultiException(response.getErrors());
                     } else {
                         mergedPaths.add(paths.get(0));
                     }
@@ -245,9 +283,12 @@ public class MatchResource {
 
             took = sw.stop().getSeconds();
             logger.info(logStr + ", took:" + took);
-            long time = timeString != null ? Long.parseLong(timeString) : System.currentTimeMillis();
+            long time = System.currentTimeMillis();
+            if (!inputGPXEntries.isEmpty()) {
+                time = inputGPXEntries.get(0).getTime();
+            }
             if (writeGPX) {
-                return Response.ok(rsp.getBest().getInstructions().createGPX(trackName, time, false, withRoute, withTrack, withWayPoints, Constants.VERSION), "application/gpx+xml").
+                return Response.ok(rsp.getBest().getInstructions().createGPX("", time, false, withRoute, withTrack, false, Constants.VERSION), "application/gpx+xml").
                         header("Content-Disposition", "attachment;filename=" + "GraphHopper.gpx").
                         header("X-GH-Took", "" + Math.round(took * 1000)).
                         build();
@@ -289,9 +330,11 @@ public class MatchResource {
                         header("X-GH-Took", "" + Math.round(took * 1000)).
                         build();
             }
+        } catch (IllegalArgumentException ex) {
+            throw ex;
         } catch (java.lang.RuntimeException | SAXException | IOException | ParserConfigurationException err) {
             logger.error(logStr + ", took:" + took + ", error:" + err);
-            return WebHelper.errorResponse(err, writeGPX);
+            throw err;
         }
     }
 }

@@ -1,9 +1,12 @@
 package de.geofabrik.railway_routing.http;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,17 +17,24 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.graphhopper.matching.GPXFile;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
+import com.graphhopper.matching.gpx.Gpx;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.CmdArgs;
+import com.graphhopper.util.Constants;
 import com.graphhopper.util.GPXEntry;
+import com.graphhopper.util.Helper;
 import com.graphhopper.util.InstructionList;
+import com.graphhopper.util.PathMerger;
+import com.graphhopper.util.Translation;
+import com.graphhopper.util.TranslationMap;
 
 import de.geofabrik.railway_routing.RailwayHopper;
 import de.geofabrik.railway_routing.util.PatternMatching;
@@ -110,15 +120,17 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
             throw new IllegalArgumentException("No input file was given. Please use the option gpx.location=*.");
         }
         int lastSeparator = PatternMatching.patternSplitDirFile(inputPath);
+        Translation tr = new TranslationMap().doImport().getWithFallBack(Helper.getLocale(namespace.getString("instructions")));
+        final boolean withRoute = !namespace.getString("instructions").isEmpty();
         LinkedList<Path> files = PatternMatching.getFileList(inputPath, lastSeparator);
+        XmlMapper xmlMapper = new XmlMapper();
 
         for (Path f : files) {
             InputStream inputStream;
             try {
                 logger.info("Matching GPX track {} on the graph.", f.toString());
-                inputStream = Files.newInputStream(f);
-                Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(inputStream));
-                List<GPXEntry> inputGPXEntries = new GPXFile().doImport(doc, 50).getEntries();
+                Gpx gpx = xmlMapper.readValue(f.toFile(), Gpx.class);
+                List<GPXEntry> inputGPXEntries = gpx.trk.get(0).getEntries();
                 MatchResult mr = mapMatching.doWork(inputGPXEntries, false);
                 System.out.println(inputPath);
                 System.out.println("\tmatches:\t" + mr.getEdgeMatches().size());
@@ -128,9 +140,15 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
                 String outFile = inputPath + ".res.gpx";
                 System.out.println("\texport results to:" + outFile);
 
-                //TODO find a way without an instruction list
-                InstructionList il = null;
-                new GPXFile(mr, il).doExport(outFile);
+                PathWrapper pathWrapper = new PathWrapper();
+                new PathMerger().doWork(pathWrapper, Collections.singletonList(mr.getMergedPath()), tr);
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))) {
+                    long time = System.currentTimeMillis();
+                    if (!inputGPXEntries.isEmpty()) {
+                        time = inputGPXEntries.get(0).getTime();
+                    }
+                    writer.append(pathWrapper.getInstructions().createGPX(gpx.trk.get(0).name != null ? gpx.trk.get(0).name : "", time, hopper.hasElevation(), withRoute, true, false, Constants.VERSION));
+                }
             } catch (IOException e) {
                 logger.error("Received IOException while reading GPX file {} from input stream: {}",
                         f.toString(), e.toString());
