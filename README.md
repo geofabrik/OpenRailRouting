@@ -28,6 +28,7 @@ This project uses Maven 3.x for building. The forked GraphHopper is provided as 
 
 ```sh
 git submodule init
+git submodule update
 bash build.sh
 ```
 
