@@ -120,8 +120,9 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
             throw new IllegalArgumentException("No input file was given. Please use the option gpx.location=*.");
         }
         int lastSeparator = PatternMatching.patternSplitDirFile(inputPath);
-        Translation tr = new TranslationMap().doImport().getWithFallBack(Helper.getLocale(namespace.getString("instructions")));
-        final boolean withRoute = !namespace.getString("instructions").isEmpty();
+        String instructions = namespace.getString("instructions");
+        Translation tr = new TranslationMap().doImport().getWithFallBack(Helper.getLocale("de-DE"));
+        final boolean withRoute = !"de-DE".isEmpty();
         LinkedList<Path> files = PatternMatching.getFileList(inputPath, lastSeparator);
         XmlMapper xmlMapper = new XmlMapper();
 
