@@ -133,7 +133,8 @@ Required settings to be given either as Java system properties (`-Dgraphhopper.d
 
 Followoing arguments have to be provided (not as Java system variables). You can retriev this list
 by calling
-`java -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar match config.yml`
+`java -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar match config.yml --gpx-location=./map-data/<GPX> --vehicle=freight_diesel
+`
 
 * `--gpx-location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
   like `/path/to/dir/mytracks/*.gpx`. The resulting routes will be written as GPX files to same
