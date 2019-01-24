@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="Graphhopper version 0.11" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">
+<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>2019-01-15T00:00:27Z</time></metadata>
+<rte>
+<rtept lat="51.487849" lon="11.985918"><extensions><gh:distance>228.9</gh:distance><gh:time>32967</gh:time><gh:direction>S</gh:direction><gh:azimuth>195.64</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.485849" lon="11.985149"><extensions><gh:distance>297.4</gh:distance><gh:time>42831</gh:time><gh:direction>S</gh:direction><gh:azimuth>188.15</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.483196" lon="11.984657"><extensions><gh:distance>398.9</gh:distance><gh:time>57439</gh:time><gh:direction>S</gh:direction><gh:azimuth>175.78</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.479629" lon="11.985224"><desc>dem Straßenverlauf von 6346 folgen</desc><extensions><gh:distance>9.4</gh:distance><gh:time>970</gh:time><gh:direction>S</gh:direction><gh:azimuth>172.78</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.479545" lon="11.985241"><extensions><gh:distance>2862.6</gh:distance><gh:time>140664</gh:time><gh:direction>S</gh:direction><gh:azimuth>167.93</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.459624" lon="12.010434"><extensions><gh:distance>61.6</gh:distance><gh:time>4032</gh:time><gh:direction>SE</gh:direction><gh:azimuth>120.26</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.459344" lon="12.011202"><desc>dem Straßenverlauf von 6351 folgen</desc><extensions><gh:distance>267.3</gh:distance><gh:time>15789</gh:time><gh:direction>SE</gh:direction><gh:azimuth>124.6</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.458052" lon="12.014453"><desc>links halten auf 6351</desc><extensions><gh:distance>1064.5</gh:distance><gh:time>69672</gh:time><gh:direction>SE</gh:direction><gh:azimuth>119.42</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.454701" lon="12.028812"><desc>dem Straßenverlauf von Magdeburg-Leipzig, 6403 folgen</desc><extensions><gh:distance>6499.0</gh:distance><gh:time>292444</gh:time><gh:direction>E</gh:direction><gh:azimuth>109.02</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.432903" lon="12.113422"><extensions><gh:distance>246.2</gh:distance><gh:time>11080</gh:time><gh:direction>E</gh:direction><gh:azimuth>95.44</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.432693" lon="12.116958"><desc>dem Straßenverlauf von Schnellfahrstrecke Erfurt-Leipzig, 5919 folgen</desc><extensions><gh:distance>1273.2</gh:distance><gh:time>57291</gh:time><gh:direction>E</gh:direction><gh:azimuth>97.65</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.431169" lon="12.13516"><desc>rechts halten auf Schnellfahrstrecke Erfurt-Leipzig, 5919</desc><extensions><gh:distance>5761.5</gh:distance><gh:time>259256</gh:time><gh:direction>E</gh:direction><gh:azimuth>97.65</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.423886" lon="12.217435"><desc>links halten auf Schnellfahrstrecke Erfurt-Leipzig, 5919</desc><extensions><gh:distance>5843.0</gh:distance><gh:time>262927</gh:time><gh:direction>W</gh:direction><gh:azimuth>278.49</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.430585" lon="12.142095"><extensions><gh:distance>207.2</gh:distance><gh:time>9325</gh:time><gh:direction>W</gh:direction><gh:azimuth>278.89</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.430873" lon="12.139142"><desc>dem Straßenverlauf von Schnellfahrstrecke Erfurt-Leipzig, 5919 folgen</desc><extensions><gh:distance>69.8</gh:distance><gh:time>3141</gh:time><gh:direction>W</gh:direction><gh:azimuth>277.55</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.430955" lon="12.138143"><desc>rechts halten auf Schnellfahrstrecke Erfurt-Leipzig, 5919</desc><extensions><gh:distance>273.7</gh:distance><gh:time>12315</gh:time><gh:direction>W</gh:direction><gh:azimuth>278.1</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.431302" lon="12.134235"><desc>rechts halten auf 6055</desc><extensions><gh:distance>1640.7</gh:distance><gh:time>73825</gh:time><gh:direction>W</gh:direction><gh:azimuth>279.77</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.433464" lon="12.110844"><desc>dem Straßenverlauf von Magdeburg-Leipzig, 6403 folgen</desc><extensions><gh:distance>8270.8</gh:distance><gh:time>372169</gh:time><gh:direction>W</gh:direction><gh:azimuth>276.33</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.463398" lon="12.004558"><desc>links halten auf Magdeburg-Leipzig, 6403</desc><extensions><gh:distance>1077.6</gh:distance><gh:time>47141</gh:time><gh:direction>NW</gh:direction><gh:azimuth>318.5</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.470948" lon="11.994817"><desc>rechts halten auf Magdeburg-Leipzig, 6403</desc><extensions><gh:distance>360.5</gh:distance><gh:time>18538</gh:time><gh:direction>NW</gh:direction><gh:azimuth>316.8</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.473396" lon="11.991413"><desc>links halten auf 6403</desc><extensions><gh:distance>1019.5</gh:distance><gh:time>40770</gh:time><gh:direction>NW</gh:direction><gh:azimuth>324.25</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.481797" lon="11.986129"><extensions><gh:distance>118.0</gh:distance><gh:time>7721</gh:time><gh:direction>N</gh:direction><gh:azimuth>356.56</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.482857" lon="11.986126"><desc>dem Straßenverlauf von 6344 folgen</desc><extensions><gh:distance>25.8</gh:distance><gh:time>1030</gh:time><gh:direction>N</gh:direction><gh:azimuth>355.81</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.483088" lon="11.986099"><extensions><gh:distance>41.3</gh:distance><gh:time>5941</gh:time><gh:direction>N</gh:direction><gh:azimuth>0.56</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.483459" lon="11.986105"><extensions><gh:distance>81.4</gh:distance><gh:time>11713</gh:time><gh:direction>N</gh:direction><gh:azimuth>3.11</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.484188" lon="11.986197"><extensions><gh:distance>35.7</gh:distance><gh:time>5135</gh:time><gh:direction>N</gh:direction><gh:azimuth>0.97</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.484509" lon="11.986205"><extensions><gh:distance>16.9</gh:distance><gh:time>2430</gh:time><gh:direction>N</gh:direction><gh:azimuth>8.44</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.484659" lon="11.986241"><extensions><gh:distance>56.5</gh:distance><gh:time>8140</gh:time><gh:direction>N</gh:direction><gh:azimuth>7.12</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.48516" lon="11.986378"><extensions><gh:distance>109.1</gh:distance><gh:time>15705</gh:time><gh:direction>S</gh:direction><gh:azimuth>192.36</gh:azimuth><gh:sign>3</gh:sign></extensions></rtept>
+<rtept lat="51.484188" lon="11.986197"><extensions><gh:distance>63.5</gh:distance><gh:time>9146</gh:time><gh:direction>S</gh:direction><gh:azimuth>184.97</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.483619" lon="11.986117"><extensions><gh:distance>59.1</gh:distance><gh:time>8508</gh:time><gh:direction>S</gh:direction><gh:azimuth>181.2</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.483088" lon="11.986099"><extensions><gh:distance>41.3</gh:distance><gh:time>5941</gh:time><gh:direction>N</gh:direction><gh:azimuth>0.56</gh:azimuth><gh:sign>-3</gh:sign></extensions></rtept>
+<rtept lat="51.483459" lon="11.986105"><extensions><gh:distance>81.4</gh:distance><gh:time>11713</gh:time><gh:direction>N</gh:direction><gh:azimuth>3.11</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.484188" lon="11.986197"><extensions><gh:distance>35.7</gh:distance><gh:time>5135</gh:time><gh:direction>N</gh:direction><gh:azimuth>0.97</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.484509" lon="11.986205"><extensions><gh:distance>30.6</gh:distance><gh:time>4400</gh:time><gh:direction>N</gh:direction><gh:azimuth>1.28</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.484784" lon="11.986215"><extensions><gh:distance>35.2</gh:distance><gh:time>5066</gh:time><gh:direction>N</gh:direction><gh:azimuth>2.21</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.4851" lon="11.986235"><extensions><gh:distance>101.4</gh:distance><gh:time>14601</gh:time><gh:direction>S</gh:direction><gh:azimuth>181.5</gh:azimuth><gh:sign>-3</gh:sign></extensions></rtept>
+<rtept lat="51.484188" lon="11.986197"><extensions><gh:distance>63.5</gh:distance><gh:time>9146</gh:time><gh:direction>S</gh:direction><gh:azimuth>184.97</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.483619" lon="11.986117"><extensions><gh:distance>17.8</gh:distance><gh:time>2569</gh:time><gh:direction>S</gh:direction><gh:azimuth>178.63</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.483459" lon="11.986123"><desc>dem Straßenverlauf von 6435 folgen</desc><extensions><gh:distance>291.7</gh:distance><gh:time>41405</gh:time><gh:direction>S</gh:direction><gh:azimuth>175.9</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.480844" lon="11.986467"><desc>rechts halten auf 6435</desc><extensions><gh:distance>758.7</gh:distance><gh:time>66838</gh:time><gh:direction>S</gh:direction><gh:azimuth>177.78</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.47461" lon="11.990584"><desc>links halten auf Magdeburg-Leipzig</desc><extensions><gh:distance>305.4</gh:distance><gh:time>31407</gh:time><gh:direction>SE</gh:direction><gh:azimuth>153.48</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.47226" lon="11.992843"><desc>dem Straßenverlauf von Magdeburg-Leipzig, 6403 folgen</desc><extensions><gh:distance>112.3</gh:distance><gh:time>5776</gh:time><gh:direction>SE</gh:direction><gh:azimuth>136.83</gh:azimuth><gh:sign>0</gh:sign></extensions></rtept>
+<rtept lat="51.471523" lon="11.993953"><extensions><gh:distance>19.7</gh:distance><gh:time>2837</gh:time><gh:direction>SE</gh:direction><gh:azimuth>130.35</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.471408" lon="11.994169"><extensions><gh:distance>33.6</gh:distance><gh:time>4835</gh:time><gh:direction>SE</gh:direction><gh:azimuth>126.44</gh:azimuth><gh:sign>-7</gh:sign></extensions></rtept>
+<rtept lat="51.471229" lon="11.994559"><extensions><gh:distance>282.4</gh:distance><gh:time>40663</gh:time><gh:direction>SE</gh:direction><gh:azimuth>128.31</gh:azimuth><gh:sign>7</gh:sign></extensions></rtept>
+<rtept lat="51.469342" lon="11.997269"><extensions><gh:distance>0.0</gh:distance><gh:time>0</gh:time><gh:sign>4</gh:sign></extensions></rtept>
+</rte>
+<trk><name></name><trkseg>
+<trkpt lat="51.487849" lon="11.985918"><time>2019-01-15T00:00:27Z</time></trkpt>
+<trkpt lat="51.486839" lon="11.985464"><time>2019-01-15T00:00:43Z</time></trkpt>
+<trkpt lat="51.486229" lon="11.985297"><time>2019-01-15T00:00:53Z</time></trkpt>
+<trkpt lat="51.485849" lon="11.985149"><time>2019-01-15T00:00:59Z</time></trkpt>
+<trkpt lat="51.483786" lon="11.984675"><time>2019-01-15T00:01:33Z</time></trkpt>
+<trkpt lat="51.483196" lon="11.984657"><time>2019-01-15T00:01:42Z</time></trkpt>
+<trkpt lat="51.480698" lon="11.984953"><time>2019-01-15T00:02:22Z</time></trkpt>
+<trkpt lat="51.480303" lon="11.985033"><time>2019-01-15T00:02:29Z</time></trkpt>
+<trkpt lat="51.479629" lon="11.985224"><time>2019-01-15T00:02:40Z</time></trkpt>
+<trkpt lat="51.479545" lon="11.985241"><time>2019-01-15T00:02:41Z</time></trkpt>
+<trkpt lat="51.479029" lon="11.985418"><time>2019-01-15T00:02:44Z</time></trkpt>
+<trkpt lat="51.478211" lon="11.985621"><time>2019-01-15T00:02:48Z</time></trkpt>
+<trkpt lat="51.47774" lon="11.985843"><time>2019-01-15T00:02:51Z</time></trkpt>
+<trkpt lat="51.477381" lon="11.986107"><time>2019-01-15T00:02:53Z</time></trkpt>
+<trkpt lat="51.476905" lon="11.986511"><time>2019-01-15T00:02:56Z</time></trkpt>
+<trkpt lat="51.475818" lon="11.987504"><time>2019-01-15T00:03:03Z</time></trkpt>
+<trkpt lat="51.475134" lon="11.988259"><time>2019-01-15T00:03:07Z</time></trkpt>
+<trkpt lat="51.473664" lon="11.990182"><time>2019-01-15T00:03:18Z</time></trkpt>
+<trkpt lat="51.472964" lon="11.99102"><time>2019-01-15T00:03:22Z</time></trkpt>
+<trkpt lat="51.471883" lon="11.992531"><time>2019-01-15T00:03:30Z</time></trkpt>
+<trkpt lat="51.471268" lon="11.993267"><time>2019-01-15T00:03:34Z</time></trkpt>
+<trkpt lat="51.470702" lon="11.993864"><time>2019-01-15T00:03:38Z</time></trkpt>
+<trkpt lat="51.470047" lon="11.994629"><time>2019-01-15T00:03:43Z</time></trkpt>
+<trkpt lat="51.469771" lon="11.994998"><time>2019-01-15T00:03:45Z</time></trkpt>
+<trkpt lat="51.469456" lon="11.995486"><time>2019-01-15T00:03:47Z</time></trkpt>
+<trkpt lat="51.469119" lon="11.996078"><time>2019-01-15T00:03:50Z</time></trkpt>
+<trkpt lat="51.468577" lon="11.997168"><time>2019-01-15T00:03:54Z</time></trkpt>
+<trkpt lat="51.468118" lon="11.998026"><time>2019-01-15T00:03:58Z</time></trkpt>
+<trkpt lat="51.467774" lon="11.998568"><time>2019-01-15T00:04:01Z</time></trkpt>
+<trkpt lat="51.467411" lon="11.999055"><time>2019-01-15T00:04:03Z</time></trkpt>
+<trkpt lat="51.466614" lon="12.00004"><time>2019-01-15T00:04:09Z</time></trkpt>
+<trkpt lat="51.465177" lon="12.001939"><time>2019-01-15T00:04:19Z</time></trkpt>
+<trkpt lat="51.464541" lon="12.002713"><time>2019-01-15T00:04:23Z</time></trkpt>
+<trkpt lat="51.463627" lon="12.003735"><time>2019-01-15T00:04:30Z</time></trkpt>
+<trkpt lat="51.462866" lon="12.004641"><time>2019-01-15T00:04:35Z</time></trkpt>
+<trkpt lat="51.462356" lon="12.005305"><time>2019-01-15T00:04:38Z</time></trkpt>
+<trkpt lat="51.461907" lon="12.005961"><time>2019-01-15T00:04:42Z</time></trkpt>
+<trkpt lat="51.46119" lon="12.00714"><time>2019-01-15T00:04:47Z</time></trkpt>
+<trkpt lat="51.460693" lon="12.008074"><time>2019-01-15T00:04:51Z</time></trkpt>
+<trkpt lat="51.4603" lon="12.008893"><time>2019-01-15T00:04:55Z</time></trkpt>
+<trkpt lat="51.459624" lon="12.010434"><time>2019-01-15T00:05:01Z</time></trkpt>
+<trkpt lat="51.459344" lon="12.011202"><time>2019-01-15T00:05:05Z</time></trkpt>
+<trkpt lat="51.459003" lon="12.011996"><time>2019-01-15T00:05:09Z</time></trkpt>
+<trkpt lat="51.458697" lon="12.012759"><time>2019-01-15T00:05:13Z</time></trkpt>
+<trkpt lat="51.458052" lon="12.014453"><time>2019-01-15T00:05:21Z</time></trkpt>
+<trkpt lat="51.45766" lon="12.015569"><time>2019-01-15T00:05:27Z</time></trkpt>
+<trkpt lat="51.457391" lon="12.016441"><time>2019-01-15T00:05:31Z</time></trkpt>
+<trkpt lat="51.457002" lon="12.017904"><time>2019-01-15T00:05:39Z</time></trkpt>
+<trkpt lat="51.456792" lon="12.018811"><time>2019-01-15T00:05:43Z</time></trkpt>
+<trkpt lat="51.455078" lon="12.026779"><time>2019-01-15T00:06:21Z</time></trkpt>
+<trkpt lat="51.454701" lon="12.028812"><time>2019-01-15T00:06:31Z</time></trkpt>
+<trkpt lat="51.453329" lon="12.0352"><time>2019-01-15T00:06:52Z</time></trkpt>
+<trkpt lat="51.453066" lon="12.036481"><time>2019-01-15T00:06:56Z</time></trkpt>
+<trkpt lat="51.452867" lon="12.037582"><time>2019-01-15T00:07:00Z</time></trkpt>
+<trkpt lat="51.449684" lon="12.057464"><time>2019-01-15T00:08:04Z</time></trkpt>
+<trkpt lat="51.44904" lon="12.061288"><time>2019-01-15T00:08:16Z</time></trkpt>
+<trkpt lat="51.44701" lon="12.073908"><time>2019-01-15T00:08:57Z</time></trkpt>
+<trkpt lat="51.446767" lon="12.075193"><time>2019-01-15T00:09:01Z</time></trkpt>
+<trkpt lat="51.44654" lon="12.076262"><time>2019-01-15T00:09:04Z</time></trkpt>
+<trkpt lat="51.446363" lon="12.077013"><time>2019-01-15T00:09:07Z</time></trkpt>
+<trkpt lat="51.446" lon="12.07841"><time>2019-01-15T00:09:12Z</time></trkpt>
+<trkpt lat="51.445541" lon="12.079947"><time>2019-01-15T00:09:17Z</time></trkpt>
+<trkpt lat="51.44528" lon="12.080736"><time>2019-01-15T00:09:20Z</time></trkpt>
+<trkpt lat="51.444769" lon="12.082156"><time>2019-01-15T00:09:25Z</time></trkpt>
+<trkpt lat="51.444129" lon="12.083732"><time>2019-01-15T00:09:31Z</time></trkpt>
+<trkpt lat="51.443527" lon="12.085043"><time>2019-01-15T00:09:36Z</time></trkpt>
+<trkpt lat="51.442917" lon="12.08625"><time>2019-01-15T00:09:41Z</time></trkpt>
+<trkpt lat="51.442577" lon="12.086883"><time>2019-01-15T00:09:43Z</time></trkpt>
+<trkpt lat="51.44171" lon="12.088334"><time>2019-01-15T00:09:50Z</time></trkpt>
+<trkpt lat="51.441167" lon="12.089155"><time>2019-01-15T00:09:53Z</time></trkpt>
+<trkpt lat="51.440728" lon="12.089779"><time>2019-01-15T00:09:56Z</time></trkpt>
+<trkpt lat="51.438388" lon="12.092899"><time>2019-01-15T00:10:11Z</time></trkpt>
+<trkpt lat="51.43758" lon="12.094095"><time>2019-01-15T00:10:17Z</time></trkpt>
+<trkpt lat="51.437209" lon="12.094707"><time>2019-01-15T00:10:20Z</time></trkpt>
+<trkpt lat="51.43667" lon="12.09567"><time>2019-01-15T00:10:24Z</time></trkpt>
+<trkpt lat="51.435992" lon="12.09707"><time>2019-01-15T00:10:29Z</time></trkpt>
+<trkpt lat="51.435367" lon="12.09855"><time>2019-01-15T00:10:35Z</time></trkpt>
+<trkpt lat="51.434834" lon="12.100039"><time>2019-01-15T00:10:40Z</time></trkpt>
+<trkpt lat="51.434531" lon="12.100995"><time>2019-01-15T00:10:43Z</time></trkpt>
+<trkpt lat="51.43442" lon="12.101401"><time>2019-01-15T00:10:45Z</time></trkpt>
+<trkpt lat="51.434243" lon="12.102061"><time>2019-01-15T00:10:47Z</time></trkpt>
+<trkpt lat="51.433958" lon="12.103233"><time>2019-01-15T00:10:51Z</time></trkpt>
+<trkpt lat="51.433586" lon="12.105161"><time>2019-01-15T00:10:57Z</time></trkpt>
+<trkpt lat="51.433412" lon="12.106296"><time>2019-01-15T00:11:01Z</time></trkpt>
+<trkpt lat="51.433311" lon="12.107095"><time>2019-01-15T00:11:03Z</time></trkpt>
+<trkpt lat="51.433164" lon="12.108728"><time>2019-01-15T00:11:09Z</time></trkpt>
+<trkpt lat="51.433083" lon="12.109999"><time>2019-01-15T00:11:13Z</time></trkpt>
+<trkpt lat="51.432903" lon="12.113422"><time>2019-01-15T00:11:23Z</time></trkpt>
+<trkpt lat="51.432693" lon="12.116958"><time>2019-01-15T00:11:34Z</time></trkpt>
+<trkpt lat="51.431169" lon="12.13516"><time>2019-01-15T00:12:32Z</time></trkpt>
+<trkpt lat="51.428159" lon="12.171114"><time>2019-01-15T00:14:25Z</time></trkpt>
+<trkpt lat="51.427599" lon="12.177565"><time>2019-01-15T00:14:45Z</time></trkpt>
+<trkpt lat="51.423886" lon="12.217435"><time>2019-01-15T00:16:51Z</time></trkpt>
+<trkpt lat="51.427599" lon="12.177565"><time>2019-01-15T00:18:57Z</time></trkpt>
+<trkpt lat="51.428159" lon="12.171114"><time>2019-01-15T00:19:17Z</time></trkpt>
+<trkpt lat="51.430585" lon="12.142095"><time>2019-01-15T00:21:14Z</time></trkpt>
+<trkpt lat="51.430873" lon="12.139142"><time>2019-01-15T00:21:23Z</time></trkpt>
+<trkpt lat="51.430955" lon="12.138143"><time>2019-01-15T00:21:26Z</time></trkpt>
+<trkpt lat="51.431302" lon="12.134235"><time>2019-01-15T00:21:39Z</time></trkpt>
+<trkpt lat="51.431476" lon="12.132612"><time>2019-01-15T00:21:44Z</time></trkpt>
+<trkpt lat="51.432238" lon="12.126745"><time>2019-01-15T00:22:02Z</time></trkpt>
+<trkpt lat="51.432439" lon="12.125028"><time>2019-01-15T00:22:08Z</time></trkpt>
+<trkpt lat="51.432589" lon="12.123442"><time>2019-01-15T00:22:13Z</time></trkpt>
+<trkpt lat="51.432874" lon="12.119677"><time>2019-01-15T00:22:25Z</time></trkpt>
+<trkpt lat="51.433464" lon="12.110844"><time>2019-01-15T00:22:52Z</time></trkpt>
+<trkpt lat="51.433721" lon="12.10712"><time>2019-01-15T00:23:04Z</time></trkpt>
+<trkpt lat="51.433808" lon="12.10627"><time>2019-01-15T00:23:07Z</time></trkpt>
+<trkpt lat="51.433934" lon="12.105238"><time>2019-01-15T00:23:10Z</time></trkpt>
+<trkpt lat="51.434169" lon="12.10383"><time>2019-01-15T00:23:15Z</time></trkpt>
+<trkpt lat="51.434423" lon="12.102557"><time>2019-01-15T00:23:19Z</time></trkpt>
+<trkpt lat="51.43468" lon="12.10148"><time>2019-01-15T00:23:22Z</time></trkpt>
+<trkpt lat="51.434841" lon="12.100882"><time>2019-01-15T00:23:24Z</time></trkpt>
+<trkpt lat="51.435159" lon="12.09978"><time>2019-01-15T00:23:28Z</time></trkpt>
+<trkpt lat="51.435453" lon="12.09891"><time>2019-01-15T00:23:31Z</time></trkpt>
+<trkpt lat="51.435722" lon="12.098173"><time>2019-01-15T00:23:34Z</time></trkpt>
+<trkpt lat="51.436097" lon="12.097229"><time>2019-01-15T00:23:37Z</time></trkpt>
+<trkpt lat="51.436675" lon="12.095965"><time>2019-01-15T00:23:42Z</time></trkpt>
+<trkpt lat="51.437209" lon="12.094929"><time>2019-01-15T00:23:47Z</time></trkpt>
+<trkpt lat="51.437617" lon="12.094213"><time>2019-01-15T00:23:50Z</time></trkpt>
+<trkpt lat="51.438156" lon="12.09335"><time>2019-01-15T00:23:53Z</time></trkpt>
+<trkpt lat="51.438693" lon="12.092575"><time>2019-01-15T00:23:57Z</time></trkpt>
+<trkpt lat="51.439252" lon="12.09181"><time>2019-01-15T00:24:01Z</time></trkpt>
+<trkpt lat="51.440305" lon="12.090427"><time>2019-01-15T00:24:08Z</time></trkpt>
+<trkpt lat="51.441471" lon="12.088782"><time>2019-01-15T00:24:15Z</time></trkpt>
+<trkpt lat="51.442" lon="12.087948"><time>2019-01-15T00:24:19Z</time></trkpt>
+<trkpt lat="51.442611" lon="12.086904"><time>2019-01-15T00:24:23Z</time></trkpt>
+<trkpt lat="51.442952" lon="12.086284"><time>2019-01-15T00:24:26Z</time></trkpt>
+<trkpt lat="51.443556" lon="12.085082"><time>2019-01-15T00:24:31Z</time></trkpt>
+<trkpt lat="51.444175" lon="12.083728"><time>2019-01-15T00:24:36Z</time></trkpt>
+<trkpt lat="51.444802" lon="12.08218"><time>2019-01-15T00:24:42Z</time></trkpt>
+<trkpt lat="51.445315" lon="12.080761"><time>2019-01-15T00:24:47Z</time></trkpt>
+<trkpt lat="51.445573" lon="12.079973"><time>2019-01-15T00:24:50Z</time></trkpt>
+<trkpt lat="51.446033" lon="12.078438"><time>2019-01-15T00:24:55Z</time></trkpt>
+<trkpt lat="51.446398" lon="12.077029"><time>2019-01-15T00:25:00Z</time></trkpt>
+<trkpt lat="51.446662" lon="12.075874"><time>2019-01-15T00:25:04Z</time></trkpt>
+<trkpt lat="51.446855" lon="12.074939"><time>2019-01-15T00:25:07Z</time></trkpt>
+<trkpt lat="51.447045" lon="12.073921"><time>2019-01-15T00:25:10Z</time></trkpt>
+<trkpt lat="51.448713" lon="12.063501"><time>2019-01-15T00:25:44Z</time></trkpt>
+<trkpt lat="51.44972" lon="12.057475"><time>2019-01-15T00:26:03Z</time></trkpt>
+<trkpt lat="51.452556" lon="12.039709"><time>2019-01-15T00:27:00Z</time></trkpt>
+<trkpt lat="51.452864" lon="12.037817"><time>2019-01-15T00:27:06Z</time></trkpt>
+<trkpt lat="51.453104" lon="12.0365"><time>2019-01-15T00:27:11Z</time></trkpt>
+<trkpt lat="51.453571" lon="12.034245"><time>2019-01-15T00:27:18Z</time></trkpt>
+<trkpt lat="51.456685" lon="12.01975"><time>2019-01-15T00:28:06Z</time></trkpt>
+<trkpt lat="51.45709" lon="12.017957"><time>2019-01-15T00:28:12Z</time></trkpt>
+<trkpt lat="51.4573" lon="12.017129"><time>2019-01-15T00:28:15Z</time></trkpt>
+<trkpt lat="51.457599" lon="12.016088"><time>2019-01-15T00:28:18Z</time></trkpt>
+<trkpt lat="51.457989" lon="12.014923"><time>2019-01-15T00:28:22Z</time></trkpt>
+<trkpt lat="51.458198" lon="12.014353"><time>2019-01-15T00:28:24Z</time></trkpt>
+<trkpt lat="51.458509" lon="12.01354"><time>2019-01-15T00:28:27Z</time></trkpt>
+<trkpt lat="51.459065" lon="12.012167"><time>2019-01-15T00:28:32Z</time></trkpt>
+<trkpt lat="51.459472" lon="12.011225"><time>2019-01-15T00:28:36Z</time></trkpt>
+<trkpt lat="51.460124" lon="12.009793"><time>2019-01-15T00:28:41Z</time></trkpt>
+<trkpt lat="51.460833" lon="12.008457"><time>2019-01-15T00:28:47Z</time></trkpt>
+<trkpt lat="51.461223" lon="12.007805"><time>2019-01-15T00:28:50Z</time></trkpt>
+<trkpt lat="51.461883" lon="12.006786"><time>2019-01-15T00:28:54Z</time></trkpt>
+<trkpt lat="51.463398" lon="12.004558"><time>2019-01-15T00:29:05Z</time></trkpt>
+<trkpt lat="51.463861" lon="12.003901"><time>2019-01-15T00:29:08Z</time></trkpt>
+<trkpt lat="51.4665" lon="12.000385"><time>2019-01-15T00:29:24Z</time></trkpt>
+<trkpt lat="51.467073" lon="11.99966"><time>2019-01-15T00:29:28Z</time></trkpt>
+<trkpt lat="51.469691" lon="11.996538"><time>2019-01-15T00:29:44Z</time></trkpt>
+<trkpt lat="51.470069" lon="11.996048"><time>2019-01-15T00:29:46Z</time></trkpt>
+<trkpt lat="51.470948" lon="11.994817"><time>2019-01-15T00:29:52Z</time></trkpt>
+<trkpt lat="51.472165" lon="11.992981"><time>2019-01-15T00:30:01Z</time></trkpt>
+<trkpt lat="51.472552" lon="11.992433"><time>2019-01-15T00:30:04Z</time></trkpt>
+<trkpt lat="51.473396" lon="11.991413"><time>2019-01-15T00:30:10Z</time></trkpt>
+<trkpt lat="51.473838" lon="11.990902"><time>2019-01-15T00:30:13Z</time></trkpt>
+<trkpt lat="51.474347" lon="11.990403"><time>2019-01-15T00:30:15Z</time></trkpt>
+<trkpt lat="51.474712" lon="11.990101"><time>2019-01-15T00:30:17Z</time></trkpt>
+<trkpt lat="51.476209" lon="11.989051"><time>2019-01-15T00:30:24Z</time></trkpt>
+<trkpt lat="51.478436" lon="11.987107"><time>2019-01-15T00:30:36Z</time></trkpt>
+<trkpt lat="51.478938" lon="11.986733"><time>2019-01-15T00:30:38Z</time></trkpt>
+<trkpt lat="51.479635" lon="11.986419"><time>2019-01-15T00:30:41Z</time></trkpt>
+<trkpt lat="51.480287" lon="11.986297"><time>2019-01-15T00:30:44Z</time></trkpt>
+<trkpt lat="51.481797" lon="11.986129"><time>2019-01-15T00:30:51Z</time></trkpt>
+<trkpt lat="51.482004" lon="11.986109"><time>2019-01-15T00:30:53Z</time></trkpt>
+<trkpt lat="51.482857" lon="11.986126"><time>2019-01-15T00:30:59Z</time></trkpt>
+<trkpt lat="51.483088" lon="11.986099"><time>2019-01-15T00:31:00Z</time></trkpt>
+<trkpt lat="51.483459" lon="11.986105"><time>2019-01-15T00:31:06Z</time></trkpt>
+<trkpt lat="51.483914" lon="11.986145"><time>2019-01-15T00:31:13Z</time></trkpt>
+<trkpt lat="51.484188" lon="11.986197"><time>2019-01-15T00:31:17Z</time></trkpt>
+<trkpt lat="51.484509" lon="11.986205"><time>2019-01-15T00:31:23Z</time></trkpt>
+<trkpt lat="51.484659" lon="11.986241"><time>2019-01-15T00:31:25Z</time></trkpt>
+<trkpt lat="51.484921" lon="11.986294"><time>2019-01-15T00:31:29Z</time></trkpt>
+<trkpt lat="51.48516" lon="11.986378"><time>2019-01-15T00:31:33Z</time></trkpt>
+<trkpt lat="51.484921" lon="11.986294"><time>2019-01-15T00:31:37Z</time></trkpt>
+<trkpt lat="51.484509" lon="11.986205"><time>2019-01-15T00:31:44Z</time></trkpt>
+<trkpt lat="51.484188" lon="11.986197"><time>2019-01-15T00:31:49Z</time></trkpt>
+<trkpt lat="51.483619" lon="11.986117"><time>2019-01-15T00:31:58Z</time></trkpt>
+<trkpt lat="51.483088" lon="11.986099"><time>2019-01-15T00:32:07Z</time></trkpt>
+<trkpt lat="51.483459" lon="11.986105"><time>2019-01-15T00:32:12Z</time></trkpt>
+<trkpt lat="51.483914" lon="11.986145"><time>2019-01-15T00:32:20Z</time></trkpt>
+<trkpt lat="51.484188" lon="11.986197"><time>2019-01-15T00:32:24Z</time></trkpt>
+<trkpt lat="51.484509" lon="11.986205"><time>2019-01-15T00:32:29Z</time></trkpt>
+<trkpt lat="51.484784" lon="11.986215"><time>2019-01-15T00:32:34Z</time></trkpt>
+<trkpt lat="51.4851" lon="11.986235"><time>2019-01-15T00:32:39Z</time></trkpt>
+<trkpt lat="51.484188" lon="11.986197"><time>2019-01-15T00:32:53Z</time></trkpt>
+<trkpt lat="51.483619" lon="11.986117"><time>2019-01-15T00:33:03Z</time></trkpt>
+<trkpt lat="51.483459" lon="11.986123"><time>2019-01-15T00:33:05Z</time></trkpt>
+<trkpt lat="51.481829" lon="11.986311"><time>2019-01-15T00:33:31Z</time></trkpt>
+<trkpt lat="51.480844" lon="11.986467"><time>2019-01-15T00:33:47Z</time></trkpt>
+<trkpt lat="51.480213" lon="11.986506"><time>2019-01-15T00:33:53Z</time></trkpt>
+<trkpt lat="51.479781" lon="11.986588"><time>2019-01-15T00:33:57Z</time></trkpt>
+<trkpt lat="51.479507" lon="11.986685"><time>2019-01-15T00:34:00Z</time></trkpt>
+<trkpt lat="51.479265" lon="11.98681"><time>2019-01-15T00:34:02Z</time></trkpt>
+<trkpt lat="51.478751" lon="11.987191"><time>2019-01-15T00:34:08Z</time></trkpt>
+<trkpt lat="51.477769" lon="11.988125"><time>2019-01-15T00:34:19Z</time></trkpt>
+<trkpt lat="51.476388" lon="11.989323"><time>2019-01-15T00:34:34Z</time></trkpt>
+<trkpt lat="51.475117" lon="11.990207"><time>2019-01-15T00:34:48Z</time></trkpt>
+<trkpt lat="51.47461" lon="11.990584"><time>2019-01-15T00:34:53Z</time></trkpt>
+<trkpt lat="51.473601" lon="11.991392"><time>2019-01-15T00:35:06Z</time></trkpt>
+<trkpt lat="51.473299" lon="11.991674"><time>2019-01-15T00:35:10Z</time></trkpt>
+<trkpt lat="51.472968" lon="11.992015"><time>2019-01-15T00:35:15Z</time></trkpt>
+<trkpt lat="51.47226" lon="11.992843"><time>2019-01-15T00:35:25Z</time></trkpt>
+<trkpt lat="51.471523" lon="11.993953"><time>2019-01-15T00:35:31Z</time></trkpt>
+<trkpt lat="51.471408" lon="11.994169"><time>2019-01-15T00:35:33Z</time></trkpt>
+<trkpt lat="51.471229" lon="11.994559"><time>2019-01-15T00:35:38Z</time></trkpt>
+<trkpt lat="51.471078" lon="11.994867"><time>2019-01-15T00:35:42Z</time></trkpt>
+<trkpt lat="51.470796" lon="11.995358"><time>2019-01-15T00:35:49Z</time></trkpt>
+<trkpt lat="51.469812" lon="11.996689"><time>2019-01-15T00:36:09Z</time></trkpt>
+<trkpt lat="51.469342" lon="11.997269"><time>2019-01-15T00:36:19Z</time></trkpt>
+</trkseg>
+</trk>
+</gpx>
