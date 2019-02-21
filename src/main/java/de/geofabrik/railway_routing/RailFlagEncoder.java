@@ -3,6 +3,7 @@ package de.geofabrik.railway_routing;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import de.geofabrik.railway_routing.util.MultiValueChecker;
 public class RailFlagEncoder extends AbstractFlagEncoder {
 
     public static final String NAME = "name";
+    public static final String RAILWAY = "railwayValues";
     public static final String ELECTRIFIED = "electrifiedValues";
     public static final String VOLATAGES = "acceptedVoltages";
     public static final String FREQUENCIES = "acceptedFrequencies";
@@ -33,6 +35,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 	protected final Integer defaultSpeed = 25;
 	private int tk;
 	private String name;
+	private HashSet<String> railwayValues;
 	private ArrayList<String> electrifiedValues;
 	private ArrayList<Integer> acceptedVoltages;
 	private ArrayList<Double> acceptedFrequencies;
@@ -80,6 +83,15 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         } else {
             this.properties.put(properties);
         }
+        // railway values
+        String railwayProps = properties.get(RAILWAY, "");
+        if (!railwayProps.equals("")) {
+            this.railwayValues = new HashSet<String>(Arrays.asList(railwayProps.split(";")));
+        } else {
+            this.railwayValues = new HashSet<String>();
+            this.railwayValues.add("rail");
+        }
+
         // electrified values
         String electrifiedProps = properties.get(ELECTRIFIED, "");
         if (!electrifiedProps.equals("")) {
@@ -164,7 +176,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
-        if (!way.hasTag("railway", "rail") || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
+        if (!way.hasTag("railway", railwayValues) || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
             return EncodingManager.Access.CAN_SKIP;
         }
         if (!acceptYardSpur && isYardSpur(way)) {

@@ -9,6 +9,7 @@ public class FlagEncoderConfiguration {
     @NotEmpty
     private String name;
 
+    private String railway = "rail";
     private String electrified = "";
     private String voltages = "";
     private String frequencies = "";
@@ -20,6 +21,11 @@ public class FlagEncoderConfiguration {
     @JsonProperty
     public String getName() {
         return name;
+    }
+
+    @JsonProperty
+    public String getRailway() {
+        return railway;
     }
 
     @JsonProperty
@@ -61,6 +67,11 @@ public class FlagEncoderConfiguration {
     @JsonProperty
     public void setName(String value) {
         name = value;
+    }
+
+    @JsonProperty
+    public void setRailway(String value) {
+        railway = value;
     }
 
     @JsonProperty

@@ -13,6 +13,7 @@ public class RailFlagEncoderFactory {
     public static FlagEncoder createFlagEncoder(FlagEncoderConfiguration config) {
         PMap properties = new PMap();
         properties.put(RailFlagEncoder.NAME, config.getName());
+        properties.put(RailFlagEncoder.RAILWAY, config.getRailway());
         properties.put(RailFlagEncoder.ELECTRIFIED, config.getElectrified());
         properties.put(RailFlagEncoder.VOLATAGES, config.getVoltages());
         properties.put(RailFlagEncoder.FREQUENCIES, config.getFrequencies());
