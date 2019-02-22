@@ -95,7 +95,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         // electrified values
         String electrifiedProps = properties.get(ELECTRIFIED, "");
         if (!electrifiedProps.equals("")) {
-            this.electrifiedValues = new ArrayList<String>(Arrays.asList(properties.get("electrifiedValues", "").split(";")));
+            this.electrifiedValues = new ArrayList<String>(Arrays.asList(electrifiedProps.split(";")));
         } else {
             this.electrifiedValues = new ArrayList<String>();
         }
