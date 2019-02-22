@@ -32,25 +32,25 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public static final String ACCEPT_YARD_SPUR = "yardSpur";
 
     protected boolean speedTwoDirections = false;
-	protected final Integer defaultSpeed = 25;
-	private int tk;
-	private String name;
-	private HashSet<String> railwayValues;
-	private ArrayList<String> electrifiedValues;
-	private ArrayList<Integer> acceptedVoltages;
-	private ArrayList<Double> acceptedFrequencies;
-	private ArrayList<Integer> acceptedGauges;
-	private double speedCorrectionFactor;
-	private boolean acceptYardSpur;
+    protected final Integer defaultSpeed = 25;
+    private int tk;
+    private String name;
+    private HashSet<String> railwayValues;
+    private ArrayList<String> electrifiedValues;
+    private ArrayList<Integer> acceptedVoltages;
+    private ArrayList<Double> acceptedFrequencies;
+    private ArrayList<Integer> acceptedGauges;
+    private double speedCorrectionFactor;
+    private boolean acceptYardSpur;
 
-	public RailFlagEncoder() {
-		this(5, 5, 0, "rail");
-	}
+    public RailFlagEncoder() {
+        this(5, 5, 0, "rail");
+    }
 
-	public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-	    this(speedBits, speedFactor, maxTurnCosts, "rail");
-	    //TODO change to true if we support 
-	}
+    public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+      this(speedBits, speedFactor, maxTurnCosts, "rail");
+      //TODO change to true if we support
+    }
 
     public RailFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 5),
@@ -60,7 +60,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         this.speedTwoDirections = properties.getBool("speed_two_directions", false);
         this.properties = properties;
         initFromProperties(properties);
-	}
+    }
 
     public RailFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
@@ -138,7 +138,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         maxPossibleSpeed = speed;
     }
 
-	@Override
+    @Override
     public long handleRelationTags(long oldRelation, ReaderRelation relation) {
         return oldRelation;
     }
@@ -193,18 +193,18 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     protected double getSpeed(ReaderWay way) {
-    	if (way.hasTag("service", "siding")) {
-    		return 40;
-    	} else if (way.hasTag("service", "yard")) {
-    		return 25;
-    	} else if (way.hasTag("service", "crossover")) {
-    		return 60;
-    	} else if (way.hasTag("usage", "main")) {
-    		return 100;
-    	} else if (way.hasTag("usage", "branch")) {
-    		return 50;
-    	}
-		return defaultSpeed;
+        if (way.hasTag("service", "siding")) {
+            return 40;
+        } else if (way.hasTag("service", "yard")) {
+            return 25;
+        } else if (way.hasTag("service", "crossover")) {
+            return 60;
+        } else if (way.hasTag("usage", "main")) {
+            return 100;
+        } else if (way.hasTag("usage", "branch")) {
+            return 50;
+        }
+        return defaultSpeed;
     }
 
     @Override
@@ -240,31 +240,31 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
-    	if (way.hasTag("usage", "main")) {
-    		return 140;
-    	}
-    	if (way.hasTag("usage", "branch")) {
-        	return 70;
+        if (way.hasTag("usage", "main")) {
+            return 140;
         }
-    	if (way.hasTag("service", "siding")) {
-        	return 40;
+        if (way.hasTag("usage", "branch")) {
+            return 70;
         }
-    	if (way.hasTag("service", "crossover")) {
-        	return 20;
+        if (way.hasTag("service", "siding")) {
+            return 40;
         }
-    	if (way.hasTag("service", "yard")) {
-        	return 5;
+        if (way.hasTag("service", "crossover")) {
+            return 20;
         }
-    	if (way.hasTag("service", "spur")) {
-        	return 1;
+        if (way.hasTag("service", "yard")) {
+            return 5;
         }
-    	return 15;
+        if (way.hasTag("service", "spur")) {
+            return 1;
+        }
+        return 15;
     }
 
-	@Override
-	public int getVersion() {
-	    return 0;
-	}
+    @Override
+    public int getVersion() {
+        return 0;
+    }
 
     @Override
     public String toString() {

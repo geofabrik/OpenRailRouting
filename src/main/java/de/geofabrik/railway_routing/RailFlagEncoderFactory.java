@@ -70,7 +70,7 @@ public class RailFlagEncoderFactory {
         }
         return new RailFlagEncoder(properties);
     }
-    
+
     public static FlagEncoder[] createEncoders(String[] names) {
         LinkedList<FlagEncoder> encoders = new LinkedList<FlagEncoder>();
         for (String s : names) {
