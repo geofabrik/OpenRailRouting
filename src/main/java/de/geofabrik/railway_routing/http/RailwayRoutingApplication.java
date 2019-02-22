@@ -8,6 +8,8 @@ package de.geofabrik.railway_routing.http;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.graphhopper.http.resources.RootResource;
+import com.graphhopper.http.CORSFilter;
 
 import io.dropwizard.Application;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
@@ -54,5 +57,7 @@ public final class RailwayRoutingApplication extends Application<RailwayRoutingS
     public void run(RailwayRoutingServerConfiguration configuration, Environment environment) throws Exception {
 
         environment.jersey().register(new RootResource());
+        environment.servlets().addFilter("cors", CORSFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "*");
+
     }
 }
