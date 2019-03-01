@@ -238,6 +238,9 @@ public class MatchResource {
         float took = 0;
         try {
             List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
+            if (inputGPXEntries.size() < 2) {
+                throw new IllegalArgumentException("input contains less than two points");
+            }
             PathMerger pathMerger = new PathMerger().
                     setEnableInstructions(instructions).
                     setPathDetailsBuilders(hopper.getPathDetailsBuilderFactory(), pathDetails);
@@ -246,12 +249,14 @@ public class MatchResource {
             List<MatchResult> matchResultsList = new ArrayList<MatchResult>(2);
             List<Path> mergedPaths = new ArrayList<Path>(3);
             do {
-                // fill gap with normal routing if matching in the last iteration of this loop ended at a gap
-                if (mapMatching.matchingAttempted() &&
-                        mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
+                // Fill gap with normal routing if matching in the last iteration of this loop ended at a gap.
+                // mapMatching.getSucessfullyMatchedPoints() returns -1 if no point has been matched yet (e.g. gap between first and second point).
+	        if ((mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) 
+                        || mapMatching.getSucessfullyMatchedPoints() == -1) {
+                    int start_point = Math.max(0, mapMatching.getSucessfullyMatchedPoints());
                     List<GHPoint> points = new ArrayList<GHPoint>();
-                    points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints()));
-                    points.add((GHPoint) inputGPXEntries.get(mapMatching.getSucessfullyMatchedPoints() + 1));
+                    points.add((GHPoint) inputGPXEntries.get(start_point));
+                    points.add((GHPoint) inputGPXEntries.get(start_point + 1));
                     GHRequest request =  new GHRequest(points);
                     initHints(request.getHints(), uriInfo.getQueryParameters());
                     request.setVehicle(encodingManager.getEncoder(vehicleStr).toString()).
@@ -287,6 +292,10 @@ public class MatchResource {
             if (!inputGPXEntries.isEmpty()) {
                 time = inputGPXEntries.get(0).getTime();
             }
+            if (rsp.hasErrors()) {
+                logger.error("Error merging paths: " + rsp.getErrors().toString());
+                throw new MultiException(rsp.getErrors());
+	    }
             if (writeGPX) {
                 return Response.ok(rsp.getBest().getInstructions().createGPX("", time, false, withRoute, withTrack, false, Constants.VERSION), "application/gpx+xml").
                         header("Content-Disposition", "attachment;filename=" + "GraphHopper.gpx").
