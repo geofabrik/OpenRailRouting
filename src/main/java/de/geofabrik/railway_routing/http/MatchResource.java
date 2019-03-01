@@ -212,6 +212,7 @@ public class MatchResource {
             @QueryParam("traversal_keys") @DefaultValue("false") boolean enableTraversalKeys,
             @QueryParam(MAX_VISITED_NODES) @DefaultValue("3000") int maxVisitedNodes,
             @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy,
+            @QueryParam(Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE) @DefaultValue("1000") int maxNonCHPointDistance,
             @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) throws Exception {
         StopWatch sw = new StopWatch().start();
         boolean writeGPX = "gpx".equalsIgnoreCase(outType);
@@ -244,6 +245,8 @@ public class MatchResource {
             PathMerger pathMerger = new PathMerger().
                     setEnableInstructions(instructions).
                     setPathDetailsBuilders(hopper.getPathDetailsBuilderFactory(), pathDetails);
+            // set a maximum distance for routing requests
+            hopper.setNonChMaxWaypointDistance(maxNonCHPointDistance);
             PathWrapper pathWrapper = new PathWrapper();
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
             List<MatchResult> matchResultsList = new ArrayList<MatchResult>(2);
@@ -268,7 +271,7 @@ public class MatchResource {
                     GHResponse response = new GHResponse();
                     List<Path> paths = hopper.calcPaths(request, response);
                     if (response.hasErrors()) {
-                        logger.error("  Failed to calc a path to fill a gap in the map matching: " + response.getErrors().toString());
+                        logger.error("Routing request for " + points.toString() + " to fill a gap in the map matching failed: " + response.getErrors().toString());
                         throw new MultiException(response.getErrors());
                     } else {
                         mergedPaths.add(paths.get(0));
