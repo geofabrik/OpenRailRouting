@@ -34,8 +34,13 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperAPI;
+import com.graphhopper.http.GHPointConverterProvider;
 //import com.graphhopper.http.GraphHopperBundle;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
+import com.graphhopper.http.IllegalArgumentExceptionMapper;
+import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
+import com.graphhopper.http.MultiExceptionMapper;
+import com.graphhopper.http.TypeGPXFilter;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
 import com.graphhopper.jackson.GraphHopperModule;
 import com.graphhopper.resources.I18NResource;
@@ -162,6 +167,16 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
     public void run(RailwayRoutingServerConfiguration configuration, Environment environment) throws Exception {
         configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
+
+        // If the "?type=gpx" parameter is present, sets a corresponding media type header
+        environment.jersey().register(new TypeGPXFilter());
+
+        // Take care that IllegalArgumentException and MultiExceptions thrown from the resources
+        // come out as JSON or GPX, depending on the media type
+        environment.jersey().register(new MultiExceptionMapper());
+        environment.jersey().register(new MultiExceptionGPXMessageBodyWriter());
+
+        environment.jersey().register(new IllegalArgumentExceptionMapper());
 
         runRailwayRouting(configuration.getGraphHopperConfiguration(), configuration.getFlagEncoderConfigurations(),
                 environment);
