@@ -212,7 +212,6 @@ public class MatchResource {
             @QueryParam("traversal_keys") @DefaultValue("false") boolean enableTraversalKeys,
             @QueryParam(MAX_VISITED_NODES) @DefaultValue("3000") int maxVisitedNodes,
             @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy,
-            @QueryParam(Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE) @DefaultValue("1000") int maxNonCHPointDistance,
             @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) throws Exception {
         StopWatch sw = new StopWatch().start();
         boolean writeGPX = "gpx".equalsIgnoreCase(outType);
@@ -246,7 +245,6 @@ public class MatchResource {
                     setEnableInstructions(instructions).
                     setPathDetailsBuilders(hopper.getPathDetailsBuilderFactory(), pathDetails);
             // set a maximum distance for routing requests
-            hopper.setNonChMaxWaypointDistance(maxNonCHPointDistance);
             PathWrapper pathWrapper = new PathWrapper();
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
             List<MatchResult> matchResultsList = new ArrayList<MatchResult>(2);

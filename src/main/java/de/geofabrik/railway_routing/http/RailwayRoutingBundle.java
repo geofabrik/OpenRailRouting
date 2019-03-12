@@ -51,6 +51,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
+import com.graphhopper.util.Parameters;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetail;
 
@@ -184,7 +185,11 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
     private void runRailwayRouting(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
         final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration, encoderConfig);
-        graphHopperManaged.getGraphHopper().setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"));
+        graphHopperManaged.getGraphHopper()
+            .setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"))
+            .setNonChMaxWaypointDistance(Integer.parseInt(configuration.get(
+                    Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE, "4000000")
+            ));
         environment.lifecycle().manage(graphHopperManaged);
         environment.jersey().register(new AbstractBinder() {
             @Override
