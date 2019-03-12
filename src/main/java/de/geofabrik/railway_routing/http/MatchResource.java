@@ -254,7 +254,7 @@ public class MatchResource {
             do {
                 // Fill gap with normal routing if matching in the last iteration of this loop ended at a gap.
                 // mapMatching.getSucessfullyMatchedPoints() returns -1 if no point has been matched yet (e.g. gap between first and second point).
-	        if ((mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) 
+                if ((mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) 
                         || mapMatching.getSucessfullyMatchedPoints() == -1) {
                     int start_point = Math.max(0, mapMatching.getSucessfullyMatchedPoints());
                     List<GHPoint> points = new ArrayList<GHPoint>();
@@ -298,7 +298,7 @@ public class MatchResource {
             if (rsp.hasErrors()) {
                 logger.error("Error merging paths: " + rsp.getErrors().toString());
                 throw new MultiException(rsp.getErrors());
-	    }
+            }
             if (writeGPX) {
                 return Response.ok(rsp.getBest().getInstructions().createGPX("", time, false, withRoute, withTrack, false, Constants.VERSION), "application/gpx+xml").
                         header("Content-Disposition", "attachment;filename=" + "GraphHopper.gpx").
