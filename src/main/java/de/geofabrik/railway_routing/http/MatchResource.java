@@ -254,9 +254,8 @@ public class MatchResource {
             do {
                 // Fill gap with normal routing if matching in the last iteration of this loop ended at a gap.
                 // mapMatching.getSucessfullyMatchedPoints() returns -1 if no point has been matched yet (e.g. gap between first and second point).
-                if ((mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) 
-                        || mapMatching.getSucessfullyMatchedPoints() == -1) {
-                    int start_point = Math.max(0, mapMatching.getSucessfullyMatchedPoints());
+                if (mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
+                    int start_point = Math.max(0, mapMatching.getSucessfullyMatchedPoints() - 1);
                     List<GHPoint> points = new ArrayList<GHPoint>();
                     points.add((GHPoint) inputGPXEntries.get(start_point));
                     points.add((GHPoint) inputGPXEntries.get(start_point + 1));
