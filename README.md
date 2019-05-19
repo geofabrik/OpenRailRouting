@@ -70,7 +70,7 @@ flagEncoderProperties:
     maxspeed: 120
     speedFactor: 5
 
-graphhoper:
+graphhopper:
   # Use the 'profiles' property. graph.flag_encoders is not supported!
   profiles: tgv_all,non_tgv
 
@@ -131,7 +131,7 @@ Required settings to be given either as Java system properties (`-Dgraphhopper.d
 * `graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
   (default: `./graph-cache`)
 
-Followoing arguments have to be provided (not as Java system variables). You can retrieve this list
+Following arguments have to be provided (not as Java system variables). You can retrieve this list
 by calling
 `java -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar match config.yml`
 
