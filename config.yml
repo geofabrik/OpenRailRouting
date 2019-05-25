@@ -16,7 +16,7 @@ flagEncoderProperties:
     speedFactor: 5
   - name: allelectric
     maxspeed: 140
-    speedFactor: 6
+    speedFactor: 5
     electrified: contact_line,yes
 
 graphhopper:
