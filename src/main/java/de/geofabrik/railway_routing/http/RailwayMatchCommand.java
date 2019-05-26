@@ -60,7 +60,7 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
                 .dest("gps-accuracy")
                 .type(Double.class)
                 .required(false)
-                .setDefault(40)
+                .setDefault(40.0)
                 .help("GPS measurement accuracy");
         subparser.addArgument("--max-nodes")
                 .dest("max_nodes_to_visit")
