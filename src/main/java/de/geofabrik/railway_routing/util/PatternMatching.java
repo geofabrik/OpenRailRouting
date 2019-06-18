@@ -32,7 +32,6 @@ public class PatternMatching {
         } else if ((firstQuestionMark < firstStar && firstQuestionMark >= 0) || (firstQuestionMark > -1 && firstStar == -1)) {
             firstWildcard = firstQuestionMark;
         }
-        logger.info("firstStar: {}, firstQuestionMark: {}, firstWildcard: {}", firstStar, firstQuestionMark, firstWildcard);
         if (firstWildcard == -1) {
             return firstWildcard;
         }
@@ -60,7 +59,6 @@ public class PatternMatching {
             directory = pattern.substring(0, lastSeparator);
             finalPattern = pattern.substring(lastSeparator + 1);
         }
-        logger.info("dir: {}, finalPattern: {}", directory, finalPattern);
         
         class Finder extends SimpleFileVisitor<Path> {
             private final PathMatcher matcher;
@@ -76,7 +74,6 @@ public class PatternMatching {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 Path name = file.getFileName();
-                System.err.println(name.toString());
                 if (name != null && matcher.matches(name)) {
                     files.add(Paths.get(directory, name.toString()));
                 }
@@ -99,9 +96,7 @@ public class PatternMatching {
         
         Finder finder = new Finder(directory, finalPattern);
         try {
-            System.err.println("walking");
             Files.walkFileTree(Paths.get(directory), finder);
-            System.err.println("finished walking");
         } catch (IOException e) {
             e.printStackTrace();
         }
