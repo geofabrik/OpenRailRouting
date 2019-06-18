@@ -130,18 +130,16 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
         XmlMapper xmlMapper = new XmlMapper();
 
         for (Path f : files) {
-            InputStream inputStream;
             try {
                 logger.info("Matching GPX track {} on the graph.", f.toString());
                 Gpx gpx = xmlMapper.readValue(f.toFile(), Gpx.class);
                 List<GPXEntry> inputGPXEntries = gpx.trk.get(0).getEntries();
                 MatchResult mr = mapMatching.doWork(inputGPXEntries, false);
-                System.out.println(inputPath);
-                System.out.println("\tmatches:\t" + mr.getEdgeMatches().size());
-                System.out.println("\tgpx length:\t" + mr.getGpxEntriesLength() + " vs " + mr.getMatchLength());
-                System.out.println("\tgpx time:\t" + mr.getGpxEntriesMillis() / 1000f + " vs " + mr.getMatchMillis() / 1000f);
+                logger.debug("\tmatches: {}", mr.getEdgeMatches().size());
+                logger.debug("\tgpx length: {}", mr.getGpxEntriesLength(), mr.getMatchLength());
+                logger.debug("\tgpx time: {} vs {}", mr.getGpxEntriesMillis() / 1000f, mr.getMatchMillis() / 1000f);
 
-                String outFile = inputPath + ".res.gpx";
+                String outFile = f.toString() + ".res.gpx";
                 System.out.println("\texport results to:" + outFile);
 
                 PathWrapper pathWrapper = new PathWrapper();
@@ -150,6 +148,10 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
                     long time = System.currentTimeMillis();
                     if (!inputGPXEntries.isEmpty()) {
                         time = inputGPXEntries.get(0).getTime();
+                    }
+                    if (pathWrapper.hasErrors()) {
+                        logger.error("Failed to match {} to the graph.", f);
+                        System.exit(1);
                     }
                     writer.append(pathWrapper.getInstructions().createGPX(gpx.trk.get(0).name != null ? gpx.trk.get(0).name : "", time, hopper.hasElevation(), withRoute, true, false, Constants.VERSION));
                 }

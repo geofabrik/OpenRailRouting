@@ -137,7 +137,9 @@ by calling
 
 * `--gpx-location=$PATTERN` is required. This can be either a single GPX file or a wildcard pattern
   like `/path/to/dir/mytracks/*.gpx`. The resulting routes will be written as GPX files to same
-  directory but `.res.gpx` will be appended to their file names.
+  directory but `.res.gpx` will be appended to their file names. Wildcard patterns need to be
+  enclosed with quotes (`--gpx-location="path/to/files/*.gpx"`) to prevent your shell expanding
+  the pattern.
 * `-V VEHICLE`, `--vehicle=$VEHICLE`: routing profile to be used.
 
 Optional command line arguments:
