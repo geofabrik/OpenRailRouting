@@ -151,7 +151,7 @@ Optional command line arguments:
 
 See [LICENSE.txt](LICENSE.txt)
 
-See [third_party.md](third_party.md) for a list of all third-party code in this repository
+See [THIRD_PARTY.md](THIRD_PARTY.md) for a list of all third-party code in this repository
 
 ## Thank you
 
