@@ -136,6 +136,10 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
                     && MultiValueChecker.tagContainsDouble(frequency, acceptedFrequencies, true)) {
                 return true;
             }
+            // Grounded sections of the overhead line are treated as compatible.
+            if (voltage.equals("0")) {
+                return true;
+            }
         }
         return false;
     }
