@@ -43,11 +43,11 @@ public class RailwayHopper extends GraphHopperOSM {
     private IntSet crossingsSet = null;
 
     public RailwayHopper(final CmdArgs args, final List<FlagEncoderConfiguration> encoderConfigs) {
+        super.init(args);
         if (args.get("datareader.file", "").equals("")) {
             logger.error("Missing argument graphhopper.datareader.file=<OSM file>");
             System.exit(1);
         }
-        setTraversalMode(TraversalMode.EDGE_BASED_2DIR);
         String[] knownEncoderNames = RailFlagEncoderFactory.getKnownEncoderNames();
         HashSet<String> knownEncoders = new HashSet<String>(Arrays.asList(knownEncoderNames));
         String[] encoderNames = args.get("profiles", "").split(",");
@@ -68,19 +68,26 @@ public class RailwayHopper extends GraphHopperOSM {
                 }
             }
         }
-        setEncodingManager(new EncodingManager(encoders));
-        super.init(args);
+        int bytesForFlags = args.getInt("graph.bytes_for_flags", 4);
+        EncodingManager.Builder emBuilder = new EncodingManager.Builder(bytesForFlags);
+        emBuilder.setEnableInstructions(args.getBool("datareader.instructions", true));
+        emBuilder.setPreferredLanguage(args.get("datareader.preferred_language", ""));
+        for (FlagEncoder e : encoders) {
+            emBuilder.add(e);
+        }
+        setEncodingManager(emBuilder.build());
     }
 
     @Override
     protected DataReader createReader(GraphHopperStorage ghStorage) {
         crossingsSet = new IntScatterSet();
         OSMReader reader = new OSMReader(ghStorage);
-        OSMReaderHook hook = new CrossingsSetHook(reader, crossingsSet);
+        CrossingsSetHook hook = new CrossingsSetHook(reader, crossingsSet);
         reader.register(hook);
         return initDataReader(reader);
     }
 
+    @Override
     protected DataReader importData() throws IOException {
         ensureWriteAccess();
         if (getGraphHopperStorage() == null)
@@ -90,8 +97,6 @@ public class RailwayHopper extends GraphHopperOSM {
             throw new IllegalStateException("Couldn't load from existing folder: " + getGraphHopperLocation()
                     + " but also cannot use file for DataReader as it wasn't specified!");
 
-        getEncodingManager().setEnableInstructions(isEnableInstructions());
-        getEncodingManager().setPreferredLanguage(getPreferredLanguage());
         DataReader reader = createReader(getGraphHopperStorage());
         logger.info("using " + getGraphHopperStorage().toString() + ", memory:" + getMemInfo());
         reader.readGraph();
@@ -102,10 +107,11 @@ public class RailwayHopper extends GraphHopperOSM {
         return Math.abs(or1 - or2);
     }
 
-    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
-        if (!tMode.equals(TraversalMode.NODE_BASED)) {
-            RailTurnWeighting tw = new RailTurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
-            tw.setDefaultUTurnCost(60 * 30);
+    @Override
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
+        if (weighting.getFlagEncoder().supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+            RailTurnWeighting tw = new RailTurnWeighting(weighting,
+                    (TurnCostExtension) graph.getExtension(), 60 * 30);
             return tw;
         }
         return weighting;
@@ -167,6 +173,7 @@ public class RailwayHopper extends GraphHopperOSM {
         }
     }
 
+    @Override
     protected void cleanUp() {
         super.cleanUp();
         AngleCalc angleCalc = new AngleCalc();

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +30,18 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
-import com.graphhopper.GraphHopper;
 import com.graphhopper.MultiException;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.http.WebHelper;
 import com.graphhopper.matching.EdgeMatch;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
+import com.graphhopper.matching.Observation;
 import com.graphhopper.matching.gpx.Gpx;
 import com.graphhopper.matching.gpx.Trk;
 import com.graphhopper.matching.gpx.Trkseg;
@@ -48,13 +50,13 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.Constants;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
-import com.graphhopper.util.GPXEntry;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PathMerger;
@@ -62,10 +64,12 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.TranslationMap;
+import com.graphhopper.util.gpx.GpxFromInstructions;
 import com.graphhopper.util.shapes.GHPoint;
 import com.opencsv.bean.CsvToBeanBuilder;
 
 import de.geofabrik.railway_routing.InputCSVEntry;
+import de.geofabrik.railway_routing.RailwayHopper;
 
 import static com.graphhopper.util.Parameters.Routing.*;
 
@@ -73,19 +77,19 @@ import static com.graphhopper.util.Parameters.Routing.*;
 public class MatchResource {
     private static final Logger logger = LoggerFactory.getLogger(MatchResource.class);
 
-    private final GraphHopper hopper;
+    private final RailwayHopper hopper;
     private final EncodingManager encodingManager;
     private final TranslationMap trMap;
 
     @Inject
-    public MatchResource(GraphHopper graphHopper, EncodingManager encodingManager,
+    public MatchResource(RailwayHopper graphHopper, EncodingManager encodingManager,
             TranslationMap trMap) {
         this.hopper = graphHopper;
         this.encodingManager = encodingManager;
         this.trMap = trMap;
     }
 
-    private List<GPXEntry> readCSV(InputStream inputStream, double defaultSpeed, char separator, char quoteChar) {
+    private List<Observation> readCSV(InputStream inputStream, double defaultSpeed, char separator, char quoteChar) {
         try {
             List<InputCSVEntry> inputEntries = new CsvToBeanBuilder<InputCSVEntry>(new InputStreamReader(inputStream))
                     .withType(InputCSVEntry.class)
@@ -94,16 +98,12 @@ public class MatchResource {
                     .build()
                     .parse();
             InputCSVEntry last = null;
-            ArrayList<GPXEntry> result = new ArrayList<GPXEntry>(inputEntries.size());
-            DistanceCalc distCalc = Helper.DIST_PLANE;
-            long millis = 0;
+            ArrayList<Observation> result = new ArrayList<Observation>(inputEntries.size());
             for (InputCSVEntry entry: inputEntries) {
                 if (last != null) {
-                    millis += Math.round(distCalc.calcDist(last.getLatitude(), last.getLongitude(),
-                            entry.getLatitude(), entry.getLongitude()) * 3600 / defaultSpeed);
                     last = entry;
                 }
-                result.add(entry.toGPXEntry(millis));
+                result.add(entry.toGPXEntry());
             }
             return result;
         } catch (NumberFormatException e) {
@@ -111,7 +111,7 @@ public class MatchResource {
         }
     }
 
-    private List<GPXEntry> importGpx(InputStream inputStream) {
+    private List<Observation> importGpx(InputStream inputStream) {
         XmlMapper xmlMapper = new XmlMapper();
         Gpx gpx;
         try {
@@ -128,7 +128,7 @@ public class MatchResource {
         return gpx.trk.get(0).getEntries();
     }
 
-    public List<GPXEntry> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar)
+    public List<Observation> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar)
             throws SAXException, IOException, ParserConfigurationException {
         if (contentType.equals(MediaType.APPLICATION_XML) || contentType.equals("application/gpx+xml")) {
             return importGpx(inputStream);
@@ -206,13 +206,14 @@ public class MatchResource {
             @QueryParam("points_encoded") @DefaultValue("true") boolean pointsEncoded,
             @QueryParam("vehicle") @DefaultValue("car") String vehicleStr,
             @QueryParam("locale") @DefaultValue("en") String localeStr,
-            @QueryParam(Parameters.DETAILS.PATH_DETAILS) List<String> pathDetails,
+            @QueryParam(Parameters.Details.PATH_DETAILS) List<String> pathDetails,
             @QueryParam("gpx.route") @DefaultValue("true") boolean withRoute,
             @QueryParam("gpx.track") @DefaultValue("true") boolean withTrack,
             @QueryParam("traversal_keys") @DefaultValue("false") boolean enableTraversalKeys,
             @QueryParam(MAX_VISITED_NODES) @DefaultValue("3000") int maxVisitedNodes,
             @QueryParam("gps_accuracy") @DefaultValue("40") double gpsAccuracy,
             @QueryParam("fill_gaps") @DefaultValue("false") boolean fillGaps) throws Exception {
+        
         StopWatch sw = new StopWatch().start();
         boolean writeGPX = "gpx".equalsIgnoreCase(outType);
         instructions = writeGPX || instructions;
@@ -225,10 +226,16 @@ public class MatchResource {
             throw new IllegalArgumentException("Vehicle not supported: " + vehicleStr);
         }
         FastestWeighting fastestWeighting = new FastestWeighting(encoder);
+        TraversalMode tMode;
+        if (hopper.getEncodingManager().needsTurnCostsSupport()) {
+            tMode = TraversalMode.EDGE_BASED;
+        } else {
+            tMode = TraversalMode.NODE_BASED;
+        }
         Weighting turnWeighting = hopper.createTurnWeighting(hopper.getGraphHopperStorage(),
-                fastestWeighting, hopper.getTraversalMode());
+                fastestWeighting, tMode, 0);
         AlgorithmOptions opts = AlgorithmOptions.start()
-                .traversalMode(hopper.getTraversalMode())
+                .traversalMode(tMode)
                 .maxVisitedNodes(maxVisitedNodes)
                 .weighting(turnWeighting)
                 .hints(new HintsMap().put("vehicle", vehicleStr))
@@ -237,7 +244,7 @@ public class MatchResource {
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
         float took = 0;
         try {
-            List<GPXEntry> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
+            List<Observation> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
             if (inputGPXEntries.size() < 2) {
                 throw new IllegalArgumentException("input contains less than two points");
             }
@@ -255,8 +262,8 @@ public class MatchResource {
                 if (mapMatching.matchingAttempted() && mapMatching.getSucessfullyMatchedPoints() < inputGPXEntries.size() - 1) {
                     int start_point = Math.max(0, mapMatching.getSucessfullyMatchedPoints() - 1);
                     List<GHPoint> points = new ArrayList<GHPoint>();
-                    points.add((GHPoint) inputGPXEntries.get(start_point));
-                    points.add((GHPoint) inputGPXEntries.get(start_point + 1));
+                    points.add((GHPoint) inputGPXEntries.get(start_point).getPoint());
+                    points.add((GHPoint) inputGPXEntries.get(start_point + 1).getPoint());
                     GHRequest request =  new GHRequest(points);
                     initHints(request.getHints(), uriInfo.getQueryParameters());
                     request.setVehicle(encodingManager.getEncoder(vehicleStr).toString()).
@@ -283,21 +290,23 @@ public class MatchResource {
             // marked with a non-empty list of Exception objects. I disagree, so I clear it.
             pathWrapper.getErrors().clear();
             GHResponse rsp = new GHResponse();
-            pathMerger.doWork(pathWrapper, mergedPaths, tr);
+            pathMerger.doWork(pathWrapper, mergedPaths, encodingManager, tr);
             rsp.add(pathWrapper);
 
             took = sw.stop().getSeconds();
             logger.info(logStr + ", took:" + took);
-            long time = System.currentTimeMillis();
-            if (!inputGPXEntries.isEmpty()) {
-                time = inputGPXEntries.get(0).getTime();
-            }
             if (rsp.hasErrors()) {
                 logger.error("Error merging paths: " + rsp.getErrors().toString());
                 throw new MultiException(rsp.getErrors());
             }
             if (writeGPX) {
-                return Response.ok(rsp.getBest().getInstructions().createGPX("", time, false, withRoute, withTrack, false, Constants.VERSION), "application/gpx+xml").
+                // The GPX output is not exactly the same as upstream GraphHopper.
+                // Upstream GraphHopper writes the timestamp of the first trackpoint of the input
+                // file to the metadata section of the output file. We don't do this because this
+                // is special to GPX. The same applies tothe name field of the metadata section.
+                //TODO If elevation support is added, remove hardcoded false here.
+                long time = System.currentTimeMillis();
+                return Response.ok(GpxFromInstructions.createGPX(rsp.getBest().getInstructions(), "", time, false, withRoute, withTrack, false, Constants.VERSION, tr), "application/gpx+xml").
                         header("Content-Disposition", "attachment;filename=" + "GraphHopper.gpx").
                         header("X-GH-Took", "" + Math.round(took * 1000)).
                         build();
@@ -316,7 +325,6 @@ public class MatchResource {
                     matchLength += mr.getMatchLength();
                     matchMillis += mr.getMatchMillis();
                     gpxEntriesLength += mr.getGpxEntriesLength();
-                    gpxEntriesMillis += mr.getGpxEntriesMillis();
                     if (enableTraversalKeys) {
                         for (EdgeMatch em : mr.getEdgeMatches()) {
                             EdgeIteratorState edge = em.getEdgeState();
@@ -329,7 +337,6 @@ public class MatchResource {
                 matchStatistics.put("distance", matchLength);
                 matchStatistics.put("time", matchMillis);
                 matchStatistics.put("original_distance", gpxEntriesLength);
-                matchStatistics.put("original_time", gpxEntriesMillis);
                 map.putPOJO("map_matching", matchStatistics);
 
                 if (enableTraversalKeys) {

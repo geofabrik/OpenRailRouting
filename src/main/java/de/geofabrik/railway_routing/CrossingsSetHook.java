@@ -5,7 +5,7 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.OSMReaderHook;
 import com.carrotsearch.hppc.IntSet;
 
-public class CrossingsSetHook implements OSMReaderHook {
+public class CrossingsSetHook extends OSMReaderHook {
     private IntSet nodes;
     private OSMReader reader;
     

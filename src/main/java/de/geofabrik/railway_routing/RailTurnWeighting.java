@@ -11,7 +11,7 @@ public class RailTurnWeighting extends com.graphhopper.routing.weighting.TurnWei
     private double directionChangeTime = 60 * 4;
 
 
-    public RailTurnWeighting(Weighting superWeighting, TurnCostExtension turnCostExt) {
+    public RailTurnWeighting(Weighting superWeighting, TurnCostExtension turnCostExt, double uTurnCosts) {
         super(superWeighting, turnCostExt);
         this.turnCostEncoder = (TurnCostEncoder) superWeighting.getFlagEncoder();
         this.turnCostExt = turnCostExt;

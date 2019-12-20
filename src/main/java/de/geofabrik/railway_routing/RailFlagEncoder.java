@@ -1,12 +1,19 @@
 package de.geofabrik.railway_routing;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.EncodedDoubleValue;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.EncodingManager.Access;
+import com.graphhopper.storage.IntsRef;
+import com.graphhopper.routing.profiles.EncodedValue;
+import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.util.PMap;
 
 import de.geofabrik.railway_routing.util.MultiValueChecker;
@@ -22,6 +29,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public static final String SPEED_FACTOR = "speedFactor";
     public static final String ACCEPT_YARD_SPUR = "yardSpur";
 
+    protected boolean speedTwoDirections = false;
 	protected final Integer defaultSpeed = 25;
 	private int tk;
 	private String name;
@@ -38,6 +46,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
 	public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
 	    this(speedBits, speedFactor, maxTurnCosts, "rail");
+	    //TODO change to true if we support 
 	}
 
     public RailFlagEncoder(PMap properties) {
@@ -45,6 +54,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
                 properties.getDouble(SPEED_FACTOR, 5),
         properties.getInt("max_turn_costs", 3),
         properties.get(NAME, ""));
+        this.speedTwoDirections = properties.getBool("speed_two_directions", false);
         this.properties = properties;
         initFromProperties(properties);
 	}
@@ -117,8 +127,8 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
 	@Override
-    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
-        return oldRelationFlags;
+    public long handleRelationTags(long oldRelation, ReaderRelation relation) {
+        return oldRelation;
     }
 
     public boolean hasCompatibleElectricity(ReaderWay way) {
@@ -153,23 +163,21 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public long acceptWay(ReaderWay way) {
+    public EncodingManager.Access getAccess(ReaderWay way) {
         if (!way.hasTag("railway", "rail") || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
         if (!acceptYardSpur && isYardSpur(way)) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
-        return acceptBit;
+        return EncodingManager.Access.WAY;
     }
 
     @Override
-    public int defineWayBits(int index, int shift) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
-        shift = super.defineWayBits(index, shift);
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, defaultSpeed,
-        		maxPossibleSpeed);
-        return shift + speedEncoder.getBits();
+        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+        registerNewEncodedValue.add(speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, defaultSpeed, speedTwoDirections));
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -188,17 +196,20 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public long handleWayTags(ReaderWay way, long allowed, long relationFlags) {
-        if (!isAccept(allowed)) {
-            return 0;
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+        if (access.canSkip()) {
+            return edgeFlags;
         }
-        long flags = 0;
         // get assumed speed from railway type
         double speed = getSpeed(way);
         speed = applyMaxSpeed(way, speed);
-        flags = setSpeed(flags, speed);
-        flags |= directionBitMask;
-        return flags;
+        setSpeed(false, edgeFlags, speed);
+        if (speedTwoDirections) {
+            setSpeed(true, edgeFlags, speed);
+        }
+        accessEnc.setBool(false, edgeFlags, true);
+        accessEnc.setBool(true, edgeFlags, true);
+        return edgeFlags;
     }
 
     /**
@@ -247,5 +258,4 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public String toString() {
         return name;
     }
-
 }

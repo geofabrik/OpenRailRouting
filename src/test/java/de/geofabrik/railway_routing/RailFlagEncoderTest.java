@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.PMap;
 
 import org.junit.Before;
@@ -38,7 +39,6 @@ public class RailFlagEncoderTest {
 
     private void initFromProperties(RailFlagEncoder e, PMap properties) {
         e.initFromProperties(properties);
-        e.defineWayBits(0, 0);
     }
 
     private ReaderWay getYardWay() {
@@ -187,9 +187,9 @@ public class RailFlagEncoderTest {
         properties.put("name", "test");
         initFromProperties(e, properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
-        assertNotEquals(e.acceptWay(way1), 0L);
+        assertNotEquals(e.getAccess(way1), EncodingManager.Access.CAN_SKIP);
         ReaderWay way2 = getYardWay();
-        assertNotEquals(e.acceptWay(way2), 0L);
+        assertNotEquals(e.getAccess(way2), EncodingManager.Access.CAN_SKIP);
     }
 
     @Test
@@ -202,8 +202,20 @@ public class RailFlagEncoderTest {
         properties.put("name", "test");
         initFromProperties(e, properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
-        assertNotEquals(e.acceptWay(way1), 0L);
+        assertNotEquals(e.getAccess(way1), EncodingManager.Access.CAN_SKIP);
         ReaderWay way2 = getYardWay();
-        assertEquals(e.acceptWay(way2), 0L);
+        assertEquals(e.getAccess(way2), EncodingManager.Access.CAN_SKIP);
+    }
+
+    @Test
+    public void testAcceptsTrack() {
+        PMap properties = new PMap();
+        properties.put("name", "tgv");
+        properties.put("max_speed", 319);
+        properties.put("speedFactor", 11);
+        RailFlagEncoder e = new RailFlagEncoder(properties);
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("railway", "rail");
+        assertEquals(e.getAccess(way), EncodingManager.Access.WAY);
     }
 }

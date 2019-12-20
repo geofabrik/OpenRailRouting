@@ -2,7 +2,8 @@ package de.geofabrik.railway_routing;
 
 import java.io.Serializable;
 
-import com.graphhopper.util.GPXEntry;
+import com.graphhopper.matching.Observation;
+import com.graphhopper.util.shapes.GHPoint;
 import com.opencsv.bean.CsvBindByName;
 
 public class InputCSVEntry {
@@ -38,7 +39,7 @@ public class InputCSVEntry {
         return longitude;
     }
 
-    public GPXEntry toGPXEntry(long milliseconds) {
-        return new GPXEntry(latitude, longitude, milliseconds);
+    public Observation toGPXEntry() {
+        return new Observation(new GHPoint(latitude, longitude));
     }
 }
