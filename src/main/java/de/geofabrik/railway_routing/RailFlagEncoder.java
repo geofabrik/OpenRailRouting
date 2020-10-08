@@ -159,7 +159,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
                 return true;
             }
             // Grounded sections of the overhead line are treated as compatible.
-            if (voltage.equals("0")) {
+            if (voltage == null || voltage.equals("0")) {
                 return true;
             }
         }
