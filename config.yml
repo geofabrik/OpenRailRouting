@@ -1,6 +1,7 @@
 # encoder properties
 flagEncoderProperties:
   - name: tgv_all
+    railway: rail
     electrified: contact_line
     voltages: 15000;25000;1500;3000
     frequencies: 16.7;16.67;50;0
@@ -12,6 +13,7 @@ flagEncoderProperties:
     maxspeed: 120
     speedFactor: 5
   - name: alltracks
+    railway: rail;light_rail;tram;subway;narrow_gaute
     maxspeed: 120
     speedFactor: 5
   - name: allelectric

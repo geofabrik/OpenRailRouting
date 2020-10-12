@@ -48,6 +48,7 @@ identical to GraphHopper. However, one part is different – the flag encoders
 #
 # Properties of flagEncoderProperties:
 #   name: name of the flag encoder – used by the API
+#   railway: accepted values of the OSM tag railway=* separated by a semicolon – as a string
 #   electrified: list of compatible values of the OSM tag electrified=* separated by semicola – as a string
 #   voltages: list of compatible values of the OSM tag voltage=* separated by semicola – as a string
 #   frequencies: list of compatible values of the OSM tag frequency=* separated by semicola – as a string
@@ -59,6 +60,7 @@ identical to GraphHopper. However, one part is different – the flag encoders
 # an all-gauge diesel engine.
 flagEncoderProperties:
   - name: tgv_all
+    railway: rail
     electrified: contact_line
     voltages: 15000;25000;1500;3000
     frequencies: 16.7;16.67;50;0
@@ -66,6 +68,7 @@ flagEncoderProperties:
     maxspeed: 319
     speedFactor: 11
   - name: non_tgv
+    railway: rail;light_rail
     gauges: 1435
     maxspeed: 120
     speedFactor: 5
