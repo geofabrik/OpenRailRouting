@@ -13,7 +13,7 @@ flagEncoderProperties:
     maxspeed: 120
     speedFactor: 5
   - name: alltracks
-    railway: rail;light_rail;tram;subway;narrow_gaute
+    railway: rail;light_rail;tram;subway;narrow_gauge
     maxspeed: 120
     speedFactor: 5
   - name: allelectric
