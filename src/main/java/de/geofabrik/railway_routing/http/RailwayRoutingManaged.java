@@ -11,7 +11,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.util.CmdArgs;
+import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.util.PMap;
 import de.geofabrik.railway_routing.RailwayHopper;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
@@ -23,17 +24,16 @@ public class RailwayRoutingManaged implements Managed {
     private final RailwayHopper graphHopper;
     
     @Inject
-    public RailwayRoutingManaged(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig) {
-        graphHopper = (RailwayHopper) new RailwayHopper(configuration, encoderConfig).forServer();
-        graphHopper.setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"));
-//        graphHopper.init(configuration);
+    public RailwayRoutingManaged(GraphHopperConfig configuration, List<FlagEncoderConfiguration> encoderConfig) {
+        graphHopper = (RailwayHopper) new RailwayHopper(encoderConfig);
+        graphHopper.init(configuration);
     }
     
     @Override
     public void start() throws Exception {
         graphHopper.importOrLoad();
         logger.info("loaded graph at:" + graphHopper.getGraphHopperLocation()
-                + ", data_reader_file:" + graphHopper.getDataReaderFile()
+                + ", data_reader_file:" + graphHopper.getOSMFile()
                 + ", flag_encoders:" + graphHopper.getEncodingManager()
                 + ", " + graphHopper.getGraphHopperStorage().toDetailsString());
     }

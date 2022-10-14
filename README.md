@@ -24,12 +24,12 @@ Lacking features:
 
 ## Building
 
-This project uses Maven 3.x for building. The forked GraphHopper is provided as a Git submodule.
+This project uses Maven for building.
 
 ```sh
 git submodule init
 git submodule update
-bash build.sh
+mvn clean install
 ```
 
 JUnit 4.x is used for unit tests.
@@ -54,7 +54,7 @@ identical to GraphHopper. However, one part is different – the flag encoders
 #   frequencies: list of compatible values of the OSM tag frequency=* separated by semicola – as a string
 #   gauges: list of compatible values of the OSM tag gauge=* separated by semicola – as a string
 #   maxspeed: maximum speed of this flag encoder in kph
-#   speedFactor: divisor for divide speed values by to encode them in the flags of an edge of the graph
+#   speed_factor: divisor for divide speed values by to encode them in the flags of an edge of the graph
 #
 # If electrified, voltages, frequencies or gauges is missing, the profile accepts any value. This is recommended for
 # an all-gauge diesel engine.
@@ -66,18 +66,17 @@ flagEncoderProperties:
     frequencies: 16.7;16.67;50;0
     gauges: 1435
     maxspeed: 319
-    speedFactor: 11
+    speed_factor: 11
   - name: non_tgv
     railway: rail;light_rail
     gauges: 1435
     maxspeed: 120
-    speedFactor: 5
+    speed_factor: 5
 
 graphhopper:
-  # Use the 'profiles' property. graph.flag_encoders is not supported!
-  profiles: tgv_all,non_tgv
+  graph.flag_encoders: tgv_all,non_tgv
 
-  # Any other values can be found in the GraphHopper documentation and are explained in the exemplary configuration in this repository
+  # Any other values can be found in the GraphHopper documentation and are explained in config.yml in this repository
 ```
 
 
@@ -87,21 +86,23 @@ To run the routing engine, execute
 
 ```sh
 java -Xmx2500m -Xms50m -Dgraphhopper.prepare.ch.weightings=no \
-  -Dgraphhopper.datareader.file=$OSMFILE -Dgraphhopper.profiles=freight_diesel \
-  -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar $ACTION $CONFIG_FILE $OPTARG
+  -Ddw.graphhopper.datareader.file=$OSMFILE -Ddw.graphhopper.profiles=freight_diesel \
+  -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar ACTION [ARGUMENTS] CONFIG_FILE [OPTARG]
 ```
 
-The tool currently supports three different actions (`$ACTION` above):
+The tool currently supports three different actions (`ACTION` above):
 
 * `import` to import the graph (graph will be stored at the subdirectory `graph-cache/`)
 * `serve` to listen to HTTP requests for the API and the web interface on the port specified in a YAML configuration file (see
   `config.yml` as an example). If no data has been imported, an import of the routing graph will happen first.
-* `match` do map matching. This command needs additional arguments called `$OPTARG` above.
-
-All commands have some arguments to be handed over as Java system variables using the `-Dkey=value`
-option of the JVM. These arguments can also be given using the YAML file.
+* `match` do map matching. This command needs additional arguments called `OPTARG` above.
 
 ### Import
+
+Arguments:
+
+* `--input`, `-i`: Path to input file (.osm.pbf format)
+* `--output`, `-o`: Path to output directory where the graph should be written to
 
 Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
 
@@ -116,22 +117,21 @@ Required settings to be given either as Java system properties (`-Dgraphhopper.d
   * `tgv_25kvac1.5kvdc3kvdc`
   * `freight_electric_25kvac1.5kvdc3kvdc`
 
-### Web
+### Serve
 
-Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
+Required settings to be given either as Java system properties (`-Ddw.KEY=VALUE` or in the configuration file):
 
-* `graphhopper.datareader.file=$PATH`: path to OSM file
-* `graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+* `dw.graphhopper.datareader.file=$PATH`: path to OSM file
+* `dw.graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
   (default: `./graph-cache`)
-* `server.applicationConnector.port=$PORT`: port to be opened by Jetty
-* `graphhopper.profiles=<flag_encoders>`: this must be the same as used for the import
+* `dw.server.applicationConnector.port=$PORT`: port to be opened by Jetty
 
 ### Match
 
-Required settings to be given either as Java system properties (`-Dgraphhopper.datareader.file=PATH` or in the YAML file):
+Required settings to be given either as Java system properties (`-Ddw.KEY=VALUE` or in the configuration file):
 
-* `graphhopper.datareader.file=$PATH`: path to OSM file
-* `graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
+* `dw.graphhopper.datareader.file=$PATH`: path to OSM file
+* `dw.graphhopper.graph.location=./graph-cache`: directory where the graph should be read from
   (default: `./graph-cache`)
 
 Following arguments have to be provided (not as Java system variables). You can retrieve this list

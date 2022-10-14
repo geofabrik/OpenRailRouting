@@ -6,55 +6,55 @@
 
 package de.geofabrik.railway_routing.http;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import javax.inject.Inject;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
-import com.bedatadriven.jackson.datatype.jts.JtsModule;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperAPI;
-import com.graphhopper.http.GHPointConverterProvider;
-//import com.graphhopper.http.GraphHopperBundle;
-import com.graphhopper.http.GraphHopperBundleConfiguration;
+import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.http.GHJerseyViolationExceptionMapper;
 import com.graphhopper.http.IllegalArgumentExceptionMapper;
 import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
 import com.graphhopper.http.MultiExceptionMapper;
 import com.graphhopper.http.TypeGPXFilter;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
-import com.graphhopper.jackson.GraphHopperModule;
+import com.graphhopper.jackson.GraphHopperConfigModule;
+import com.graphhopper.jackson.Jackson;
 import com.graphhopper.resources.I18NResource;
 import com.graphhopper.resources.InfoResource;
+import com.graphhopper.resources.IsochroneResource;
+import com.graphhopper.resources.MVTResource;
 import com.graphhopper.resources.NearestResource;
 import com.graphhopper.resources.RouteResource;
+import com.graphhopper.resources.SPTResource;
+import com.graphhopper.routing.ProfileResolver;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.TranslationMap;
+import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.details.PathDetail;
 
+import de.geofabrik.railway_routing.RailwayHopper;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -125,6 +125,42 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         }
     }
 
+    static class ProfileResolverFactory implements Factory<ProfileResolver> {
+
+        @Inject
+        GraphHopper graphHopper;
+
+        @Override
+        public ProfileResolver provide() {
+            return new ProfileResolver(graphHopper.getEncodingManager(),
+                    graphHopper.getProfiles(),
+                    graphHopper.getCHPreparationHandler().getCHProfiles(),
+                    graphHopper.getLMPreparationHandler().getLMProfiles()
+            );
+        }
+
+        @Override
+        public void dispose(ProfileResolver profileResolver) {
+
+        }
+    }
+
+    static class PathDetailsBuilderFactoryFactory implements Factory<PathDetailsBuilderFactory> {
+
+        @Inject
+        GraphHopper graphHopper;
+
+        @Override
+        public PathDetailsBuilderFactory provide() {
+            return graphHopper.getPathDetailsBuilderFactory();
+        }
+
+        @Override
+        public void dispose(PathDetailsBuilderFactory profileResolver) {
+
+        }
+    }
+
     static class HasElevation implements Factory<Boolean> {
 
         @Inject
@@ -143,31 +179,38 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
-        bootstrap.getObjectMapper().setDateFormat(new ISO8601DateFormat());
-        bootstrap.getObjectMapper().registerModule(new JtsModule());
-        bootstrap.getObjectMapper().registerModule(new GraphHopperModule());
-        bootstrap.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        // Because VirtualEdgeIteratorState has getters which throw Exceptions.
-        // http://stackoverflow.com/questions/35359430/how-to-make-jackson-ignore-properties-if-the-getters-throw-exceptions
-        bootstrap.getObjectMapper().registerModule(new SimpleModule().setSerializerModifier(new BeanSerializerModifier() {
-            @Override
-            public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
-                return beanProperties.stream().map(bpw -> new BeanPropertyWriter(bpw) {
-                    @Override
-                    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
-                        try {
-                            super.serializeAsField(bean, gen, prov);
-                        } catch (Exception e) {
-                            // Ignoring expected exception, see above.
-                        }
-                    }
-                }).collect(Collectors.toList());
-            }
-        }));
+        // See #1440: avoids warning regarding com.fasterxml.jackson.module.afterburner.util.MyClassLoader
+        bootstrap.setObjectMapper(io.dropwizard.jackson.Jackson.newMinimalObjectMapper());
+        // avoids warning regarding com.fasterxml.jackson.databind.util.ClassUtil
+        bootstrap.getObjectMapper().registerModule(new Jdk8Module());
+
+        Jackson.initObjectMapper(bootstrap.getObjectMapper());
+        bootstrap.getObjectMapper().registerModule(new GraphHopperConfigModule());
+        bootstrap.getObjectMapper().setDateFormat(new StdDateFormat());
+        // See https://github.com/dropwizard/dropwizard/issues/1558
+        bootstrap.getObjectMapper().enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
     }
 
+    @Override
     public void run(RailwayRoutingServerConfiguration configuration, Environment environment) throws Exception {
-        configuration.getGraphHopperConfiguration().merge(CmdArgs.readFromSystemProperties());
+        configuration.updateFromSystemProperties();
+
+        // When Dropwizard's Hibernate Validation misvalidates a query parameter,
+        // a JerseyViolationException is thrown.
+        // With this mapper, we use our custom format for that (backwards compatibility),
+        // and also coerce the media type of the response to JSON, so we can return JSON error
+        // messages from methods that normally have a different return type.
+        // That's questionable, but on the other hand, Dropwizard itself does the same thing,
+        // not here, but in a different place (the custom parameter parsers).
+        // So for the moment we have to assume that both mechanisms
+        // a) always return JSON error messages, and
+        // b) there's no need to annotate the method with media type JSON for that.
+        //
+        // However, for places that throw IllegalArgumentException or MultiException,
+        // we DO need to use the media type JSON annotation, because
+        // those are agnostic to the media type (could be GPX!), so the server needs to know
+        // that a JSON error response is supported. (See below.)
+        environment.jersey().register(new GHJerseyViolationExceptionMapper());
 
         // If the "?type=gpx" parameter is present, sets a corresponding media type header
         environment.jersey().register(new TypeGPXFilter());
@@ -183,22 +226,23 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
                 environment);
     }
 
-    private void runRailwayRouting(CmdArgs configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
+    private void runRailwayRouting(GraphHopperConfig configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
         final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration, encoderConfig);
-        graphHopperManaged.getGraphHopper()
-            .setGraphHopperLocation(configuration.get("graph.location", "./graph-cache"))
-            .setNonChMaxWaypointDistance(Integer.parseInt(configuration.get(
-                    Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE, "4000000")
-            ));
+        RailwayHopper hopper = graphHopperManaged.getGraphHopper();
+        hopper.getRouterConfig().setNonChMaxWaypointDistance(Integer.parseInt(configuration.getString(
+                Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE, "4000000")
+        ));
         environment.lifecycle().manage(graphHopperManaged);
         environment.jersey().register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(configuration).to(CmdArgs.class);
-                bind(graphHopperManaged).to(RailwayRoutingManaged.class);
+                bind(configuration).to(GraphHopperConfig.class);
+                //bind(graphHopperManaged).to(RailwayRoutingManaged.class);
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopper.class);
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopperAPI.class);
 
+                bindFactory(PathDetailsBuilderFactoryFactory.class).to(PathDetailsBuilderFactory.class);
+                bindFactory(ProfileResolverFactory.class).to(ProfileResolver.class);
                 bind(false).to(Boolean.class).named("hasElevation");
                 bindFactory(LocationIndexFactory.class).to(LocationIndex.class);
                 bindFactory(TranslationMapFactory.class).to(TranslationMap.class);
@@ -207,9 +251,12 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
             }
         });
 
+        environment.jersey().register(MVTResource.class);
         environment.jersey().register(NearestResource.class);
         environment.jersey().register(RouteResource.class);
+        environment.jersey().register(IsochroneResource.class);
         environment.jersey().register(MatchResource.class);
+        environment.jersey().register(SPTResource.class);
         environment.jersey().register(I18NResource.class);
         environment.jersey().register(InfoResource.class);
 

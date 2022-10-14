@@ -1,5 +1,13 @@
 # encoder properties
 flagEncoderProperties:
+  - name: tramtrain
+    electrified: contact_line
+    voltages: 15000;15000;750
+    frequencies: 16.7;16.67;0
+    gauges: 1435
+    maxspeed: 100
+    speed_factor: 11
+    railway: "rail;light_rail;tram"
   - name: tgv_all
     railway: rail
     electrified: contact_line
@@ -7,15 +15,15 @@ flagEncoderProperties:
     frequencies: 16.7;16.67;50;0
     gauges: 1435
     maxspeed: 319
-    speedFactor: 11
+    speed_factor: 11
   - name: non_tgv
     gauges: 1435
     maxspeed: 120
-    speedFactor: 5
+    speed_factor: 5
   - name: alltracks
     railway: rail;light_rail;tram;subway;narrow_gauge
     maxspeed: 120
-    speedFactor: 5
+    speed_factor: 5
   - name: allelectric
     maxspeed: 140
     speedFactor: 5
@@ -28,15 +36,54 @@ graphhopper:
   ##### Vehicles #####
 
 
-  # Possible options: car,foot,bike,bike2,mtb,racingbike,motorcycle (comma separated)
-  # bike2 takes elevation data into account (like up-hill is slower than down-hill) and requires enabling graph.elevation.provider below
-  # This property must not be set for railway routing. Use graphhopper.profiles instead
-  # graph.flag_encoders: car
+  # This property determines which flag encoders are enabled. You can use the hardcoded flag encoder configurations
+  # or any of the encoders defined with flagEncoderProperties
+  graph.flag_encoders: tgv_all|turn_costs=true|u_turn_costs=300,stadtbahn|turn_costs=true|u_turn_costs=300
+  # Define routing profiles to offer (
+  ##### Routing Profiles ####
 
-  profiles: alltracks,allelectric
+  # Routing can be done for the following list of profiles. Note that it is required to specify all the profiles you
+  # would like to use here. The fields of each profile are as follows:
+  # - name (required): a unique string identifier for the profile
+  # - vehicle (required): refers to the `graph.flag_encoders` used for this profile
+  # - weighting (required): the weighting used for this profile, e.g. fastest,shortest or short_fastest
+  # - turn_costs (true/false, default: false): whether or not turn restrictions should be applied for this profile.
+  #   this will only work if the `graph.flag_encoders` for the given `vehicle` is configured with `|turn_costs=true`.
+  #
+  # Depending on the above fields there are other properties that can be used, e.g.
+  # - distance_factor: 0.1 (can be used to fine tune the time/distance trade-off of short_fastest weighting)
+  # - u_turn_costs: 60 (time-penalty for doing a u-turn in seconds (only possible when `turn_costs: true`)).
+  #   Note that since the u-turn costs are given in seconds the weighting you use should also calculate the weight
+  #   in seconds, so for example it does not work with shortest weighting.
+  #
+  #   For more information about profiles and especially custom profiles have a look into the documentation
+  #   at docs/core/profiles.md or the examples under web/src/test/resources/com/graphhopper/http/resources/ or
+  #   the CustomWeighting class for the raw details.
+  #
+  # To prevent long running routing queries you should usually enable either speed or hybrid mode for all the given
+  # profiles (see below). Otherwise you should at least limit the number of `routing.max_visited_nodes`.
+  profiles:
+    - name: tgv_all
+      vehicle: tgv_all
+      weighting: fastest
+      turn_costs: true
+      u_turn_costs: 300
+    - name: stadtbahn
+      vehicle: stadtbahn
+      weighting: fastest
+      turn_costs: true
+      u_turn_costs: 300
 
-  # Enable turn restrictions for car or motorcycle.
-  # graph.flag_encoders: car|turn_costs=true
+  # Speed mode:
+  # Its possible to speed up routing by doing a special graph preparation (Contraction Hierarchies, CH). This requires
+  # more RAM/disk space for holding the prepared graph but also means less memory usage per request. Using the following
+  # list you can define for which of the above routing profiles such preparation shall be performed. Note that to support
+  # profiles with `turn_costs: true` a more elaborate preparation is required (longer preparation time and more memory
+  # usage) and the routing will also be slower than with `turn_costs: false`.
+  profiles_ch:
+    - profile: tgv_all
+    - profile: stadtbahn
+  profiles_lm: []
 
 
   ##### Elevation #####
@@ -54,39 +101,39 @@ graphhopper:
   # graph.elevation.dataaccess: RAM_STORE
 
 
+  # To enable bilinear interpolation when sampling elevation at points (default uses nearest neighbor):
+  # graph.elevation.interpolate: bilinear
+
+
+  # To increase elevation profile resolution, use the following two parameters to tune the extra resolution you need
+  # against the additional storage space used for edge geometries. You should enable bilinear interpolation when using
+  # these features (see #1953 for details).
+  # - first, set the distance (in meters) at which elevation samples should be taken on long edges
+  # graph.elevation.long_edge_sampling_distance: 60
+  # - second, set the elevation tolerance (in meters) to use when simplifying polylines since the default ignores
+  #   elevation and will remove the extra points that long edge sampling added
+  # graph.elevation.way_point_max_distance: 10
+
 
   #### Speed, hybrid and flexible mode ####
 
 
-  # By default the speed mode with the 'fastest' weighting is used. Internally a graph preparation via
-  # contraction hierarchies (CH) is done to speed routing up. This requires more RAM/disc space for holding the
-  # graph but less for every request. You can also setup multiple weightings, by providing a comma separated list.
-  # prepare.ch.weightings: fastest
-
-
-  # Disable the speed mode. Should be used only with routing.max_visited_nodes or when the hybrid mode is enabled instead
-  prepare.ch.weightings: no
-
-
-  # To make CH preparation faster for multiple flagEncoders you can increase the default threads if you have enough RAM.
+  # To make CH preparation faster for multiple profiles you can increase the default threads if you have enough RAM.
   # Change this setting only if you know what you are doing and if the default worked for you.
   # prepare.ch.threads: 1
-
-
-  # The hybrid mode can be enabled with
-  # prepare.lm.weightings: fastest
 
   # To tune the performance vs. memory usage for the hybrid mode use
   # prepare.lm.landmarks: 16
 
-  # Make landmark preparation parallel if you have enough RAM. Change this only if you know what you are doing and if the default worked for you.
+  # Make landmark preparation parallel if you have enough RAM. Change this only if you know what you are doing and if
+  # the default worked for you.
   # prepare.lm.threads: 1
 
-
-  # avoid being stuck in a (oneway) subnetwork, see https://discuss.graphhopper.com/t/93
-  #prepare.min_network_size: 200
-  #prepare.min_one_way_network_size: 200
-
+  # In many cases the road network consists of independent components without any routes going in between. In
+  # the most simple case you can imagine an island without a bridge or ferry connection. The following parameter
+  # allows setting a minimum size (number of edges) for such detached components. This can be used to reduce the number
+  # of cases where a connection between locations might not be found.
+  prepare.min_network_size: 200
 
 
   ##### Routing #####
@@ -96,39 +143,19 @@ graphhopper:
   # connection between two points within the given visited nodes. The default is Integer.MAX_VALUE. Useful for flexibility mode
   # routing.max_visited_nodes: 1000000
 
-
-  # If enabled, allows a user to run flexibility requests even if speed mode is enabled. Every request then has to include a hint routing.ch.disable=true.
-  # Attention, non-CH route calculations take way more time and resources, compared to CH routing.
-  # A possible attacker might exploit this to slow down your service. Only enable it if you need it and with routing.maxVisitedNodes
-  # routing.ch.disabling_allowed: true
-
-
-  # If enabled, allows a user to run flexible mode requests even if the hybrid mode is enabled. Every such request then has to include a hint routing.lm.disable=true.
-  # routing.lm.disabling_allowed: true
-
   # Control how many active landmarks are picked per default, this can improve query performance
   # routing.lm.active_landmarks: 4
-
 
   # You can limit the max distance between two consecutive waypoints of flexible routing requests to be less or equal
   # the given distance in meter. Default is set to 1000km.
   routing.non_ch.max_waypoint_distance: 1000000
 
 
-
-  ##### Web #####
-
-
-  # if you want to support jsonp response type you need to add it explicitly here. By default it is disabled for stronger security.
-  # web.jsonp_allowed: true
-
-
-
   ##### Storage #####
 
 
   # configure the memory access, use RAM_STORE for well equipped servers (default and recommended)
-  #graph.dataaccess: RAM_STORE
+  graph.dataaccess: RAM_STORE
 
 
   # will write way names in the preferred language (language code as defined in ISO 639-1 or ISO 639-2):
@@ -140,18 +167,6 @@ graphhopper:
 
 
 
-  ##### Spatial Rules #####
-  # Spatial Rules require some configuration and only work with the DataFlagEncoder.
-
-
-  # Spatial Rules require you to provide Polygons in which the rules are enforced
-  # The line below contains the default location for these rules
-  # spatial_rules.location: core/files/spatialrules/countries.geo.json
-
-  # You can define the maximum BBox for which spatial rules are loaded.
-  # You might want to do this if you are only importing a small area and don't need rules for other countries.
-  # Having less rules, might result in a smaller graph. The line below contains the world-wide bounding box, uncomment and adapt to your need.
-  # spatial_rules.max_bbox: -180,180,-90,90
 
 
 # Uncomment the following to point /maps to the source directory in the filesystem instead of
@@ -165,14 +180,23 @@ assets:
 
 # Dropwizard server configuration
 server:
-  applicationConnectors:
+  application_connectors:
   - type: http
     port: 8989
     # for security reasons bind to localhost
-    bindHost: localhost
-  requestLog:
+    bind_host: localhost
+  request_log:
       appenders: []
-  adminConnectors:
+  admin_connectors:
   - type: http
     port: 8990
-    bindHost: localhost
+    bind_host: localhost
+logging:
+  level: INFO
+  appenders:
+    - type: console
+#  level: WARN
+#  appenders:
+#    - type: file
+#      current_logfilename: "/var/log/railway-routing/railway-routing.log"
+#      archive: false

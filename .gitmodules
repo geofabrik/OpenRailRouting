@@ -1,9 +1,3 @@
-[submodule "graphhopper"]
-	path = graphhopper
-	url = https://github.com/nakaner/graphhopper.git
 [submodule "doc/api"]
 	path = doc/api
 	url = https://github.com/geofabrik/railway-routing-api.git
-[submodule "map-matching"]
-	path = map-matching
-	url = https://github.com/Nakaner/map-matching.git

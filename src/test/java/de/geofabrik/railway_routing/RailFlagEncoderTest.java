@@ -90,9 +90,9 @@ public class RailFlagEncoderTest {
     @Test
     public void testSpeedTGV100track() {
         PMap properties = new PMap();
-        properties.put("name", "tgv");
-        properties.put("max_speed", 319);
-        properties.put("speedFactor", 11);
+        properties.putObject("name", "tgv");
+        properties.putObject("max_speed", 319);
+        properties.putObject("speedFactor", 11);
         RailFlagEncoder encoderTGV = new RailFlagEncoder(properties);
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed", "100");
@@ -103,10 +103,10 @@ public class RailFlagEncoderTest {
     @Test
     public void testElectricalCompatibilityMultiAC() {
         PMap properties = new PMap();
-        properties.put("electrifiedValues", "contact_line");
-        properties.put("acceptedVoltages", "25000;15000");
-        properties.put("acceptedFrequencies", "250;16.7;16.67");
-        properties.put("name", "test");
+        properties.putObject("electrifiedValues", "contact_line");
+        properties.putObject("acceptedVoltages", "25000;15000");
+        properties.putObject("acceptedFrequencies", "250;16.7;16.67");
+        properties.putObject("name", "test");
         encoder.initFromProperties(properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertTrue(encoder.hasCompatibleElectricity(way1));
@@ -134,8 +134,8 @@ public class RailFlagEncoderTest {
     @Test
     public void testElectricalCompatibilityDiesel() {
         PMap properties = new PMap();
-        properties.put("electrifiedValues", "");
-        properties.put("name", "test");
+        properties.putObject("electrifiedValues", "");
+        properties.putObject("name", "test");
         encoder.initFromProperties(properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertTrue(encoder.hasCompatibleElectricity(way1));
@@ -152,8 +152,8 @@ public class RailFlagEncoderTest {
         RailFlagEncoder e = new RailFlagEncoder();
         e.setSpeedCorrectionFactor(0.9);
         PMap properties = new PMap();
-        properties.put("name", "test");
-        properties.put("acceptedGauges", "1435");
+        properties.putObject("name", "test");
+        properties.putObject("acceptedGauges", "1435");
         e.initFromProperties(properties);
         ReaderWay way1 = getRailwayTrack();
         way1.setTag("gauge", "1435");
@@ -182,9 +182,9 @@ public class RailFlagEncoderTest {
         RailFlagEncoder e = new RailFlagEncoder();
         e.setSpeedCorrectionFactor(0.9);
         PMap properties = new PMap();
-        properties.put("electrifiedValues", "");
-        properties.put("yardSpur", "true");
-        properties.put("name", "test");
+        properties.putObject("electrifiedValues", "");
+        properties.putObject("yardSpur", true);
+        properties.putObject("name", "test");
         initFromProperties(e, properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertNotEquals(e.getAccess(way1), EncodingManager.Access.CAN_SKIP);
@@ -197,9 +197,9 @@ public class RailFlagEncoderTest {
         RailFlagEncoder e = new RailFlagEncoder();
         e.setSpeedCorrectionFactor(0.9);
         PMap properties = new PMap();
-        properties.put("electrifiedValues", "");
-        properties.put("yardSpur", "false");
-        properties.put("name", "test");
+        properties.putObject("electrifiedValues", "");
+        properties.putObject("yardSpur", false);
+        properties.putObject("name", "test");
         initFromProperties(e, properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertNotEquals(e.getAccess(way1), EncodingManager.Access.CAN_SKIP);
@@ -210,9 +210,9 @@ public class RailFlagEncoderTest {
     @Test
     public void testAcceptsTrack() {
         PMap properties = new PMap();
-        properties.put("name", "tgv");
-        properties.put("max_speed", 319);
-        properties.put("speedFactor", 11);
+        properties.putObject("name", "tgv");
+        properties.putObject("max_speed", 319);
+        properties.putObject("speedFactor", 11);
         RailFlagEncoder e = new RailFlagEncoder(properties);
         ReaderWay way = new ReaderWay(1);
         way.setTag("railway", "rail");
