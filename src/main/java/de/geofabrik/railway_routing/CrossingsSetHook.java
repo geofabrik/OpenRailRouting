@@ -2,14 +2,21 @@ package de.geofabrik.railway_routing;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.osm.WaySegmentParser;
+import com.carrotsearch.hppc.IntScatterSet;
 import com.carrotsearch.hppc.IntSet;
 
 public class CrossingsSetHook implements WaySegmentParser.ReaderElementHandler {
+
+    /** set of internal node IDs which are tagged with railway=railway_crossing in OSM */
     private IntSet nodes;
     private AccessOSMNodeData nodeDataAccess;
     
-    public CrossingsSetHook(IntSet crossingsSet) {
-        this.nodes = crossingsSet;
+    public CrossingsSetHook() {
+        this.nodes = new IntScatterSet();
+    }
+
+    public IntSet getCrossingsSet() {
+        return nodes;
     }
 
     /**

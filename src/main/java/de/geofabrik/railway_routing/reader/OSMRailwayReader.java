@@ -3,30 +3,34 @@ package de.geofabrik.railway_routing.reader;
 import static com.graphhopper.util.Helper.nf;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.reader.osm.WaySegmentParser;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 
 import de.geofabrik.railway_routing.CrossingsSetHook;
+import de.geofabrik.railway_routing.SwitchTurnCostTask;
 
 public class OSMRailwayReader extends OSMReader {
-    
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OSMRailwayReader.class);
+
     private CrossingsSetHook crossingsHandler;
 
     public OSMRailwayReader(GraphHopperStorage ghStorage, OSMReaderConfig config) {
         super(ghStorage, config);
+        this.crossingsHandler = new CrossingsSetHook();
     }
 
-    public void setCrossingsHandler(CrossingsSetHook handler) {
-        this.crossingsHandler = handler;
+    private void applyTurnCostsAtSwitches() {
+        SwitchTurnCostTask tct = new SwitchTurnCostTask(ghStorage, encodingManager, crossingsHandler.getCrossingsSet());
+        tct.run();
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OSMRailwayReader.class);
 
     @Override
     public void readGraph() throws IOException {
@@ -58,6 +62,7 @@ public class OSMRailwayReader extends OSMReader {
             throw new RuntimeException("Graph after reading OSM must not be empty");
         LOGGER.info("Finished reading OSM file: {}, nodes: {}, edges: {}, zero distance edges: {}",
                 osmFile.getAbsolutePath(), nf(ghStorage.getNodes()), nf(ghStorage.getEdges()), nf(zeroCounter));
+        applyTurnCostsAtSwitches();
         finishedReading();
     }
 }

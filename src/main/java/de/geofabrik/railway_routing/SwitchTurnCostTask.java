@@ -3,10 +3,12 @@ package de.geofabrik.railway_routing;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.reader.osm.OSMNodeData;
 import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.reader.osm.PostProcessingTask;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -21,7 +23,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
 
-public class SwitchTurnCostTask implements PostProcessingTask {
+import de.geofabrik.railway_routing.reader.OSMRailwayReader;
+
+public class SwitchTurnCostTask {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwitchTurnCostTask.class);
 
     AngleCalc angleCalc = new AngleCalc();
     GraphHopperStorage ghStorage;
@@ -99,8 +105,8 @@ public class SwitchTurnCostTask implements PostProcessingTask {
         }
     }
 
-    @Override
     public void run() {
+        LOGGER.info("Assigning turn costs to impossible turns");
         EdgeExplorer explorer = ghStorage.createEdgeExplorer();
 
         // iterate over all nodes

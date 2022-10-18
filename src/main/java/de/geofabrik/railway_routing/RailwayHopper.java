@@ -12,8 +12,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.carrotsearch.hppc.IntScatterSet;
-import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.GraphHopper;
 
 import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
@@ -21,9 +19,6 @@ import de.geofabrik.railway_routing.reader.OSMRailwayReader;
 
 public class RailwayHopper extends GraphHopper {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    /** set of internal node IDs which are tagged with railway=railway_crossing in OSM */
-    private IntSet crossingsSet = null;
 
     public RailwayHopper(List<FlagEncoderConfiguration> encoderConfigs) {
         super();
@@ -40,10 +35,6 @@ public class RailwayHopper extends GraphHopper {
         OSMRailwayReader reader = new OSMRailwayReader(getGraphHopperStorage(), getReaderConfig());
         reader.setFile(_getOSMFile());
         reader.setElevationProvider(getElevationProvider());
-        crossingsSet = new IntScatterSet();
-        CrossingsSetHook hook = new CrossingsSetHook(crossingsSet);
-        reader.setCrossingsHandler(hook);
-        reader.register(new SwitchTurnCostTask(getGraphHopperStorage(), getEncodingManager(), crossingsSet));
         logger.info("using " + getGraphHopperStorage().toString() + ", memory:" + getMemInfo());
         try {
             reader.readGraph();
