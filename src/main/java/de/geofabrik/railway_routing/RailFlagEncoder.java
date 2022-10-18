@@ -15,7 +15,8 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.Access;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.util.PMap;
 
 import de.geofabrik.railway_routing.util.MultiValueChecker;
@@ -181,10 +182,11 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
         // first two bits are reserved for route handling in superclass
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, defaultSpeed, speedTwoDirections));
+        super.createEncodedValues(registerNewEncodedValue);
+        String prefix = getName();
+        registerNewEncodedValue.add(avgSpeedEnc = new DecimalEncodedValueImpl(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections));
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -202,8 +204,10 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         return defaultSpeed;
     }
 
+
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, Access access) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+        EncodingManager.Access access = getAccess(way);
         if (access.canSkip()) {
             return edgeFlags;
         }
@@ -257,12 +261,12 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public int getVersion() {
-        return 0;
+    public String toString() {
+        return name;
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return name;
     }
 
@@ -270,5 +274,4 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     public TransportationMode getTransportationMode() {
         return TransportationMode.TRAIN;
     }
-
 }

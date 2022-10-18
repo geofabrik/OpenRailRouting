@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.carrotsearch.hppc.IntScatterSet;
 import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.osm.OSMReader;
 
 import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
+import de.geofabrik.railway_routing.reader.OSMRailwayReader;
 
 public class RailwayHopper extends GraphHopper {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -37,16 +37,12 @@ public class RailwayHopper extends GraphHopper {
                     + " but also cannot use file for DataReader as it wasn't specified!");
 
         logger.info("start creating graph from " + getOSMFile());
-        OSMReader reader = new OSMReader(getGraphHopperStorage()).setFile(_getOSMFile()).
-                setElevationProvider(getElevationProvider()).
-                setWorkerThreads(getWorkerThreads()).
-                setWayPointMaxDistance(getWayPointMaxDistance()).
-                setWayPointElevationMaxDistance(getRouterConfig().getElevationWayPointMaxDistance()).
-                setSmoothElevation(getSmoothElevation()).
-                setLongEdgeSamplingDistance(getLongEdgeSamplingDistance());
+        OSMRailwayReader reader = new OSMRailwayReader(getGraphHopperStorage(), getReaderConfig());
+        reader.setFile(_getOSMFile());
+        reader.setElevationProvider(getElevationProvider());
         crossingsSet = new IntScatterSet();
-        CrossingsSetHook hook = new CrossingsSetHook(reader, crossingsSet);
-        reader.register(hook);
+        CrossingsSetHook hook = new CrossingsSetHook(crossingsSet);
+        reader.setCrossingsHandler(hook);
         reader.register(new SwitchTurnCostTask(getGraphHopperStorage(), getEncodingManager(), crossingsSet));
         logger.info("using " + getGraphHopperStorage().toString() + ", memory:" + getMemInfo());
         try {

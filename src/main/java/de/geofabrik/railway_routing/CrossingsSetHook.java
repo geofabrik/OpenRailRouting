@@ -1,22 +1,31 @@
 package de.geofabrik.railway_routing;
 
 import com.graphhopper.reader.ReaderNode;
-import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.reader.osm.OSMReaderHook;
+import com.graphhopper.reader.osm.WaySegmentParser;
 import com.carrotsearch.hppc.IntSet;
 
-public class CrossingsSetHook extends OSMReaderHook {
+public class CrossingsSetHook implements WaySegmentParser.ReaderElementHandler {
     private IntSet nodes;
-    private OSMReader reader;
+    private AccessOSMNodeData nodeDataAccess;
     
-    public CrossingsSetHook(OSMReader reader, IntSet crossingsSet) {
+    public CrossingsSetHook(IntSet crossingsSet) {
         this.nodes = crossingsSet;
-        this.reader = reader;
+    }
+
+    /**
+     * Set a function to access the internal ID of a OSM node ID.
+     */
+    public void setNodeDataAccess(AccessOSMNodeData nodeDataAccess) {
+        this.nodeDataAccess = nodeDataAccess;
     }
     
-    public void processNode(ReaderNode node) {
+    public void handleNode(ReaderNode node) {
         if (node.hasTag("railway", "railway_crossing")) {
-            nodes.add(reader.getNodeMap().get(node.getId()));
+            nodes.add(nodeDataAccess.run(node.getId()));
         }
+    }
+
+    public interface AccessOSMNodeData {
+        int run(long osmNodeId);
     }
 }

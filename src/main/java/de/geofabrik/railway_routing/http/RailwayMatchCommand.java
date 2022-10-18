@@ -77,7 +77,7 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
 
         final Logger logger = LogManager.getLogger(RailwayMatchCommand.class);
         logger.info("Loading graph from cache at {}", hopper.getGraphHopperLocation());
-        hopper.load(hopper.getGraphHopperLocation());
+        hopper.load();
         String profile = namespace.get("profile");
         double gpsAccuracy = namespace.getDouble("gps-accuracy");
 

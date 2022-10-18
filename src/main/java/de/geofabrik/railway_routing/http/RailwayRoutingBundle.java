@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.GraphHopperAPI;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GHJerseyViolationExceptionMapper;
 import com.graphhopper.http.IllegalArgumentExceptionMapper;
@@ -36,7 +35,6 @@ import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
 import com.graphhopper.http.MultiExceptionMapper;
 import com.graphhopper.http.TypeGPXFilter;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
-import com.graphhopper.jackson.GraphHopperConfigModule;
 import com.graphhopper.jackson.Jackson;
 import com.graphhopper.resources.I18NResource;
 import com.graphhopper.resources.InfoResource;
@@ -185,7 +183,6 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         bootstrap.getObjectMapper().registerModule(new Jdk8Module());
 
         Jackson.initObjectMapper(bootstrap.getObjectMapper());
-        bootstrap.getObjectMapper().registerModule(new GraphHopperConfigModule());
         bootstrap.getObjectMapper().setDateFormat(new StdDateFormat());
         // See https://github.com/dropwizard/dropwizard/issues/1558
         bootstrap.getObjectMapper().enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
@@ -239,7 +236,6 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
                 bind(configuration).to(GraphHopperConfig.class);
                 //bind(graphHopperManaged).to(RailwayRoutingManaged.class);
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopper.class);
-                bind(graphHopperManaged.getGraphHopper()).to(GraphHopperAPI.class);
 
                 bindFactory(PathDetailsBuilderFactoryFactory.class).to(PathDetailsBuilderFactory.class);
                 bindFactory(ProfileResolverFactory.class).to(ProfileResolver.class);
@@ -260,66 +256,6 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         environment.jersey().register(I18NResource.class);
         environment.jersey().register(InfoResource.class);
 
-        SimpleModule pathDetailModule = new SimpleModule();
-        pathDetailModule.addSerializer(PathDetail.class, new PathDetailSerializer());
-        pathDetailModule.addDeserializer(PathDetail.class, new PathDetailDeserializer());
-        environment.getObjectMapper().registerModule(pathDetailModule);
         environment.healthChecks().register("graphhopper", new GraphHopperHealthCheck(graphHopperManaged.getGraphHopper()));
-    }
-
-    public static class PathDetailSerializer extends JsonSerializer<PathDetail> {
-
-        @Override
-        public void serialize(PathDetail value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeStartArray();
-
-            gen.writeNumber(value.getFirst());
-            gen.writeNumber(value.getLast());
-
-            if (value.getValue() instanceof Double)
-                gen.writeNumber((Double) value.getValue());
-            else if (value.getValue() instanceof Long)
-                gen.writeNumber((Long) value.getValue());
-            else if (value.getValue() instanceof Integer)
-                gen.writeNumber((Integer) value.getValue());
-            else if (value.getValue() instanceof Boolean)
-                gen.writeBoolean((Boolean) value.getValue());
-            else if (value.getValue() instanceof String)
-                gen.writeString((String) value.getValue());
-            else
-                throw new JsonGenerationException("Unsupported type for PathDetail.value" + value.getValue().getClass(), gen);
-
-            gen.writeEndArray();
-        }
-    }
-
-    public static class PathDetailDeserializer extends JsonDeserializer<PathDetail> {
-
-        @Override
-        public PathDetail deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            JsonNode pathDetail = jp.readValueAsTree();
-            if (pathDetail.size() != 3)
-                throw new JsonParseException(jp, "PathDetail array must have exactly 3 entries but was " + pathDetail.size());
-
-            JsonNode from = pathDetail.get(0);
-            JsonNode to = pathDetail.get(1);
-            JsonNode val = pathDetail.get(2);
-
-            PathDetail pd;
-            if (val.isBoolean())
-                pd = new PathDetail(val.asBoolean());
-            else if (val.isLong())
-                pd = new PathDetail(val.asLong());
-            else if (val.isDouble())
-                pd = new PathDetail(val.asDouble());
-            else if (val.isTextual())
-                pd = new PathDetail(val.asText());
-            else
-                throw new JsonParseException(jp, "Unsupported type of PathDetail value " + pathDetail.getNodeType().name());
-
-            pd.setFirst(from.asInt());
-            pd.setLast(to.asInt());
-            return pd;
-        }
     }
 }

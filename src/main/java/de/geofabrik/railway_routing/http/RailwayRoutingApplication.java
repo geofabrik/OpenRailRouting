@@ -20,16 +20,15 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.graphhopper.http.resources.RootResource;
+import com.graphhopper.application.resources.RootResource;
 import com.graphhopper.http.CORSFilter;
 
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 
 public final class RailwayRoutingApplication extends Application<RailwayRoutingServerConfiguration> {
 
@@ -40,15 +39,8 @@ public final class RailwayRoutingApplication extends Application<RailwayRoutingS
     @Override
     public void initialize(Bootstrap<RailwayRoutingServerConfiguration> bootstrap) {
         bootstrap.addBundle(new RailwayRoutingBundle());
-        bootstrap.addBundle(
-            new ConfiguredAssetsBundle(
-                    ImmutableMap.<String, String>builder()
-                    .put("/assets/", "/maps/")
-                    .put("/map-matching-frontend/", "/map-matching/")
-                    .build(),
-            "index.html"
-            )
-        );
+        bootstrap.addBundle(new AssetsBundle("/com/graphhopper/maps/", "/maps/", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/map-matching-frontend/", "/map-matching/", "index.html"));
         bootstrap.addCommand(new RailwayImportCommand());
         bootstrap.addCommand(new RailwayMatchCommand());
     }

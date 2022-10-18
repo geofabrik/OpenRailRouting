@@ -153,9 +153,9 @@ public class MatchResource {
 
     private String getCSVOutput(ResponsePath path, char separator) {
         PointList points = path.getPoints();
-        StringBuilder str = new StringBuilder(points.getSize() * 2 * 15);
+        StringBuilder str = new StringBuilder(points.size() * 2 * 15);
         str.append("longitude").append(separator).append("latitude\n");
-        for (int i = 0; i < points.getSize(); ++i) {
+        for (int i = 0; i < points.size(); ++i) {
             str.append(Double.toString(points.getLon(i)))
                 .append(separator)
                 .append(Double.toString(points.getLat(i)))
@@ -216,7 +216,7 @@ public class MatchResource {
     /**
      * Route between two points and return result as a path.
      */
-    private RoutedPath routeGap(GHRequest request, Weighting weighting) {
+    private RoutedPath routeGap(GHRequest request) {
         // Copied from com.graphhopper.routing.Router.route
         if (request.getPoints().size() > 2) {
             throw new IllegalArgumentException("Route request with vias are not supported for gap routing.");
@@ -225,7 +225,8 @@ public class MatchResource {
         Solver solver = router.createSolver(request);
         solver.init();
         List<Snap> snaps = ViaRouting.lookup(hopper.getEncodingManager(), request.getPoints(),
-                solver.getSnapFilter(), hopper.getLocationIndex(), request.getSnapPreventions(), request.getPointHints());
+                solver.createSnapFilter(), hopper.getLocationIndex(), request.getSnapPreventions(),
+                request.getPointHints(), solver.createDirectedEdgeFilter(), request.getHeadings());
         // (base) query graph used to resolve headings, curbsides etc. this is not necessarily the same thing as
         // the (possibly implementation specific) query graph used by PathCalculator
         QueryGraph queryGraph = QueryGraph.create(hopper.getGraphHopperStorage(), snaps);
@@ -234,7 +235,7 @@ public class MatchResource {
         boolean forceCurbsides = false;
         // We do not use Solver.createWeighting but use our own weighting which is used for matched segments as well.
         ViaRouting.Result result = ViaRouting.calcPaths(request.getPoints(), queryGraph, snaps,
-                weighting, pathCalculator, request.getCurbsides(), forceCurbsides,
+                solver.createDirectedEdgeFilter(), pathCalculator, request.getCurbsides(), forceCurbsides,
                 request.getHeadings(), passThrough);
         
         RoutedPath path = new RoutedPath(result.paths.get(0), queryGraph);
@@ -305,7 +306,7 @@ public class MatchResource {
                         getHints().
                         putObject(CALC_POINTS, calcPoints).
                         putObject(INSTRUCTIONS, instructions);
-                    RoutedPath path = routeGap(request, weighting);
+                    RoutedPath path = routeGap(request);
                     MatchResult mr = new MatchResult(new ArrayList<EdgeMatch>());
                     mr.setGPXEntriesLength(new DistancePlaneProjection().calcDist(
                             inputGPXEntries.get(start_point).getPoint().lat,

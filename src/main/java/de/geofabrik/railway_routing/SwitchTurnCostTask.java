@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.carrotsearch.hppc.IntSet;
+import com.graphhopper.reader.osm.OSMNodeData;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.PostProcessingTask;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
@@ -72,7 +73,7 @@ public class SwitchTurnCostTask implements PostProcessingTask {
         ArrayList<Integer> adjNodes = new ArrayList<Integer>();
         // check if it is a railway crossing
         // We only get tower nodes here.
-        int id = OSMReader.towerIdToMapId(node);
+        int id = OSMNodeData.towerNodeToId(node);
         boolean crossing = crossingsSet.contains(id);
         while (iter.next()) {
             edges.add(iter.getEdge());
