@@ -13,7 +13,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <graphhopper.version>5.0-osm-reader-callbacks-SNAPSHOT</graphhopper.version>
+    <graphhopper.version>5.0-osm-reader-callbacks</graphhopper.version>
   </properties>
 
   <dependencies>
