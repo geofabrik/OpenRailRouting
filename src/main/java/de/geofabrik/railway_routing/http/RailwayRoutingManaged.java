@@ -10,9 +10,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
-import com.graphhopper.util.PMap;
 import de.geofabrik.railway_routing.RailwayHopper;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
@@ -35,7 +33,7 @@ public class RailwayRoutingManaged implements Managed {
         logger.info("loaded graph at:" + graphHopper.getGraphHopperLocation()
                 + ", data_reader_file:" + graphHopper.getOSMFile()
                 + ", flag_encoders:" + graphHopper.getEncodingManager()
-                + ", " + graphHopper.getGraphHopperStorage().toDetailsString());
+                + ", " + graphHopper.getBaseGraph().toDetailsString());
     }
 
     RailwayHopper getGraphHopper() {

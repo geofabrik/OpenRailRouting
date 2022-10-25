@@ -13,7 +13,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <graphhopper.version>5.0-osm-reader-callbacks</graphhopper.version>
+    <graphhopper.version>6.0-osm-reader-callbacks-SNAPSHOT</graphhopper.version>
   </properties>
 
   <dependencies>
@@ -136,7 +136,7 @@
         <id>maven.geofabrik.de</id>
         <url>https://maven.geofabrik.de/</url>
         <releases><enabled>true</enabled></releases>
-        <snapshots><enabled>true</enabled></snapshots>
+        <snapshots><enabled>true</enabled><updatePolicy>always</updatePolicy></snapshots>
       </repository>
     </repositories>
 </project>

@@ -85,7 +85,7 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
                 .putObject("profile", profile)
                 .putObject(Parameters.Routing.MAX_VISITED_NODES, namespace.getInt("max_nodes_to_visit"));
 
-        MapMatching mapMatching = new MapMatching(hopper, hints);
+        MapMatching mapMatching = MapMatching.fromGraphHopper(hopper, hints);
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
 
         String inputPath = namespace.getString("gpx_location");
@@ -113,7 +113,7 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
                     throw new IllegalArgumentException("GPX documents with multiple tracks not supported yet.");
                 }
                 List<Observation> measurements = GpxConversions.getEntries(gpx.trk.get(0));
-                MatchResult mr = mapMatching.match(measurements, false, 0);
+                MatchResult mr = mapMatching.match(measurements/*, 0*/);
                 logger.debug("\tmatches: {}", mr.getEdgeMatches().size());
                 logger.debug("\tgpx length: {}", mr.getGpxEntriesLength(), mr.getMatchLength());
 

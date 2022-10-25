@@ -22,7 +22,8 @@ public class RailwayHopper extends GraphHopper {
 
     public RailwayHopper(List<FlagEncoderConfiguration> encoderConfigs) {
         super();
-        setFlagEncoderFactory(new RailFlagEncoderFactory(encoderConfigs));
+        setVehicleTagParserFactory(new RailFlagEncoderFactory(encoderConfigs));
+        setVehicleEncodedValuesFactory(new RailEncodedValuesFactory(encoderConfigs));
     }
 
     @Override
@@ -32,19 +33,22 @@ public class RailwayHopper extends GraphHopper {
                     + " but also cannot use file for DataReader as it wasn't specified!");
 
         logger.info("start creating graph from " + getOSMFile());
-        OSMRailwayReader reader = new OSMRailwayReader(getGraphHopperStorage(), getReaderConfig());
+        OSMRailwayReader reader = new OSMRailwayReader(getBaseGraph(), getEncodingManager(), getOSMParsers(), getReaderConfig());
         reader.setFile(_getOSMFile());
         reader.setElevationProvider(getElevationProvider());
-        logger.info("using " + getGraphHopperStorage().toString() + ", memory:" + getMemInfo());
+        logger.info("using " + getBaseGraph().toString() + ", memory:" + getMemInfo());
+        createBaseGraphAndProperties();
         try {
             reader.readGraph();
         } catch (IOException ex) {
             throw new RuntimeException("Cannot read file " + getOSMFile(), ex);
         }
         DateFormat f = createFormatter();
-        getGraphHopperStorage().getProperties().put("datareader.import.date", f.format(new Date()));
-        if (reader.getDataDate() != null)
-            getGraphHopperStorage().getProperties().put("datareader.data.date", f.format(reader.getDataDate()));
+        getProperties().put("datareader.import.date", f.format(new Date()));
+        if (reader.getDataDate() != null) {
+            getProperties().put("datareader.data.date", f.format(reader.getDataDate()));
+        }
+        writeEncodingManagerToProperties();
     }
 
 }

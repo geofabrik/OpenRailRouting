@@ -8,7 +8,6 @@ package de.geofabrik.railway_routing.http;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import java.io.IOException;
 import java.util.List;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
@@ -17,25 +16,17 @@ import javax.inject.Inject;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GHJerseyViolationExceptionMapper;
 import com.graphhopper.http.IllegalArgumentExceptionMapper;
+import com.graphhopper.http.LegacyProfileResolver;
 import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
 import com.graphhopper.http.MultiExceptionMapper;
 import com.graphhopper.http.TypeGPXFilter;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
 import com.graphhopper.jackson.Jackson;
+import com.graphhopper.resources.HealthCheckResource;
 import com.graphhopper.resources.I18NResource;
 import com.graphhopper.resources.InfoResource;
 import com.graphhopper.resources.IsochroneResource;
@@ -43,19 +34,19 @@ import com.graphhopper.resources.MVTResource;
 import com.graphhopper.resources.NearestResource;
 import com.graphhopper.resources.RouteResource;
 import com.graphhopper.resources.SPTResource;
-import com.graphhopper.routing.ProfileResolver;
+import com.graphhopper.http.ProfileResolver;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
-import com.graphhopper.util.details.PathDetail;
 
 import de.geofabrik.railway_routing.RailwayHopper;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
 
 public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServerConfiguration> {
 
@@ -75,18 +66,18 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         }
     }
 
-    static class GraphHopperStorageFactory implements Factory<GraphHopperStorage> {
+    static class BaseGraphFactory implements Factory<BaseGraph> {
 
         @Inject
         GraphHopper graphHopper;
 
         @Override
-        public GraphHopperStorage provide() {
-            return graphHopper.getGraphHopperStorage();
+        public BaseGraph provide() {
+            return graphHopper.getBaseGraph();
         }
 
         @Override
-        public void dispose(GraphHopperStorage instance) {
+        public void dispose(BaseGraph instance) {
 
         }
     }
@@ -123,14 +114,14 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         }
     }
 
-    static class ProfileResolverFactory implements Factory<ProfileResolver> {
+    static class LegacyProfileResolverFactory implements Factory<LegacyProfileResolver> {
 
         @Inject
         GraphHopper graphHopper;
 
         @Override
-        public ProfileResolver provide() {
-            return new ProfileResolver(graphHopper.getEncodingManager(),
+        public LegacyProfileResolver provide() {
+            return new LegacyProfileResolver(graphHopper.getEncodingManager(),
                     graphHopper.getProfiles(),
                     graphHopper.getCHPreparationHandler().getCHProfiles(),
                     graphHopper.getLMPreparationHandler().getLMProfiles()
@@ -138,7 +129,25 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         }
 
         @Override
-        public void dispose(ProfileResolver profileResolver) {
+        public void dispose(LegacyProfileResolver profileResolver) {
+
+        }
+    }
+
+    static class ProfileResolverFactory implements Factory<ProfileResolver> {
+        @Inject
+        GraphHopper graphHopper;
+
+        @Inject
+        LegacyProfileResolver legacyProfileResolver;
+
+        @Override
+        public ProfileResolver provide() {
+            return new ProfileResolver(graphHopper.getProfiles(), legacyProfileResolver);
+        }
+
+        @Override
+        public void dispose(ProfileResolver instance) {
 
         }
     }
@@ -238,12 +247,13 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopper.class);
 
                 bindFactory(PathDetailsBuilderFactoryFactory.class).to(PathDetailsBuilderFactory.class);
+                bindFactory(LegacyProfileResolverFactory.class).to(LegacyProfileResolver.class);
                 bindFactory(ProfileResolverFactory.class).to(ProfileResolver.class);
                 bind(false).to(Boolean.class).named("hasElevation");
                 bindFactory(LocationIndexFactory.class).to(LocationIndex.class);
                 bindFactory(TranslationMapFactory.class).to(TranslationMap.class);
                 bindFactory(EncodingManagerFactory.class).to(EncodingManager.class);
-                bindFactory(GraphHopperStorageFactory.class).to(GraphHopperStorage.class);
+                bindFactory(BaseGraphFactory.class).to(BaseGraph.class);
             }
         });
 
@@ -255,7 +265,8 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         environment.jersey().register(SPTResource.class);
         environment.jersey().register(I18NResource.class);
         environment.jersey().register(InfoResource.class);
-
-        environment.healthChecks().register("graphhopper", new GraphHopperHealthCheck(graphHopperManaged.getGraphHopper()));
+        environment.healthChecks().register("graphhopper", new GraphHopperHealthCheck(hopper));
+        environment.jersey().register(environment.healthChecks());
+        environment.jersey().register(HealthCheckResource.class);
     }
 }

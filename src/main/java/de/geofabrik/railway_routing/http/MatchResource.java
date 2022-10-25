@@ -41,7 +41,7 @@ import com.graphhopper.matching.MatchResult;
 import com.graphhopper.matching.Observation;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.PathCalculator;
-import com.graphhopper.routing.ProfileResolver;
+import com.graphhopper.http.ProfileResolver;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.ViaRouting;
 import com.graphhopper.routing.Router.Solver;
@@ -51,9 +51,8 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.Constants;
 import com.graphhopper.util.DistancePlaneProjection;
-import com.graphhopper.util.DouglasPeucker;
+import com.graphhopper.util.RamerDouglasPeucker;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -229,7 +228,7 @@ public class MatchResource {
                 request.getPointHints(), solver.createDirectedEdgeFilter(), request.getHeadings());
         // (base) query graph used to resolve headings, curbsides etc. this is not necessarily the same thing as
         // the (possibly implementation specific) query graph used by PathCalculator
-        QueryGraph queryGraph = QueryGraph.create(hopper.getGraphHopperStorage(), snaps);
+        QueryGraph queryGraph = QueryGraph.create(hopper.getBaseGraph(), snaps);
         PathCalculator pathCalculator = solver.createPathCalculator(queryGraph);
         boolean passThrough = false;
         boolean forceCurbsides = false;
@@ -278,7 +277,7 @@ public class MatchResource {
         // add values that are not in hints because they were explicitly listed in query params
         hints.putObject(MAX_VISITED_NODES, maxVisitedNodes);
         hints.putObject("profile", profile);
-        MapMatching mapMatching = new MapMatching(hopper, hints);
+        MapMatching mapMatching = MapMatching.fromGraphHopper(hopper, hints);
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
         float took = 0;
         try {
@@ -290,11 +289,13 @@ public class MatchResource {
             // Offset from start of the input points
             int offset = 0;
             Weighting weighting = null;
+            System.out.println("input points: " + inputGPXEntries.size());
             do {
                 // Fill gap with normal routing if matching in the last iteration of this loop ended at a gap.
                 // mapMatching.getSucessfullyMatchedPoints() returns -1 if no point has been matched yet (e.g. gap between first and second point).
                 if (weighting != null && mapMatching.matchingAttempted() && mapMatching.getProcessedPointsCount() < inputGPXEntries.size()) {
                     int start_point = offset;
+                    System.out.println("routing " + offset);
                     List<GHPoint> points = new ArrayList<GHPoint>();
                     points.add((GHPoint) inputGPXEntries.get(start_point).getPoint());
                     points.add((GHPoint) inputGPXEntries.get(start_point + 1).getPoint());
@@ -325,16 +326,16 @@ public class MatchResource {
                 weighting = matchResult.getWeighting();
                 if (offset < mapMatching.getProcessedPointsCount() - 1) {
                     matchResultsList.add(matchResult);
+                    offset += mapMatching.getProcessedPointsCount() - 1;
                 }
-                offset += mapMatching.getProcessedPointsCount() - 1;
             } while (mapMatching.hasPointsToBeMatched());
 
             Translation tr = trMap.getWithFallBack(Helper.getLocale(localeStr));
-            DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(minPathPrecision);
+            RamerDouglasPeucker peucker = new RamerDouglasPeucker().setMaxDistance(minPathPrecision);
             PathMerger pathMerger = new PathMerger(matchResultsList.get(0).getGraph(), matchResultsList.get(0).getWeighting()).
                     setEnableInstructions(instructions).
                     setPathDetailsBuilders(hopper.getPathDetailsBuilderFactory(), pathDetails).
-                    setDouglasPeucker(peucker).
+                    setRamerDouglasPeucker(peucker).
                     setSimplifyResponse(minPathPrecision > 0);
             List<Path> paths = matchResultsList.stream().map(r -> r.getMergedPath()).collect(Collectors.toList());
             ResponsePath responsePath = pathMerger.doWork(PointList.EMPTY, paths,
@@ -378,7 +379,7 @@ public class MatchResource {
                         for (EdgeMatch em : mr.getEdgeMatches()) {
                             EdgeIteratorState edge = em.getEdgeState();
                             // encode edges as traversal keys which includes orientation, decode simply by multiplying with 0.5
-                            traversalKeylist.add(GHUtility.createEdgeKey(edge.getBaseNode(), edge.getAdjNode(), edge.getEdge(), false));
+                            traversalKeylist.add(edge.getEdgeKey());
                         }
                     }
                 }
@@ -396,6 +397,7 @@ public class MatchResource {
                         build();
             }
         } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
             throw ex;
         } catch (java.lang.RuntimeException | SAXException | IOException | ParserConfigurationException err) {
             logger.error(logStr + ", took:" + took + ", error:" + err);

@@ -1,42 +1,30 @@
 package de.geofabrik.railway_routing;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.util.List;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.EncodingManager.Access;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.TurnCost;
+import com.graphhopper.routing.ev.VehicleAccess;
+import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.TransportationMode;
+import com.graphhopper.routing.util.VehicleTagParser;
+import com.graphhopper.routing.util.WayAccess;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.util.PMap;
 
+import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
 import de.geofabrik.railway_routing.util.MultiValueChecker;
 
-public class RailFlagEncoder extends AbstractFlagEncoder {
+public class RailFlagEncoder extends VehicleTagParser {
 
-    public static final String NAME = "name";
-    public static final String RAILWAY = "railwayValues";
-    public static final String ELECTRIFIED = "electrifiedValues";
-    public static final String VOLATAGES = "acceptedVoltages";
-    public static final String FREQUENCIES = "acceptedFrequencies";
-    public static final String GAUGES = "acceptedGauges";
-    public static final String MAXSPEED = "max_speed";
-    public static final String SPEED_FACTOR = "speedFactor";
-    public static final String ACCEPT_YARD_SPUR = "yardSpur";
+    public static final String DEFAULT_NAME = "rail";
 
-    protected boolean speedTwoDirections = false;
     protected final Integer defaultSpeed = 25;
-    private int tk;
-    private String name;
     private HashSet<String> railwayValues;
     private ArrayList<String> electrifiedValues;
     private ArrayList<Integer> acceptedVoltages;
@@ -44,38 +32,24 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
     private ArrayList<Integer> acceptedGauges;
     private double speedCorrectionFactor;
     private boolean acceptYardSpur;
-    private PMap properties;
+    private PMap properties = new PMap();
 
-    public RailFlagEncoder() {
-        this(5, 5, 3, "rail");
-    }
-
-    public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        this(speedBits, speedFactor, maxTurnCosts, "rail");
-        //TODO change to true if we support
-    }
-
-    public RailFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speedBits", 5),
-                properties.getDouble(SPEED_FACTOR, 5),
-        properties.getInt("max_turn_costs", 3),
-        properties.getString(NAME, ""));
-        this.speedTwoDirections = properties.getBool("speed_two_directions", false);
+    public RailFlagEncoder(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc,
+            String name, DecimalEncodedValue turnCostEnc, double maxPossibleSpeed, PMap properties) {
+        super(accessEnc, speedEnc, name, null, turnCostEnc, TransportationMode.TRAIN, maxPossibleSpeed);
         this.properties = properties;
         initFromProperties(properties);
     }
 
-    public RailFlagEncoder(String propertiesStr) {
-        this(new PMap(propertiesStr));
-    }
-
-    public RailFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, String name) {
-        super(speedBits, speedFactor, maxTurnCosts);
-        if (name.equals("")) {
-            throw new IllegalArgumentException("The name of an encoder must not be an empty string.");
-        }
-        this.name = name;
-        tk = maxTurnCosts;
+    public RailFlagEncoder(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(VehicleAccess.key(properties.getString("name", DEFAULT_NAME))),
+                lookup.getDecimalEncodedValue(VehicleSpeed.key(properties.getString("name", DEFAULT_NAME))),
+                properties.getString("name", DEFAULT_NAME),
+                lookup.hasEncodedValue(TurnCost.key(properties.getString("name", DEFAULT_NAME))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", DEFAULT_NAME))) : null,
+                properties.getInt(FlagEncoderConfiguration.MAXSPEED, 100),
+                properties
+        );
     }
 
     protected void initFromProperties(PMap properties) {
@@ -85,7 +59,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
             this.properties.putAll(properties);
         }
         // railway values
-        String railwayProps = properties.getString(RAILWAY, "");
+        String railwayProps = properties.getString(FlagEncoderConfiguration.RAILWAY, "");
         if (!railwayProps.equals("")) {
             this.railwayValues = new HashSet<String>(Arrays.asList(railwayProps.split(";")));
         } else {
@@ -94,7 +68,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
 
         // electrified values
-        String electrifiedProps = properties.getString(ELECTRIFIED, "");
+        String electrifiedProps = properties.getString(FlagEncoderConfiguration.ELECTRIFIED, "");
         if (!electrifiedProps.equals("")) {
             this.electrifiedValues = new ArrayList<String>(Arrays.asList(electrifiedProps.split(";")));
         } else {
@@ -102,41 +76,32 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         }
 
         this.acceptedVoltages = new ArrayList<Integer>();
-        for (String v : properties.getString(VOLATAGES, "").split(";")) {
+        for (String v : properties.getString(FlagEncoderConfiguration.VOLATAGES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedVoltages.add(Integer.parseInt(v));
             }
         }
 
         this.acceptedFrequencies = new ArrayList<Double>();
-        for (String v : properties.getString(FREQUENCIES, "").split(";")) {
+        for (String v : properties.getString(FlagEncoderConfiguration.FREQUENCIES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedFrequencies.add(Double.parseDouble(v));
             }
         }
 
         this.acceptedGauges = new ArrayList<Integer>();
-        for (String v : properties.getString(GAUGES, "").split(";")) {
+        for (String v : properties.getString(FlagEncoderConfiguration.GAUGES, "").split(";")) {
             if (!v.equals("")) {
                 this.acceptedGauges.add(Integer.parseInt(v));
             }
         }
 
-        this.maxPossibleSpeed = properties.getInt(MAXSPEED, 100);
         this.speedCorrectionFactor = properties.getDouble("speedCorrectionFactor", 0.9);
-        this.acceptYardSpur = properties.getBool(ACCEPT_YARD_SPUR, true);
-    }
-
-    public int getMaxTurnCosts() {
-        return tk;
+        this.acceptYardSpur = properties.getBool(FlagEncoderConfiguration.ACCEPT_YARD_SPUR, true);
     }
 
     public void setSpeedCorrectionFactor(double factor) {
         speedCorrectionFactor = factor;
-    }
-
-    public void setMaxPossibleSpeed(int speed) {
-        maxPossibleSpeed = speed;
     }
 
     public boolean hasCompatibleElectricity(ReaderWay way) {
@@ -170,23 +135,16 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         return way.hasTag("service", "yard") || way.hasTag("service", "spur");
     }
 
-    @Override
-    public EncodingManager.Access getAccess(ReaderWay way) {
-        if (!way.hasTag("railway", railwayValues) || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
-            return EncodingManager.Access.CAN_SKIP;
-        }
-        if (!acceptYardSpur && isYardSpur(way)) {
-            return EncodingManager.Access.CAN_SKIP;
-        }
-        return EncodingManager.Access.WAY;
-    }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
-        // first two bits are reserved for route handling in superclass
-        super.createEncodedValues(registerNewEncodedValue);
-        String prefix = getName();
-        registerNewEncodedValue.add(avgSpeedEnc = new DecimalEncodedValueImpl(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections));
+    public WayAccess getAccess(ReaderWay way) {
+        if (!way.hasTag("railway", railwayValues) || !hasCompatibleElectricity(way) || !hasCompatibleGauge(way)) {
+            return WayAccess.CAN_SKIP;
+        }
+        if (!acceptYardSpur && isYardSpur(way)) {
+            return WayAccess.CAN_SKIP;
+        }
+        return WayAccess.WAY;
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -207,7 +165,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
-        EncodingManager.Access access = getAccess(way);
+        WayAccess access = getAccess(way);
         if (access.canSkip()) {
             return edgeFlags;
         }
@@ -215,7 +173,7 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
         double speed = getSpeed(way);
         speed = applyMaxSpeed(way, speed);
         setSpeed(false, edgeFlags, speed);
-        if (speedTwoDirections) {
+        if (avgSpeedEnc.isStoreTwoDirections()) {
             setSpeed(true, edgeFlags, speed);
         }
         accessEnc.setBool(false, edgeFlags, true);
@@ -258,20 +216,5 @@ public class RailFlagEncoder extends AbstractFlagEncoder {
             return 1;
         }
         return 15;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.TRAIN;
     }
 }
