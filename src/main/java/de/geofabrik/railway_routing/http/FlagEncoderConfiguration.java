@@ -91,12 +91,12 @@ public class FlagEncoderConfiguration {
     }
 
     public static final String NAME = "name";
-    public static final String RAILWAY = "railwayValues";
-    public static final String ELECTRIFIED = "electrifiedValues";
-    public static final String VOLATAGES = "acceptedVoltages";
-    public static final String FREQUENCIES = "acceptedFrequencies";
-    public static final String GAUGES = "acceptedGauges";
-    public static final String MAXSPEED = "max_speed";
+    public static final String RAILWAY = "railway";
+    public static final String ELECTRIFIED = "electrified";
+    public static final String VOLATAGES = "voltages";
+    public static final String FREQUENCIES = "frequencies";
+    public static final String GAUGES = "gauges";
+    public static final String MAXSPEED = "maxspeed";
     public static final String SPEED_FACTOR = "speed_factor";
     public static final String ACCEPT_YARD_SPUR = "yardSpur";
 
