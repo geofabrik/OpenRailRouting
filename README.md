@@ -1,7 +1,7 @@
 # OpenStreetMap based routing on railway tracks
 
 This is a prototype of a routing engine for railways based on a forked version of the
-[GraphHopper](https://github.com/graphhopper/graphhopper) routing engine and OpenStreetMap data.
+[GraphHopper](https://github.com/geofabrik/graphhopper/tree/osm-reader-callbacks) routing engine and OpenStreetMap data.
 
 Following features are currently supported:
 
