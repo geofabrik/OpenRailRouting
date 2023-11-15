@@ -55,6 +55,8 @@ identical to GraphHopper. However, one part is different – the flag encoders
 #   gauges: list of compatible values of the OSM tag gauge=* separated by semicola – as a string
 #   maxspeed: maximum speed of this flag encoder in kph
 #   speed_factor: divisor for divide speed values by to encode them in the flags of an edge of the graph
+#   speed_correction_factor: all speeds (both defaults and from maxspeed=* tags are multiplied by this value),
+#                            0.9 underestimates travel times usually.
 #
 # If electrified, voltages, frequencies or gauges is missing, the profile accepts any value. This is recommended for
 # an all-gauge diesel engine.
@@ -67,11 +69,13 @@ flagEncoderProperties:
     gauges: 1435
     maxspeed: 319
     speed_factor: 11
+    speed_correction_factor: 0.9
   - name: non_tgv
     railway: rail;light_rail
     gauges: 1435
     maxspeed: 120
     speed_factor: 5
+    speed_correction_factor: 0.9
 
 graphhopper:
   graph.flag_encoders: tgv_all,non_tgv

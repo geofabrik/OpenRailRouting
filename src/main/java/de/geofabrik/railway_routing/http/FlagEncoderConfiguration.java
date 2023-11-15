@@ -45,6 +45,10 @@ public class FlagEncoderConfiguration {
     @JsonAlias("yard_spur")
     private boolean yardSpur = true;
 
+    @JsonProperty
+    @JsonAlias("speed_correction_factor")
+    private double speedCorrectionFactor = 0.9;
+
     public String getName() {
         return name;
     }
@@ -81,6 +85,10 @@ public class FlagEncoderConfiguration {
         return yardSpur;
     }
 
+    public double getSpeedCorrectionFactor() {
+        return speedCorrectionFactor;
+    }
+
     public static Map<String, PMap> toPMaps(List<FlagEncoderConfiguration> configs) {
         Map<String, PMap> map = new LinkedHashMap<String, PMap>();
         for (FlagEncoderConfiguration config : configs) {
@@ -99,6 +107,7 @@ public class FlagEncoderConfiguration {
     public static final String MAXSPEED = "maxspeed";
     public static final String SPEED_FACTOR = "speed_factor";
     public static final String ACCEPT_YARD_SPUR = "yardSpur";
+    public static final String SPEED_CORRECTION_FACTOR = "speedCorrectionFactor";
 
     public PMap toPMap() {
         PMap properties = new PMap();
@@ -111,6 +120,7 @@ public class FlagEncoderConfiguration {
         properties.putObject(MAXSPEED, maxspeed);
         properties.putObject(SPEED_FACTOR, speedFactor);
         properties.putObject(ACCEPT_YARD_SPUR, yardSpur);
+        properties.putObject(SPEED_CORRECTION_FACTOR, speedCorrectionFactor);
         return properties;
     }
 }
