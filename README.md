@@ -85,9 +85,9 @@ graphhopper:
 To run the routing engine, execute
 
 ```sh
-java -Xmx2500m -Xms50m -Dgraphhopper.prepare.ch.weightings=no \
+java -Xmx2500m -Xms50m \
   -Ddw.graphhopper.datareader.file=$OSMFILE -Ddw.graphhopper.profiles=freight_diesel \
-  -jar target/railway_routing-0.0.1-SNAPSHOT-jar-with-dependencies.jar ACTION [ARGUMENTS] CONFIG_FILE [OPTARG]
+  -jar target/railway_routing-0.0.1-SNAPSHOT.jar ACTION [ARGUMENTS] CONFIG_FILE [OPTARG]
 ```
 
 The tool currently supports three different actions (`ACTION` above):
