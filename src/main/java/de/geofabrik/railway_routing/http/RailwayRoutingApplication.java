@@ -6,27 +6,14 @@
 
 package de.geofabrik.railway_routing.http;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
-
-import com.bedatadriven.jackson.datatype.jts.JtsModule;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 import com.graphhopper.application.resources.RootResource;
 import com.graphhopper.http.CORSFilter;
 
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -39,10 +26,10 @@ public final class RailwayRoutingApplication extends Application<RailwayRoutingS
     @Override
     public void initialize(Bootstrap<RailwayRoutingServerConfiguration> bootstrap) {
         bootstrap.addBundle(new RailwayRoutingBundle());
-        bootstrap.addBundle(new AssetsBundle("/com/graphhopper/maps/", "/maps/", "index.html"));
-        bootstrap.addBundle(new AssetsBundle("/map-matching-frontend/", "/map-matching/", "index.html"));
         bootstrap.addCommand(new RailwayImportCommand());
         bootstrap.addCommand(new RailwayMatchCommand());
+        bootstrap.addBundle(new AssetsBundle("/map-matching-frontend/", "/map-matching/", "index.html", "map-matching-frontend"));
+        bootstrap.addBundle(new AssetsBundle("/de/geofabrik/openrailrouting/maps/", "/maps/", "index.html", "openrailrouting-frontend"));
     }
 
     @Override

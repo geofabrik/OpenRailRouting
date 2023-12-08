@@ -61,11 +61,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>io.dropwizard-bundles</groupId>
-      <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-      <version>1.0.5</version>
-    </dependency>
-    <dependency>
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-testing</artifactId>
       <version>1.2.2</version>
@@ -96,6 +91,44 @@
   </dependencies>
   <build>
     <plugins>
+      <!-- Build web frontend using system NPM -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <executable>npm</executable>
+              <arguments>
+                <argument>install</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm run bundleProduction</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <executable>npm</executable>
+              <arguments>
+                <argument>run</argument>
+                <argument>bundleProduction</argument>
+              </arguments>
+              <environmentVariables>
+                <BROWSERIFYSWAP_ENV>development</BROWSERIFYSWAP_ENV>
+              </environmentVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>

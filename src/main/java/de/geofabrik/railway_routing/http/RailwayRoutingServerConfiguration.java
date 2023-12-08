@@ -21,20 +21,14 @@ import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
 
 import io.dropwizard.Configuration;
-import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
-import io.dropwizard.bundles.assets.AssetsConfiguration;
 
-public class RailwayRoutingServerConfiguration extends Configuration implements GraphHopperBundleConfiguration, AssetsBundleConfiguration {
+public class RailwayRoutingServerConfiguration extends Configuration implements GraphHopperBundleConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(RailwayRoutingServerConfiguration.class);
 
     @NotNull
     @JsonProperty
     private final GraphHopperConfig graphhopper = new GraphHopperConfig();
-
-    @Valid
-    @JsonProperty
-    private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
 
     @JsonProperty
     @JsonAlias("flagEncoderProperties")
@@ -46,11 +40,6 @@ public class RailwayRoutingServerConfiguration extends Configuration implements 
     @Override
     public GraphHopperConfig getGraphHopperConfiguration() {
         return graphhopper;
-    }
-
-    @Override
-    public AssetsConfiguration getAssetsConfiguration() {
-        return assets;
     }
 
     public List<FlagEncoderConfiguration> getFlagEncoderConfigurations() {

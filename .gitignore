@@ -1,6 +1,11 @@
 # data
 graph-cache/
 
+# web frontend
+**/node_modules
+package-lock.json
+src/main/resources/de/geofabrik/openrailrouting/maps/js/main.js
+
 # Created by https://www.gitignore.io/api/java,macos,maven,intellij
 # Edit at https://www.gitignore.io/?templates=java,macos,maven,intellij
 

@@ -169,14 +169,6 @@ graphhopper:
 
 
 
-# Uncomment the following to point /maps to the source directory in the filesystem instead of
-# the Java resource path. Helpful for development of the web client.
-# Assumes that the web module is the working directory.
-#
-assets:
- overrides:
-   /maps: src/main/resources/assets/
-   /map-matching: src/main/resources/map-matching-frontend/
 
 # Dropwizard server configuration
 server:

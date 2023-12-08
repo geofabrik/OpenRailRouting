@@ -3,6 +3,8 @@
 This is a prototype of a routing engine for railways based on a forked version of the
 [GraphHopper](https://github.com/geofabrik/graphhopper/tree/osm-reader-callbacks) routing engine and OpenStreetMap data.
 
+## Features
+
 Following features are currently supported:
 
 * simple routing requests
@@ -21,10 +23,14 @@ Lacking features:
 * taking the low acceleration and the long breaking distances of trains into account
 * a lot of features which would need data which is not in OSM (incline, structure gauges)
 
+## Web Frontend
+
+This project includes a web frontend which is a fork of the original GraphHopper web frontend.
 
 ## Building
 
-This project uses Maven for building.
+This project uses Maven (for the Java code) and NodeJS for the web frontend for building.
+`npm` has to be installed.
 
 ```sh
 git submodule init
