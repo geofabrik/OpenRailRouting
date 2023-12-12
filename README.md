@@ -22,6 +22,7 @@ Lacking features:
 * avoiding the usage of the opposite track (on double-track lines)
 * taking the low acceleration and the long breaking distances of trains into account
 * a lot of features which would need data which is not in OSM (incline, structure gauges)
+* support for barriers (e.g. gates)
 
 ## Web Frontend
 

@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.EncodingManager;
@@ -30,6 +31,11 @@ public class OSMRailwayReader extends OSMReader {
     private void applyTurnCostsAtSwitches() {
         SwitchTurnCostTask tct = new SwitchTurnCostTask(baseGraph, osmParsers, crossingsHandler.getCrossingsSet());
         tct.run();
+    }
+
+    @Override
+    protected boolean isBarrierNode(ReaderNode node) {
+        return false;
     }
 
     @Override
