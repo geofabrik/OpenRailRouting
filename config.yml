@@ -35,11 +35,10 @@ graphhopper:
 
   ##### Vehicles #####
 
-
   # This property determines which flag encoders are enabled. You can use the hardcoded flag encoder configurations
   # or any of the encoders defined with flagEncoderProperties
-  graph.flag_encoders: tgv_all|turn_costs=true|u_turn_costs=300,stadtbahn|turn_costs=true|u_turn_costs=300
-  # Define routing profiles to offer (
+  graph.flag_encoders: tgv_all|turn_costs=true|u_turn_costs=300,tramtrain|turn_costs=true|u_turn_costs=300
+
   ##### Routing Profiles ####
 
   # Routing can be done for the following list of profiles. Note that it is required to specify all the profiles you
@@ -68,8 +67,8 @@ graphhopper:
       weighting: fastest
       turn_costs: true
       u_turn_costs: 300
-    - name: stadtbahn
-      vehicle: stadtbahn
+    - name: tramtrain
+      vehicle: tramtrain
       weighting: fastest
       turn_costs: true
       u_turn_costs: 300
@@ -82,7 +81,7 @@ graphhopper:
   # usage) and the routing will also be slower than with `turn_costs: false`.
   profiles_ch:
     - profile: tgv_all
-    - profile: stadtbahn
+    - profile: tramtrain
 
   # Hybrid mode:
   # Similar to speed mode, the hybrid mode (Landmarks, LM) also speeds up routing by doing calculating auxiliary data
