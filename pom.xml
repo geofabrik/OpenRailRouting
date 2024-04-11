@@ -41,7 +41,7 @@
     <dependency>
         <groupId>com.carrotsearch</groupId>
         <artifactId>hppc</artifactId>
-        <version>0.7.2</version>
+        <version>0.9.1</version>
       </dependency>
     <!-- required for dropwizard -->
     <dependency>
