@@ -52,7 +52,7 @@
     <dependency>
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-core</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.9</version>
       <exclusions>
         <exclusion>
           <groupId>ch.qos.logback</groupId>
@@ -63,7 +63,7 @@
     <dependency>
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-testing</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.9</version>
       <scope>test</scope>
     </dependency>
     <!-- CSV input in /match API call -->
