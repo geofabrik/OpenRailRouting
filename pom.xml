@@ -87,7 +87,6 @@
               <createDependencyReducedPom>
                   false
               </createDependencyReducedPom>
-              <minimizeJar>true</minimizeJar>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
