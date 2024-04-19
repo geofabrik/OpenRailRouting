@@ -295,8 +295,8 @@ public class MatchResource {
                 if (weighting != null && mapMatching.matchingAttempted() && mapMatching.getProcessedPointsCount() < inputGPXEntries.size()) {
                     int start_point = offset;
                     List<GHPoint> points = new ArrayList<GHPoint>();
-                    points.add((GHPoint) inputGPXEntries.get(start_point).getPoint());
-                    points.add((GHPoint) inputGPXEntries.get(start_point + 1).getPoint());
+                    points.add(inputGPXEntries.get(start_point).getPoint());
+                    points.add(inputGPXEntries.get(start_point + 1).getPoint());
                     GHRequest request =  new GHRequest(points);
                     initHints(request.getHints(), uriInfo.getQueryParameters());
                     request.setProfile(profile).
@@ -367,7 +367,7 @@ public class MatchResource {
                 ObjectNode map = ResponsePathSerializer.jsonObject(rsp, instructions, calcPoints, false, pointsEncoded, took);
 
                 double matchLength = 0, gpxEntriesLength = 0;
-                int matchMillis = 0;
+                long matchMillis = 0;
                 List<Integer> traversalKeylist = new ArrayList<>();
                 for (MatchResult mr : matchResultsList) {
                     matchLength += mr.getMatchLength();

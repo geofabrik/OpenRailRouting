@@ -23,7 +23,7 @@ public class RailwayRoutingManaged implements Managed {
     
     @Inject
     public RailwayRoutingManaged(GraphHopperConfig configuration, List<FlagEncoderConfiguration> encoderConfig) {
-        graphHopper = (RailwayHopper) new RailwayHopper(encoderConfig);
+        graphHopper = new RailwayHopper(encoderConfig);
         graphHopper.init(configuration);
     }
     
