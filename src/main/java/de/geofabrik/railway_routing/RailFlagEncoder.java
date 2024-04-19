@@ -52,7 +52,7 @@ public class RailFlagEncoder extends VehicleTagParser {
         );
     }
 
-    protected void initFromProperties(PMap properties) {
+    protected final void initFromProperties(PMap properties) {
         if (this.properties == null) {
             this.properties = properties;
         } else {
