@@ -71,7 +71,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.5.2</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -87,10 +87,12 @@
               <createDependencyReducedPom>
                   false
               </createDependencyReducedPom>
+              <minimizeJar>true</minimizeJar>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
+                    <exclude>module-info.class</exclude>
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
