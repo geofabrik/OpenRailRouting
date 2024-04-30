@@ -11,6 +11,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.dem.ElevationProvider;
+import com.graphhopper.reader.osm.SkipOptions;
 import com.graphhopper.reader.osm.WaySegmentParser;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.util.Helper;
@@ -49,7 +50,7 @@ public class RailwayWaySegmentParser extends WaySegmentParser {
         LOGGER.info("Start reading OSM file: '" + osmFile + "'");
         LOGGER.info("pass1 - start");
         StopWatch sw1 = StopWatch.started();
-        readOSM(osmFile, new Pass1Handler());
+        readOSM(osmFile, new SkipOptions(true, false, false), new Pass1Handler());
         LOGGER.info("pass1 - finished, took: {}", sw1.stop().getTimeString());
 
         long nodes = nodeData.getNodeCount();
@@ -60,7 +61,7 @@ public class RailwayWaySegmentParser extends WaySegmentParser {
         StopWatch sw2 = new StopWatch().start();
         Pass2Handler pass2Handler = new Pass2Handler();
         crossingsHandler.setNodeDataAccess(nodeId -> pass2Handler.getInternalNodeIdOfOSMNode(nodes));
-        readOSM(osmFile, pass2Handler, crossingsHandler);
+        readOSM(osmFile, SkipOptions.none(), pass2Handler, crossingsHandler);
         LOGGER.info("pass2 - finished, took: {}", sw2.stop().getTimeString());
 
         nodeData.release();

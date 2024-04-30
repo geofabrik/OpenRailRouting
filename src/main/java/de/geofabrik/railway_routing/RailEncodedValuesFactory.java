@@ -43,6 +43,6 @@ public class RailEncodedValuesFactory implements VehicleEncodedValuesFactory {
         BooleanEncodedValue accessEnc = VehicleAccess.create(name);
         DecimalEncodedValue speedEnc = VehicleSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
         DecimalEncodedValue turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
-        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, null, turnCostEnc);
+        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, turnCostEnc);
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.util.VehicleTagParser;
+import com.graphhopper.routing.util.VehicleTagParsers;
 import com.graphhopper.routing.util.VehicleTagParserFactory;
 import com.graphhopper.util.PMap;
 
@@ -19,7 +19,7 @@ public class RailFlagEncoderFactory implements VehicleTagParserFactory {
     }
 
     @Override
-    public VehicleTagParser createParser(EncodedValueLookup lookup, String name, PMap properties) {
+    public VehicleTagParsers createParsers(EncodedValueLookup lookup, String name, PMap properties) {
         if (!properties.has(FlagEncoderConfiguration.NAME)) {
             properties.putObject(FlagEncoderConfiguration.NAME, name);
         }
@@ -29,7 +29,11 @@ public class RailFlagEncoderFactory implements VehicleTagParserFactory {
             throw new IllegalArgumentException("Encoder " + name + " not found. Available encoders: "
                     + flagEncoderProperties.values().toString());
         }
-        return new RailFlagEncoder(lookup, properties);
+        return new VehicleTagParsers(
+                new RailAccessParser(lookup, properties),
+                new RailAverageSpeedParser(lookup, properties),
+                null
+        );
     }
 
 }

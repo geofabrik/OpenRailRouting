@@ -70,7 +70,9 @@ public class OSMRailwayReader extends OSMReader {
             throw new RuntimeException("Graph after reading OSM must not be empty");
         LOGGER.info("Finished reading OSM file: {}, nodes: {}, edges: {}, zero distance edges: {}",
                 osmFile.getAbsolutePath(), nf(baseGraph.getNodes()), nf(baseGraph.getEdges()), nf(zeroCounter));
+        releaseEverythingExceptRestrictionData();
         applyTurnCostsAtSwitches();
-        finishedReading();
+        addRestrictionsToGraph();
+        releaseRestrictionData();
     }
 }

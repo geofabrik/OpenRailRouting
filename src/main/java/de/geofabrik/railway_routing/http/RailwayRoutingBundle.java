@@ -19,8 +19,9 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GHJerseyViolationExceptionMapper;
+import com.graphhopper.http.GHRequestTransformer;
 import com.graphhopper.http.IllegalArgumentExceptionMapper;
-import com.graphhopper.http.LegacyProfileResolver;
+//import com.graphhopper.http.LegacyProfileResolver;
 import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
 import com.graphhopper.http.MultiExceptionMapper;
 import com.graphhopper.http.TypeGPXFilter;
@@ -31,6 +32,7 @@ import com.graphhopper.resources.I18NResource;
 import com.graphhopper.resources.InfoResource;
 import com.graphhopper.resources.IsochroneResource;
 import com.graphhopper.resources.MVTResource;
+import com.graphhopper.resources.MapMatchingResource;
 import com.graphhopper.resources.NearestResource;
 import com.graphhopper.resources.RouteResource;
 import com.graphhopper.resources.SPTResource;
@@ -114,41 +116,29 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
         }
     }
 
-    static class LegacyProfileResolverFactory implements Factory<LegacyProfileResolver> {
-
-        @Inject
-        GraphHopper graphHopper;
-
-        @Override
-        public LegacyProfileResolver provide() {
-            return new LegacyProfileResolver(graphHopper.getEncodingManager(),
-                    graphHopper.getProfiles(),
-                    graphHopper.getCHPreparationHandler().getCHProfiles(),
-                    graphHopper.getLMPreparationHandler().getLMProfiles()
-            );
-        }
-
-        @Override
-        public void dispose(LegacyProfileResolver profileResolver) {
-
-        }
-    }
-
     static class ProfileResolverFactory implements Factory<ProfileResolver> {
         @Inject
         GraphHopper graphHopper;
 
-        @Inject
-        LegacyProfileResolver legacyProfileResolver;
-
         @Override
         public ProfileResolver provide() {
-            return new ProfileResolver(graphHopper.getProfiles(), legacyProfileResolver);
+            return new ProfileResolver(graphHopper.getProfiles());
         }
 
         @Override
         public void dispose(ProfileResolver instance) {
 
+        }
+    }
+
+    static class GHRequestTransformerFactory implements Factory<GHRequestTransformer> {
+        @Override
+        public GHRequestTransformer provide() {
+            return req -> req;
+        }
+
+        @Override
+        public void dispose(GHRequestTransformer instance) {
         }
     }
 
@@ -247,8 +237,8 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopper.class);
 
                 bindFactory(PathDetailsBuilderFactoryFactory.class).to(PathDetailsBuilderFactory.class);
-                bindFactory(LegacyProfileResolverFactory.class).to(LegacyProfileResolver.class);
                 bindFactory(ProfileResolverFactory.class).to(ProfileResolver.class);
+                bindFactory(GHRequestTransformerFactory.class).to(GHRequestTransformer.class);
                 bind(false).to(Boolean.class).named("hasElevation");
                 bindFactory(LocationIndexFactory.class).to(LocationIndex.class);
                 bindFactory(TranslationMapFactory.class).to(TranslationMap.class);

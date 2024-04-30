@@ -30,6 +30,7 @@ flagEncoderProperties:
     electrified: contact_line,yes
 
 graphhopper:
+  import.osm.ignored_highways: ''
   # OpenStreetMap input file
   # datareader.file: some.pbf
 
@@ -163,6 +164,11 @@ graphhopper:
 
 
   ##### Storage #####
+
+  # Excludes certain types of highways during the OSM import to speed up the process and reduce the size of the graph.
+  # This option is required for road routing with upstream GraphHopper. Set it to an
+  # empty string except if you know what you are doing.
+  import.osm.ignored_highways: ''
 
   # configure the memory access, use RAM_STORE for well equipped servers (default and recommended)
   graph.dataaccess: RAM_STORE

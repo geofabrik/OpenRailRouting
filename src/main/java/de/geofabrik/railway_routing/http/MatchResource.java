@@ -320,7 +320,7 @@ public class MatchResource {
                     matchResultsList.add(mr);
                     ++offset;
                 }
-                MatchResult matchResult = mapMatching.match(inputGPXEntries, offset);
+                MatchResult matchResult = mapMatching.match(inputGPXEntries, fillGaps, offset);
                 weighting = matchResult.getWeighting();
                 if (offset < mapMatching.getProcessedPointsCount() - 1) {
                     matchResultsList.add(matchResult);

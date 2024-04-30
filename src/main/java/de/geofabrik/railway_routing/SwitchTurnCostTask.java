@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.reader.osm.OSMNodeData;
+import com.graphhopper.reader.osm.RestrictionTagParser;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.OSMParsers;
-import com.graphhopper.routing.util.parsers.TurnCostParser;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.TurnCostStorage;
 import com.graphhopper.util.AngleCalc;
@@ -56,8 +56,8 @@ public class SwitchTurnCostTask {
         } else if (angleDiff < 0.75 * Math.PI || angleDiff > 1.25 * Math.PI) {
             forbidden = true;
         }
-        List<TurnCostParser> turnCostParsers = osmParsers.getTurnCostParsers();
-        for (TurnCostParser parser : turnCostParsers) {
+        List<RestrictionTagParser> restrictionTagParsers = osmParsers.getRestrictionTagParsers();
+        for (RestrictionTagParser parser : restrictionTagParsers) {
             DecimalEncodedValue turnCostEnc = parser.getTurnCostEnc();
             if (avoid) {
                 tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, turnCostEnc.getMaxOrMaxStorableDecimal());

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.PMap;
 
-import de.geofabrik.railway_routing.RailFlagEncoder;
+import de.geofabrik.railway_routing.RailAverageSpeedParser;
 
 public class FlagEncoderConfiguration {
 
