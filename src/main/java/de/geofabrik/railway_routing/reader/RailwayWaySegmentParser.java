@@ -60,7 +60,7 @@ public class RailwayWaySegmentParser extends WaySegmentParser {
         LOGGER.info("pass2 - start");
         StopWatch sw2 = new StopWatch().start();
         Pass2Handler pass2Handler = new Pass2Handler();
-        crossingsHandler.setNodeDataAccess(nodeId -> pass2Handler.getInternalNodeIdOfOSMNode(nodes));
+        crossingsHandler.setNodeDataAccess(nodeId -> pass2Handler.getInternalNodeIdOfOSMNode(nodeId));
         readOSM(osmFile, SkipOptions.none(), pass2Handler, crossingsHandler);
         LOGGER.info("pass2 - finished, took: {}", sw2.stop().getTimeString());
 
