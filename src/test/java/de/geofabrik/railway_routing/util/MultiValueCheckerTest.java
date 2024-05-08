@@ -1,11 +1,12 @@
 package de.geofabrik.railway_routing.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultiValueCheckerTest {
 
@@ -13,7 +14,7 @@ public class MultiValueCheckerTest {
     private ArrayList<Double> permittedDouble;
     private String tagValue;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         permittedInt = new ArrayList<Integer>();
         permittedDouble = new ArrayList<Double>();
