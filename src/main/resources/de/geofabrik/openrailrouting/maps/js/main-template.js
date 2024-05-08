@@ -201,14 +201,13 @@ $(document).ready(function (e) {
                 var profilesDiv = $("#profiles");
 
                 function createButton(profile, hide) {
-                    var vehicle = profile.vehicle;
                     var profileName = profile.name;
                     var button = $("<button class='vehicle-btn' title='" + profileDisplayName(profileName) + "'/>");
                     if (hide)
                         button.hide();
 
                     button.attr('id', profileName);
-                    button.html("<img src='img/" + vehicle.toLowerCase() + ".png' alt='" + profileDisplayName(profileName) + "'></img>");
+                    button.html("<img src='img/" + profileDisplayName(profileName).toLowerCase() + ".png' alt='" + profileDisplayName(profileName) + "'></img>");
                     button.click(function () {
                         ghRequest.setProfile(profileName);
                         ghRequest.removeLegacyParameters();
@@ -223,23 +222,23 @@ $(document).ready(function (e) {
                     var profiles = json.profiles;
                     // first sort alphabetically to maintain a consistent order, then move certain elements to front/back
                     profiles.sort(function (a, b) {
-                         return a.vehicle < b.vehicle ? -1 : a.vehicle > b.vehicle ? 1 : 0;
+                         return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
                     });
                     // the desired order is car,foot,bike,<others>,motorcycle
                     var firstVehicles = ["car", "foot", "bike"];
                     for (var i=firstVehicles.length-1; i>=0; --i) {
-                        profiles = moveToFront(profiles, function(p) { return p.vehicle === firstVehicles[i]; });
+                        profiles = moveToFront(profiles, function(p) { return p.name === firstVehicles[i]; });
                     }
                     var lastVehicles = ["mtb", "motorcycle"];
                     for (var i=0; i<lastVehicles.length; ++i) {
-                        profiles = moveToFront(profiles, function(p) { return p.vehicle !== lastVehicles[i]; });
+                        profiles = moveToFront(profiles, function(p) { return p.name !== lastVehicles[i]; });
                     }
                     ghRequest.profiles = profiles;
                     ghRequest.setElevation(json.elevation);
 
                     // only show all profiles if the url already specifies an existing profile that is not amongst the 'firstVehicles'
                     var urlProfile = profiles.find(function (profile) { return urlParams.profile && profile.name === urlParams.profile; });
-                    var showAllProfiles = urlProfile && firstVehicles.indexOf(urlProfile.vehicle) >= 0;
+                    var showAllProfiles = urlProfile && firstVehicles.indexOf(urlProfile.name) >= 0;
                     if (profiles.length > 0)
                         ghRequest.setProfile(profiles[0].name);
 
