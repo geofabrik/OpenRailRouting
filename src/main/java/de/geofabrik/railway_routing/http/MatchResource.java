@@ -76,6 +76,7 @@ public class MatchResource {
     private final RailwayHopper hopper;
     private final ProfileResolver profileResolver;
     private final TranslationMap trMap;
+    private final String osmDate;
 
     @Inject
     public MatchResource(RailwayHopper graphHopper, ProfileResolver profileResolver,
@@ -83,6 +84,7 @@ public class MatchResource {
         this.hopper = graphHopper;
         this.profileResolver = profileResolver;
         this.trMap = trMap;
+        this.osmDate = graphHopper.getProperties().get("datareader.data.date");
     }
 
     private List<Observation> readCSV(InputStream inputStream, double defaultSpeed, char separator, char quoteChar) {
@@ -279,7 +281,7 @@ public class MatchResource {
         hints.putObject("profile", profile);
         MapMatching mapMatching = MapMatching.fromGraphHopper(hopper, hints);
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
-        float took = 0;
+        double took = 0;
         try {
             List<Observation> inputGPXEntries = parseInput(inputStream, httpReq.getHeader("Content-type"), csvInputSeparator, quoteChar);
             if (inputGPXEntries.size() < 2) {
@@ -364,7 +366,7 @@ public class MatchResource {
                         .header("X-GH-Took", "" + Math.round(took * 1000))
                         .build();
             } else {
-                ObjectNode map = ResponsePathSerializer.jsonObject(rsp, instructions, calcPoints, false, pointsEncoded, took);
+                ObjectNode map = ResponsePathSerializer.jsonObject(rsp, osmDate, instructions, calcPoints, false, pointsEncoded, took);
 
                 double matchLength = 0, gpxEntriesLength = 0;
                 int matchMillis = 0;

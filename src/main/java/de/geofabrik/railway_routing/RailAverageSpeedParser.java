@@ -2,10 +2,12 @@ package de.geofabrik.railway_routing;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.parsers.AbstractAverageSpeedParser;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.util.PMap;
 
 import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
@@ -19,8 +21,8 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
     private boolean acceptYardSpur;
     private PMap properties = new PMap();
 
-    public RailAverageSpeedParser(DecimalEncodedValue speedEnc, double maxPossibleSpeed, PMap properties) {
-        super(speedEnc, maxPossibleSpeed);
+    public RailAverageSpeedParser(DecimalEncodedValue speedEnc, DecimalEncodedValue ferrySpeedEnc, PMap properties) {
+        super(speedEnc, ferrySpeedEnc);
         this.properties = properties;
         initFromProperties(properties);
     }
@@ -28,7 +30,7 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
     public RailAverageSpeedParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getDecimalEncodedValue(VehicleSpeed.key(properties.getString("name", DEFAULT_NAME))),
-                properties.getInt(FlagEncoderConfiguration.MAXSPEED, 100),
+                lookup.getDecimalEncodedValue(FerrySpeed.KEY),
                 properties
         );
     }
@@ -63,13 +65,21 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
     }
 
     @Override
-    public void handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+    public void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way) {
         // get assumed speed from railway type
         double speed = getSpeed(way);
         speed = applyMaxSpeed(way, speed);
-        setSpeed(false, edgeFlags, speed);
+        double maxPossibleSpeed = avgSpeedEnc.getMaxStorableDecimal();
+        double minPossibleSpeed = avgSpeedEnc.getSmallestNonZeroValue();
+        if (speed > maxPossibleSpeed) {
+            speed = maxPossibleSpeed;
+        }
+        if (speed < minPossibleSpeed) {
+            speed = minPossibleSpeed;
+        }
+        setSpeed(false, edgeId, edgeIntAccess, speed);
         if (avgSpeedEnc.isStoreTwoDirections()) {
-            setSpeed(true, edgeFlags, speed);
+            setSpeed(true, edgeId, edgeIntAccess, speed);
         }
     }
 
@@ -82,8 +92,6 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
         double maxSpeed = getMaxSpeed(way, false);
         if (!isValidSpeed(maxSpeed)) {
             maxSpeed = speed;
-        } else if (isValidSpeed(maxSpeed) && maxSpeed > maxPossibleSpeed) {
-            maxSpeed = maxPossibleSpeed;
         }
         return maxSpeed * speedCorrectionFactor;
     }

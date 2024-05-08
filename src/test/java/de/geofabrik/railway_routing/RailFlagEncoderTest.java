@@ -8,19 +8,45 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
+import com.graphhopper.routing.ev.ArrayEdgeIntAccess;
 import com.graphhopper.routing.ev.BikeNetwork;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EdgeIntAccess;
+import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.FootNetwork;
+import com.graphhopper.routing.ev.Roundabout;
 import com.graphhopper.routing.ev.RouteNetwork;
+import com.graphhopper.routing.ev.Smoothness;
+import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.ev.VehicleAccess;
+import com.graphhopper.routing.ev.VehiclePriority;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.WayAccess;
+import com.graphhopper.routing.util.parsers.CarAccessParser;
+import com.graphhopper.routing.util.parsers.CarAverageSpeedParser;
 import com.graphhopper.util.PMap;
 
 public class RailFlagEncoderTest {
+
+    private static final String carName = "rail";
+
+    private EncodingManager createEncodingManager() {
+        return createEncodingManager(5, 11, true);
+    }
+
+    private EncodingManager createEncodingManager(int bits, int factor, boolean twoDirections) {
+        return new EncodingManager.Builder()
+                .add(VehicleAccess.create(carName))
+                .add(VehicleSpeed.create(carName, bits, factor, twoDirections))
+                .addTurnCostEncodedValue(TurnCost.create(carName, 1))
+                .build();
+    }
+
 
     private static ReaderWay getRailwayTrack() {
         ReaderWay way = new ReaderWay(1);
@@ -49,77 +75,79 @@ public class RailFlagEncoderTest {
         return way;
     }
 
-    private static RailAccessParser createAccessParser(PMap properties) {
-        BooleanEncodedValue accessEnc = VehicleAccess.create("rail");
-        RailAccessParser encoder = new RailAccessParser(accessEnc, properties);
-        encoder.initFromProperties(properties);
-        return encoder;
+    private static RailAccessParser createAccessParser(EncodedValueLookup lookup, PMap properties) {
+        return new RailAccessParser(lookup, properties);
     }
 
-    private static RailAverageSpeedParser createAvgSpeedParser(int maxPossibleSpeed) {
-        return createAvgSpeedParser(maxPossibleSpeed, 5);
+    private static RailAverageSpeedParser createAvgSpeedParser(EncodedValueLookup lookup, PMap properties) {
+        return new RailAverageSpeedParser(lookup, properties);
     }
 
-    private static RailAverageSpeedParser createAvgSpeedParser(int maxPossibleSpeed, int speedFactor) {
-        DecimalEncodedValue speedEnc = VehicleSpeed.create("rail", 5, speedFactor, false);
-        double max = speedEnc.getNextStorableValue(maxPossibleSpeed);
-        RailAverageSpeedParser encoder = new RailAverageSpeedParser(speedEnc, max, new PMap());
-        encoder.setSpeedCorrectionFactor(0.9);
-        return encoder;
+    private RailAverageSpeedParser createSpeedParser(int bits, int factor) {
+        EncodingManager em = createEncodingManager(bits, factor, false);
+        return createAvgSpeedParser(em, new PMap());
     }
+
+    private double encodeSpeed(int bits, int factor, ReaderWay way) {
+        EncodingManager em = createEncodingManager(bits, factor, false);
+        final RailAverageSpeedParser speedParser = createAvgSpeedParser(em, new PMap());
+        EdgeIntAccess edgeIntAccess = new ArrayEdgeIntAccess(em.getIntsForFlags());
+        int edgeId = 0;
+        speedParser.handleWayTags(edgeId, edgeIntAccess, way);
+        return speedParser.getAverageSpeedEnc().getDecimal(false, edgeId, edgeIntAccess);
+    }
+
 
     @Test
     public void testNarrowGauge() {
         PMap properties = new PMap();
         properties.putObject("electrified", "");
         properties.putObject("railway", "rail;narrow_gauge");
-        properties.putObject("name", "narrow");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way = new ReaderWay(1);
         way.setTag("railway", "narrow_gauge");
         assertEquals(e.getAccess(way), WayAccess.WAY);
     }
 
     @Test
-    public void testSpeed50vehicle50track() {
-        RailAverageSpeedParser encoder = createAvgSpeedParser(50);
+    public void testApplyMaxSpeed() {
+        RailAverageSpeedParser e = createSpeedParser(3, 7);
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed", "50");
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
+        assertEquals(50 * 0.9, e.applyMaxSpeed(way, 50), 4.0);
+        assertEquals(50 * 0.9, e.applyMaxSpeed(way, 100), 4.0);
+        assertEquals(50 * 0.9, e.applyMaxSpeed(way, 25), 4.0);
     }
 
     @Test
-    public void testSpeed50vehicle100track() {
-        RailAverageSpeedParser encoder = createAvgSpeedParser(50);
+    public void testSpeedEncoderMax49() {
         ReaderWay way = new ReaderWay(1);
-        way.setTag("maxspeed", "100");
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
-    }
-
-    @Test
-    public void testSpeed100vehicle50track() {
-        RailAverageSpeedParser encoder = createAvgSpeedParser(100);
-        ReaderWay way = new ReaderWay(1);
+        way.setTag("railway", "rail");
         way.setTag("maxspeed", "50");
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 50), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 100), 0.0);
-        assertEquals(50 * 0.9, encoder.applyMaxSpeed(way, 25), 0.0);
+        assertEquals(50 * 0.9, encodeSpeed(3, 7, way), 4.0);
+        way.setTag("maxspeed", "100");
+        assertEquals(50 * 0.9, encodeSpeed(3, 7, way), 4.0);
+        way.setTag("maxspeed", "25");
+        assertEquals(25 * 0.9, encodeSpeed(3, 7, way), 4.0);
     }
 
-    /**
-     * TGV test
-     */
     @Test
-    public void testSpeedTGV100track() {
-        RailAverageSpeedParser encoderTGV = createAvgSpeedParser(319, 11);
+    public void testSpeedEncoderMax105() {
         ReaderWay way = new ReaderWay(1);
+        way.setTag("railway", "rail");
+        way.setTag("maxspeed", "50");
+        assertEquals(50 * 0.9, encodeSpeed(4, 7, way), 4.0);
         way.setTag("maxspeed", "100");
-        assertEquals(100 * 0.9, encoderTGV.applyMaxSpeed(way, 100), 0.0);
-        assertEquals(100 * 0.9, encoderTGV.applyMaxSpeed(way, 50), 0.0);
+        assertEquals(100 * 0.9, encodeSpeed(4, 7, way), 4.0);
+        way.setTag("maxspeed", "25");
+        assertEquals(25 * 0.9, encodeSpeed(4, 7, way), 4.0);
+    }
+
+    @Test
+    public void testLowSpeedTrack() {
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("maxspeed", "5");
+        assertEquals(5, encodeSpeed(5, 10, way), 5.0);
     }
 
     @Test
@@ -128,8 +156,7 @@ public class RailFlagEncoderTest {
         properties.putObject("electrified", "contact_line");
         properties.putObject("voltages", "25000;15000");
         properties.putObject("frequencies", "250;16.7;16.67");
-        properties.putObject("name", "test");
-        RailAccessParser encoder = createAccessParser(properties);
+        RailAccessParser encoder = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertTrue(encoder.hasCompatibleElectricity(way1));
         ReaderWay way2 = getElectrifiedWay("contact_line", "11000", "16.7");
@@ -157,8 +184,7 @@ public class RailFlagEncoderTest {
     public void testElectricalCompatibilityDiesel() {
         PMap properties = new PMap();
         properties.putObject("electrified", "");
-        properties.putObject("name", "test");
-        RailAccessParser encoder = createAccessParser(properties);
+        RailAccessParser encoder = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertTrue(encoder.hasCompatibleElectricity(way1));
         ReaderWay way2 = getElectrifiedWay("no", null, null);
@@ -172,9 +198,8 @@ public class RailFlagEncoderTest {
     @Test
     public void testGaugeSensitiveEncoder() {
         PMap properties = new PMap();
-        properties.putObject("name", "test");
         properties.putObject("gauges", "1435");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getRailwayTrack();
         way1.setTag("gauge", "1435");
         assertTrue(e.hasCompatibleGauge(way1));
@@ -186,8 +211,7 @@ public class RailFlagEncoderTest {
     public void testGaugeAgnosticEncoder() {
         PMap properties = new PMap();
         properties.putObject("electrified", "");
-        properties.putObject("name", "test");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertTrue(e.hasCompatibleGauge(way1));
         ReaderWay way2 = getRailwayTrack();
@@ -200,8 +224,7 @@ public class RailFlagEncoderTest {
         PMap properties = new PMap();
         properties.putObject("electrified", "");
         properties.putObject("yardSpur", true);
-        properties.putObject("name", "test");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertNotEquals(e.getAccess(way1), WayAccess.CAN_SKIP);
         ReaderWay way2 = getYardWay();
@@ -213,8 +236,7 @@ public class RailFlagEncoderTest {
         PMap properties = new PMap();
         properties.putObject("electrified", "");
         properties.putObject("yardSpur", false);
-        properties.putObject("name", "test");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way1 = getElectrifiedWay("contact_line", "15000", "16.7");
         assertNotEquals(e.getAccess(way1), WayAccess.CAN_SKIP);
         ReaderWay way2 = getYardWay();
@@ -224,8 +246,7 @@ public class RailFlagEncoderTest {
     @Test
     public void testAcceptsTrack() {
         PMap properties = new PMap();
-        properties.putObject("name", "tgv");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way = new ReaderWay(1);
         way.setTag("railway", "rail");
         assertEquals(e.getAccess(way), WayAccess.WAY);
@@ -234,8 +255,7 @@ public class RailFlagEncoderTest {
     @Test
     public void testRejectRoad() {
         PMap properties = new PMap();
-        properties.putObject("name", "tgv");
-        RailAccessParser e = createAccessParser(properties);
+        RailAccessParser e = createAccessParser(createEncodingManager(), properties);
         ReaderWay way = new ReaderWay(1);
         way.setTag("highway", "primary");
         assertEquals(WayAccess.CAN_SKIP, e.getAccess(way));

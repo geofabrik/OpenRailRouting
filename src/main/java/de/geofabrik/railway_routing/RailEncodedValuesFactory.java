@@ -6,6 +6,7 @@ import java.util.Map;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.TurnCost;
+import com.graphhopper.routing.ev.TurnRestriction;
 import com.graphhopper.routing.ev.VehicleAccess;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.VehicleEncodedValues;
@@ -42,7 +43,7 @@ public class RailEncodedValuesFactory implements VehicleEncodedValuesFactory {
         int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         BooleanEncodedValue accessEnc = VehicleAccess.create(name);
         DecimalEncodedValue speedEnc = VehicleSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
-        DecimalEncodedValue turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
-        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, turnCostEnc);
+        BooleanEncodedValue turnRestrictionEnc = maxTurnCosts > 0 ? TurnRestriction.create(name) : null;
+        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, turnRestrictionEnc);
     }
 }

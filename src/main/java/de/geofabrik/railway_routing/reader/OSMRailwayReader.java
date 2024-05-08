@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.osm.OSMReader;
+import com.graphhopper.reader.osm.WaySegmentParser;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.OSMParsers;
@@ -23,8 +24,8 @@ public class OSMRailwayReader extends OSMReader {
 
     private CrossingsSetHook crossingsHandler;
 
-    public OSMRailwayReader(BaseGraph baseGraph, EncodingManager encodingManager, OSMParsers osmParsers, OSMReaderConfig config) {
-        super(baseGraph, encodingManager, osmParsers, config);
+    public OSMRailwayReader(BaseGraph baseGraph, OSMParsers osmParsers, OSMReaderConfig config) {
+        super(baseGraph, osmParsers, config);
         this.crossingsHandler = new CrossingsSetHook();
     }
 
@@ -52,18 +53,17 @@ public class OSMRailwayReader extends OSMReader {
         if (!baseGraph.isInitialized())
             throw new IllegalStateException("BaseGraph must be initialize before we can read OSM");
 
-        RailwayWaySegmentParser.Builder builder = new RailwayWaySegmentParser.Builder(baseGraph.getNodeAccess());
-        builder.setDirectory(baseGraph.getDirectory());
-        builder.setElevationProvider(eleProvider);
-        builder.setWayFilter(this::acceptWay);
-        builder.setSplitNodeFilter(this::isBarrierNode);
-        builder.setWayPreprocessor(this::preprocessWay);
-        builder.setRelationPreprocessor(this::preprocessRelations);
-        builder.setRelationProcessor(this::processRelation);
-        builder.setEdgeHandler(this::addEdge);
-        builder.setWorkerThreads(config.getWorkerThreads());
-        RailwayWaySegmentParser waySegmentParser = builder.build();
-        waySegmentParser.setAndInitCrossingsHandler(crossingsHandler);
+        WaySegmentParser waySegmentParser = new WaySegmentParser.Builder(baseGraph.getNodeAccess(), baseGraph.getDirectory())
+        .setElevationProvider(eleProvider)
+        .setWayFilter(this::acceptWay)
+        .setSplitNodeFilter(this::isBarrierNode)
+        .setWayPreprocessor(this::preprocessWay)
+        .setRelationPreprocessor(this::preprocessRelations)
+        .setRelationProcessor(this::processRelation)
+        .setEdgeHandler(this::addEdge)
+        .setWorkerThreads(config.getWorkerThreads())
+        .registerPass2Handler(crossingsHandler)
+        .build();
         waySegmentParser.readOSM(osmFile);
         osmDataDate = waySegmentParser.getTimeStamp();
         if (baseGraph.getNodes() == 0)

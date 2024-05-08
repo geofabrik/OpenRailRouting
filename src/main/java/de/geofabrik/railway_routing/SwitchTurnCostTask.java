@@ -6,10 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.carrotsearch.hppc.IntSet;
+import com.carrotsearch.hppc.LongSet;
 import com.graphhopper.reader.osm.OSMNodeData;
 import com.graphhopper.reader.osm.RestrictionTagParser;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.OSMParsers;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.TurnCostStorage;
@@ -28,9 +28,9 @@ public class SwitchTurnCostTask {
     AngleCalc angleCalc = new AngleCalc();
     BaseGraph baseGraph;
     OSMParsers osmParsers;
-    private IntSet crossingsSet;
+    private LongSet crossingsSet;
 
-    public SwitchTurnCostTask(BaseGraph baseGraph, OSMParsers osmParsers, IntSet crossingsSet) {
+    public SwitchTurnCostTask(BaseGraph baseGraph, OSMParsers osmParsers, LongSet crossingsSet) {
         this.baseGraph = baseGraph;
         this.osmParsers = osmParsers;
         this.crossingsSet = crossingsSet;
@@ -58,13 +58,14 @@ public class SwitchTurnCostTask {
         }
         List<RestrictionTagParser> restrictionTagParsers = osmParsers.getRestrictionTagParsers();
         for (RestrictionTagParser parser : restrictionTagParsers) {
-            DecimalEncodedValue turnCostEnc = parser.getTurnCostEnc();
-            if (avoid) {
-                tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, turnCostEnc.getMaxOrMaxStorableDecimal());
-                tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, turnCostEnc.getMaxOrMaxStorableDecimal());
-            } else if (forbidden) {
-                tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, Double.POSITIVE_INFINITY);
-                tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, Double.POSITIVE_INFINITY);
+            BooleanEncodedValue turnCostEnc = parser.getTurnRestrictionEnc();
+            if (avoid || forbidden) {
+//            if (avoid) {
+                tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, true);
+                tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, true);
+//            } else if (forbidden) {
+//                tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, Double.POSITIVE_INFINITY);
+//                tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, Double.POSITIVE_INFINITY);
             }
         }
     }
@@ -75,7 +76,7 @@ public class SwitchTurnCostTask {
         ArrayList<Integer> adjNodes = new ArrayList<Integer>();
         // check if it is a railway crossing
         // We only get tower nodes here.
-        int id = OSMNodeData.towerNodeToId(node);
+        long id = OSMNodeData.towerNodeToId(node);
         boolean crossing = crossingsSet.contains(id);
         while (iter.next()) {
             edges.add(iter.getEdge());

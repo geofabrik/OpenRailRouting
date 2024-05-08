@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.RestrictionTagParser;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.AverageSlope;
@@ -33,6 +34,7 @@ import com.graphhopper.routing.ev.Roundabout;
 import com.graphhopper.routing.ev.RouteNetwork;
 import com.graphhopper.routing.ev.Smoothness;
 import com.graphhopper.routing.ev.TurnCost;
+import com.graphhopper.routing.ev.TurnRestriction;
 import com.graphhopper.routing.util.CurvatureCalculator;
 import com.graphhopper.routing.util.OSMParsers;
 import com.graphhopper.routing.util.SlopeCalculator;
@@ -74,9 +76,9 @@ public class RailwayHopper extends GraphHopper {
                     + " but also cannot use file for DataReader as it wasn't specified!");
 
         logger.info("start creating graph from " + getOSMFile());
-        OSMRailwayReader reader = new OSMRailwayReader(getBaseGraph(), getEncodingManager(), getOSMParsers(), getReaderConfig());
-        reader.setFile(_getOSMFile());
-        reader.setElevationProvider(getElevationProvider());
+        OSMReader reader = new OSMRailwayReader(getBaseGraph(), getOSMParsers(), getReaderConfig())
+            .setFile(_getOSMFile())
+            .setElevationProvider(getElevationProvider());
         logger.info("using " + getBaseGraph().toString() + ", memory:" + getMemInfo());
         createBaseGraphAndProperties();
         try {
@@ -137,27 +139,28 @@ public class RailwayHopper extends GraphHopper {
                 if (tagParser instanceof BikeCommonAccessParser) {
                     if (getEncodingManager().hasEncodedValue(BikeNetwork.KEY) && added.add(BikeNetwork.KEY))
                         osmParsers.addRelationTagParser(relConfig -> new OSMBikeNetworkTagParser(getEncodingManager().getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class), relConfig));
-                    if (getEncodingManager().hasEncodedValue(GetOffBike.KEY) && added.add(GetOffBike.KEY))
-                        osmParsers.addWayTagParser(new OSMGetOffBikeParser(getEncodingManager().getBooleanEncodedValue(GetOffBike.KEY)));
                     if (getEncodingManager().hasEncodedValue(Smoothness.KEY) && added.add(Smoothness.KEY))
                         osmParsers.addWayTagParser(new OSMSmoothnessParser(getEncodingManager().getEnumEncodedValue(Smoothness.KEY, Smoothness.class)));
                 } else if (tagParser instanceof FootAccessParser) {
                     if (getEncodingManager().hasEncodedValue(FootNetwork.KEY) && added.add(FootNetwork.KEY))
                         osmParsers.addRelationTagParser(relConfig -> new OSMFootNetworkTagParser(getEncodingManager().getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class), relConfig));
                 }
-                String turnCostKey = TurnCost.key(new PMap(vehicleStr).getString("name", name));
-                if (getEncodingManager().hasEncodedValue(turnCostKey)
+                String turnRestrictionKey = TurnRestriction.key(new PMap(vehicleStr).getString("name", name));
+                if (getEncodingManager().hasTurnEncodedValue(turnRestrictionKey)
                         // need to make sure we do not add the same restriction parsers multiple times
-                        && osmParsers.getRestrictionTagParsers().stream().noneMatch(r -> r.getTurnCostEnc().getName().equals(turnCostKey))) {
+                        && osmParsers.getRestrictionTagParsers().stream().noneMatch(r -> r.getTurnRestrictionEnc().getName().equals(turnRestrictionKey))) {
                     List<String> restrictions = tagParser instanceof AbstractAccessParser
                             ? ((AbstractAccessParser) tagParser).getRestrictions()
                             : OSMRoadAccessParser.toOSMRestrictions(TransportationMode.valueOf(new PMap(vehicleStr).getString("transportation_mode", "VEHICLE")));
-                    osmParsers.addRestrictionTagParser(new RestrictionTagParser(restrictions, getEncodingManager().getDecimalEncodedValue(turnCostKey)));
+                    osmParsers.addRestrictionTagParser(new RestrictionTagParser(restrictions, getEncodingManager().getTurnBooleanEncodedValue(turnRestrictionKey)));
                 }
             });
             vehicleTagParsers.getTagParsers().forEach(tagParser -> {
                 if (tagParser == null) return;
                 osmParsers.addWayTagParser(tagParser);
+
+                if (tagParser instanceof BikeCommonAccessParser && getEncodingManager().hasEncodedValue(GetOffBike.KEY) && added.add(GetOffBike.KEY))
+                    osmParsers.addWayTagParser(new OSMGetOffBikeParser(getEncodingManager().getBooleanEncodedValue(GetOffBike.KEY), ((BikeCommonAccessParser) tagParser).getAccessEnc()));
             });
         });
         return osmParsers;
