@@ -42,30 +42,14 @@ public class SwitchTurnCostTask {
 
     private void addTurnCosts(int fromEdge, int viaNode, int toEdge, double angleDiff, boolean crossing) {
         TurnCostStorage tcs = baseGraph.getTurnCostStorage();
-        boolean forbidden = false;
-        boolean avoid = false;
-        if (crossing && (angleDiff < 0.92 * Math.PI || angleDiff > 1.08 * Math.PI)) {
-            forbidden = true;
-        }
-        else if (angleDiff < 0.3 * Math.PI || angleDiff > 1.7 * Math.PI) {
-            // Avoid this turn because it requires a change of direction.
-            // The TurnCostStorage implementation ORs a potentially existing value and the new value.
-            // Therefore, if we set a value lower than the encoders maximum, we will not overwrite
-            // an already set maximum. And the code does not set values lower than maximum except here.
-            avoid = true;
-        } else if (angleDiff < 0.75 * Math.PI || angleDiff > 1.25 * Math.PI) {
-            forbidden = true;
-        }
+        boolean forbidden = (crossing && (angleDiff < 0.92 * Math.PI || angleDiff > 1.08 * Math.PI));
+        forbidden |= (angleDiff < 0.75 * Math.PI || angleDiff > 1.25 * Math.PI);
         List<RestrictionTagParser> restrictionTagParsers = osmParsers.getRestrictionTagParsers();
         for (RestrictionTagParser parser : restrictionTagParsers) {
             BooleanEncodedValue turnCostEnc = parser.getTurnRestrictionEnc();
-            if (avoid || forbidden) {
-//            if (avoid) {
+            if (forbidden) {
                 tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, true);
                 tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, true);
-//            } else if (forbidden) {
-//                tcs.set(turnCostEnc, fromEdge, viaNode, toEdge, Double.POSITIVE_INFINITY);
-//                tcs.set(turnCostEnc, toEdge, viaNode, fromEdge, Double.POSITIVE_INFINITY);
             }
         }
     }
