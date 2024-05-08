@@ -45,8 +45,8 @@ JUnit 4.x is used for unit tests.
 
 Configuration happens via a YAML file which is given as a positional parameter
 when starting the routing engine.  Most parts of the configuration are
-identical to GraphHopper. However, one part is different – the flag encoders
-(aka routing profiles):
+identical to GraphHopper. However, one part is different – the vehicles
+(formerly known as "flag encoders"):
 
 ```yaml
 # This section sets the properties of the flag encoders like maximum speed,
@@ -60,8 +60,8 @@ identical to GraphHopper. However, one part is different – the flag encoders
 #   voltages: list of compatible values of the OSM tag voltage=* separated by semicola – as a string
 #   frequencies: list of compatible values of the OSM tag frequency=* separated by semicola – as a string
 #   gauges: list of compatible values of the OSM tag gauge=* separated by semicola – as a string
-#   maxspeed: maximum speed of this flag encoder in kph
-#   speed_factor: divisor for divide speed values by to encode them in the flags of an edge of the graph
+#   speed_factor: divisor for divide speed values by to encode them in the flags of an edge of the graph (default: 5)
+#   speed_bits: size of integer (bits) to encode the speed in the flags of an edge of the graph (default: 5)
 #   speed_correction_factor: all speeds (both defaults and from maxspeed=* tags are multiplied by this value),
 #                            0.9 underestimates travel times usually.
 #
@@ -74,21 +74,43 @@ flagEncoderProperties:
     voltages: 15000;25000;1500;3000
     frequencies: 16.7;16.67;50;0
     gauges: 1435
-    maxspeed: 319
     speed_factor: 11
+    speed_bits: 5
     speed_correction_factor: 0.9
   - name: non_tgv
     railway: rail;light_rail
     gauges: 1435
-    maxspeed: 120
     speed_factor: 5
+    speed_bits: 5
     speed_correction_factor: 0.9
 
 graphhopper:
-  graph.flag_encoders: tgv_all,non_tgv
+  profiles:
+    - name: tgv_all
+      vehicle: tgv_all
+      custom_model:
+        distance_influence: 0.0
+        speed:
+          - if: true
+            limit_to: 310
+      turn_costs: true
+      u_turn_costs: 300
+    - name: non_tgv
+      vehicle: tgv_all
+      custom_model:
+        distance_influence: 0.0
+        speed:
+          - if: true
+            limit_to: 120
+      turn_costs: true
+      u_turn_costs: 300
 
   # Any other values can be found in the GraphHopper documentation and are explained in config.yml in this repository
 ```
+
+Speeds are encoded by dividing the maximum speed of the track (or a sensible default) by the `speed_factor` and then written to an integer of `speed_bits` size. This means if `speed_factor` is set to 11 and `speed_bits` is 5, you can encode any speed between 11 and 310 with a precision of 11 kph.
+
+If you wish to limit the speed of a vehicle lower than the upper limit of the encoder, you can limit the speed using a so-called Custom Model of GraphHopper. See the example configuration `config.yml` for details.
 
 
 ## Running

@@ -40,10 +40,9 @@ public class RailEncodedValuesFactory implements VehicleEncodedValuesFactory {
         int speedBits = properties.getInt("speed_bits", 5);
         double speedFactor = properties.getDouble("speed_factor", 5);
         boolean speedTwoDirections = properties.getBool("speed_two_directions", true);
-        int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         BooleanEncodedValue accessEnc = VehicleAccess.create(name);
         DecimalEncodedValue speedEnc = VehicleSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
-        BooleanEncodedValue turnRestrictionEnc = maxTurnCosts > 0 ? TurnRestriction.create(name) : null;
+        BooleanEncodedValue turnRestrictionEnc = TurnRestriction.create(name);
         return new VehicleEncodedValues(name, accessEnc, speedEnc, null, turnRestrictionEnc);
     }
 }
