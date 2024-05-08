@@ -113,9 +113,9 @@ $(document).ready(function (e) {
            }
        }
 
-       var jsonModel;
+       var jsonModel = {'ch.disable': true};
        try {
-         jsonModel = inputText.indexOf("{") == 0? JSON.parse(inputText) : YAML.safeLoad(inputText);
+         jsonModel.custom_model = inputText.indexOf("{") == 0? JSON.parse(inputText) : YAML.safeLoad(inputText);
        } catch(ex) {
          routeResultsDiv.html("Cannot parse " + inputText + " " + ex);
          return;
@@ -128,7 +128,7 @@ $(document).ready(function (e) {
        var request = JSON.stringify(jsonModel);
 
        $.ajax({
-           url: "/route-custom",
+           url: "/route",
            type: "POST",
            contentType: 'application/json; charset=utf-8',
            dataType: "json",
