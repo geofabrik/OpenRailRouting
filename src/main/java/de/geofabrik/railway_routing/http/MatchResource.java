@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.gpx.GpxConversions;
 import com.graphhopper.jackson.Gpx;
@@ -39,6 +40,7 @@ import com.graphhopper.matching.EdgeMatch;
 import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
 import com.graphhopper.matching.Observation;
+import com.graphhopper.resources.RouteResource;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.PathCalculator;
 import com.graphhopper.http.ProfileResolver;
@@ -67,20 +69,23 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import de.geofabrik.railway_routing.InputCSVEntry;
 import de.geofabrik.railway_routing.RailwayHopper;
 
+import static com.graphhopper.resources.RouteResource.removeLegacyParameters;
 import static com.graphhopper.util.Parameters.Routing.*;
 
 @javax.ws.rs.Path("match")
 public class MatchResource {
     private static final Logger logger = LoggerFactory.getLogger(MatchResource.class);
 
+    private final GraphHopperConfig config;
     private final RailwayHopper hopper;
     private final ProfileResolver profileResolver;
     private final TranslationMap trMap;
     private final String osmDate;
 
     @Inject
-    public MatchResource(RailwayHopper graphHopper, ProfileResolver profileResolver,
+    public MatchResource(GraphHopperConfig config, RailwayHopper graphHopper, ProfileResolver profileResolver,
             TranslationMap trMap) {
+        this.config = config;
         this.hopper = graphHopper;
         this.profileResolver = profileResolver;
         this.trMap = trMap;
@@ -258,9 +263,11 @@ public class MatchResource {
             @QueryParam("csv_output.separator") @DefaultValue(";") char csvOutputSeparator,
             @QueryParam(INSTRUCTIONS) @DefaultValue("true") boolean instructions,
             @QueryParam(CALC_POINTS) @DefaultValue("true") boolean calcPoints,
+            @QueryParam("elevation") @DefaultValue("false") boolean enableElevation,
             @QueryParam("points_encoded") @DefaultValue("true") boolean pointsEncoded,
-            @QueryParam("profile") String profile,
+            @QueryParam("points_encoded_multiplier") @DefaultValue("1e5") double pointsEncodedMultiplier,
             @QueryParam("locale") @DefaultValue("en") String localeStr,
+            @QueryParam("profile") String profile,
             @QueryParam(Parameters.Details.PATH_DETAILS) List<String> pathDetails,
             @QueryParam("gpx.route") @DefaultValue("true") boolean withRoute,
             @QueryParam("gpx.track") @DefaultValue("true") boolean withTrack,
@@ -275,10 +282,18 @@ public class MatchResource {
         String infoStr = httpReq.getRemoteAddr() + " " + httpReq.getLocale() + " " + httpReq.getHeader("User-Agent");
         String logStr = httpReq.getQueryString() + " " + infoStr;
 
-        PMap hints = createHintsMap(uriInfo.getQueryParameters());
-        // add values that are not in hints because they were explicitly listed in query params
-        hints.putObject(MAX_VISITED_NODES, maxVisitedNodes);
+        PMap hints = new PMap();
+        RouteResource.initHints(hints, uriInfo.getQueryParameters());
+
+        // resolve profile and remove legacy vehicle/weighting parameters
+        // we need to explicitly disable CH here because map matching does not use it
+        PMap profileResolverHints = new PMap(hints);
+        profileResolverHints.putObject("profile", profile);
+        profileResolverHints.putObject(Parameters.CH.DISABLE, true);
+        profile = profileResolver.resolveProfile(profileResolverHints);
         hints.putObject("profile", profile);
+        removeLegacyParameters(hints);
+
         MapMatching mapMatching = MapMatching.fromGraphHopper(hopper, hints);
         mapMatching.setMeasurementErrorSigma(gpsAccuracy);
         double took = 0;
@@ -366,7 +381,8 @@ public class MatchResource {
                         .header("X-GH-Took", "" + Math.round(took * 1000))
                         .build();
             } else {
-                ObjectNode map = ResponsePathSerializer.jsonObject(rsp, osmDate, instructions, calcPoints, false, pointsEncoded, took);
+                ObjectNode map = ResponsePathSerializer.jsonObject(rsp, new ResponsePathSerializer.Info(config.getCopyrights(), Math.round(sw.getMillisDouble()), osmDate), instructions,
+                        calcPoints, enableElevation, pointsEncoded, pointsEncodedMultiplier);
 
                 double matchLength = 0, gpxEntriesLength = 0;
                 int matchMillis = 0;
