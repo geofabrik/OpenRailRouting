@@ -7,27 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.ArrayEdgeIntAccess;
-import com.graphhopper.routing.ev.BikeNetwork;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.EnumEncodedValue;
-import com.graphhopper.routing.ev.FootNetwork;
-import com.graphhopper.routing.ev.Roundabout;
-import com.graphhopper.routing.ev.RouteNetwork;
-import com.graphhopper.routing.ev.Smoothness;
+import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.ev.VehicleAccess;
-import com.graphhopper.routing.ev.VehiclePriority;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.WayAccess;
-import com.graphhopper.routing.util.parsers.CarAccessParser;
-import com.graphhopper.routing.util.parsers.CarAverageSpeedParser;
 import com.graphhopper.util.PMap;
 
 public class RailFlagEncoderTest {
@@ -42,6 +30,7 @@ public class RailFlagEncoderTest {
         return new EncodingManager.Builder()
                 .add(VehicleAccess.create(carName))
                 .add(VehicleSpeed.create(carName, bits, factor, twoDirections))
+                .add(FerrySpeed.create())
                 .addTurnCostEncodedValue(TurnCost.create(carName, 1))
                 .build();
     }
