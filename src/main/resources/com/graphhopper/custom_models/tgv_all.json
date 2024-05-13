@@ -1,0 +1,16 @@
+// to use this custom model you need to set the following option in the config.yml
+// profiles:
+//    - name: rail
+//      turn_costs:
+//        vehicle_types: []
+//      custom_model_files: [rail.json]
+
+{
+  "distance_influence": 0,
+  "priority": [
+    { "if": "!rail_access", "multiply_by": "0" }
+  ],
+  "speed": [
+    { "if": "true", "limit_to": "310" }
+  ]
+}

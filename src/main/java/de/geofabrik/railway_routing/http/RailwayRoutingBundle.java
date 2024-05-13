@@ -218,12 +218,12 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
 
         environment.jersey().register(new IllegalArgumentExceptionMapper());
 
-        runRailwayRouting(configuration.getGraphHopperConfiguration(), configuration.getFlagEncoderConfigurations(),
+        runRailwayRouting(configuration.getGraphHopperConfiguration(),
                 environment);
     }
 
-    private void runRailwayRouting(GraphHopperConfig configuration, List<FlagEncoderConfiguration> encoderConfig, Environment environment) {
-        final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration, encoderConfig);
+    private void runRailwayRouting(GraphHopperConfig configuration, Environment environment) {
+        final RailwayRoutingManaged graphHopperManaged = new RailwayRoutingManaged(configuration);
         RailwayHopper hopper = graphHopperManaged.getGraphHopper();
         hopper.getRouterConfig().setNonChMaxWaypointDistance(Integer.parseInt(configuration.getString(
                 Parameters.NON_CH.MAX_NON_CH_POINT_DISTANCE, "4000000")

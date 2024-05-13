@@ -3,20 +3,25 @@ package de.geofabrik.railway_routing.reader;
 import static com.graphhopper.util.Helper.nf;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.graphhopper.reader.ReaderNode;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.WaySegmentParser;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.OSMParsers;
 import com.graphhopper.storage.BaseGraph;
+import com.graphhopper.util.PointList;
 
 import de.geofabrik.railway_routing.CrossingsSetHook;
 import de.geofabrik.railway_routing.SwitchTurnCostTask;
+import de.geofabrik.railway_routing.util.MultiValueChecker;
 
 public class OSMRailwayReader extends OSMReader {
 
@@ -37,6 +42,25 @@ public class OSMRailwayReader extends OSMReader {
     @Override
     protected boolean isBarrierNode(ReaderNode node) {
         return false;
+    }
+
+    /**
+     * In addition to upstream implementation, this method calls addEdge() multiple times if the way
+     * supports multiple gauges.
+     */
+    @Override
+    protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, List<Map<String, Object>> nodeTags) {
+        String gauge = way.getTag("gauge");
+        List<Integer> gauges = MultiValueChecker.getNumbersFromTagValue(gauge, Integer::parseInt);
+        for (Integer g : gauges) {
+            ReaderWay dup = new ReaderWay(way);
+            if (g != null) {
+                dup.setTag("gauge", Integer.toString(g));
+            } else {
+                dup.setTag("gauge", null);
+            }
+            super.addEdge(fromIndex, toIndex, pointList, dup, nodeTags);
+        }
     }
 
     @Override

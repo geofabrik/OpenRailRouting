@@ -54,8 +54,7 @@ public class RailwayImportCommand extends ConfiguredCommand<RailwayRoutingServer
         if (output != null) {
             configuration.getGraphHopperConfiguration().putObject("graph.location", output);
         }
-        final RailwayRoutingManaged graphHopper = new RailwayRoutingManaged(configuration.getGraphHopperConfiguration(),
-                configuration.getFlagEncoderConfigurations());
+        final RailwayRoutingManaged graphHopper = new RailwayRoutingManaged(configuration.getGraphHopperConfiguration());
         graphHopper.getGraphHopper().importAndClose();
     }
 }

@@ -70,7 +70,7 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
     @Override
     protected void run(Bootstrap<RailwayRoutingServerConfiguration> bootstrap, Namespace namespace, RailwayRoutingServerConfiguration configuration) throws Exception {
         configuration.updateFromSystemProperties();
-        RailwayHopper hopper = new RailwayHopper(configuration.getFlagEncoderConfigurations());
+        RailwayHopper hopper = new RailwayHopper();
         hopper.setGraphHopperLocation(configuration.getGraphHopperConfiguration().getString("graph.location", "./graph-cache"));
         hopper.init(configuration.getGraphHopperConfiguration());
         

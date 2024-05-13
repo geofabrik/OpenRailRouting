@@ -22,8 +22,8 @@ public class RailwayRoutingManaged implements Managed {
     private final RailwayHopper graphHopper;
     
     @Inject
-    public RailwayRoutingManaged(GraphHopperConfig configuration, List<FlagEncoderConfiguration> encoderConfig) {
-        graphHopper = (RailwayHopper) new RailwayHopper(encoderConfig);
+    public RailwayRoutingManaged(GraphHopperConfig configuration) {
+        graphHopper = (RailwayHopper) new RailwayHopper();
         graphHopper.init(configuration);
     }
     

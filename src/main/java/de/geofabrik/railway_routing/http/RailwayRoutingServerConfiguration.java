@@ -6,16 +6,11 @@
 
 package de.geofabrik.railway_routing.http;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
@@ -30,20 +25,12 @@ public class RailwayRoutingServerConfiguration extends Configuration implements 
     @JsonProperty
     private final GraphHopperConfig graphhopper = new GraphHopperConfig();
 
-    @JsonProperty
-    @JsonAlias("flagEncoderProperties")
-    private final List<FlagEncoderConfiguration> flagEncoderProperties = new ArrayList<FlagEncoderConfiguration>();
-
     public RailwayRoutingServerConfiguration() {
     }
 
     @Override
     public GraphHopperConfig getGraphHopperConfiguration() {
         return graphhopper;
-    }
-
-    public List<FlagEncoderConfiguration> getFlagEncoderConfigurations() {
-        return flagEncoderProperties;
     }
 
     /**

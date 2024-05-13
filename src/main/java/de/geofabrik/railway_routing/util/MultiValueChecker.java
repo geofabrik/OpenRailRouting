@@ -1,6 +1,8 @@
 package de.geofabrik.railway_routing.util;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * This class provides some methods to check if a OSM tag value contains a specific value. The
@@ -9,6 +11,41 @@ import java.util.ArrayList;
  * @author Michael Reichert
  */
 public class MultiValueChecker {
+
+    /**
+     * Read numeric values from a OSM tag value separated by semicolons.
+     * @param <T> Numeric type, e.g. Integer or Double.
+     * @param tagValue OSM tag value
+     * @param parseFunction Function to parse a String to the provided type T, e.g. Double::parseDouble or Integer::parseInt.
+     * @return List of read values or an empty list if nothing could be read.
+     */
+    public static <T> List<T> getNumbersFromTagValue(String tagValue, Function<String, T> parseFunction) {
+        List<T> l;
+        if (tagValue == null) {
+            l = new ArrayList<T>(1);
+            l.add(null);
+            return l;
+        }
+        if (!tagValue.contains(";")) {
+            l = new ArrayList<T>(1);
+            try {
+                l.add(parseFunction.apply(tagValue));
+            } catch (NumberFormatException e) {
+            }
+            return l;
+        }
+        l = new ArrayList<T>(5);
+        // split at ;
+        String[] tokens = tagValue.split(";");
+        for (String t : tokens) {
+            try {
+                T val = parseFunction.apply(t);
+            } catch (NumberFormatException e) {
+                return new ArrayList<T>();
+            }
+        }
+        return l;
+    }
 
     /**
      * Check if a value of an OSM tag contains at least one "permitted" value.

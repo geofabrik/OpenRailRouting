@@ -1,31 +1,32 @@
 package de.geofabrik.railway_routing;
 
-import java.util.List;
-import java.util.Map;
-
 import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.ImportRegistry;
 import com.graphhopper.routing.ev.ImportUnit;
+import com.graphhopper.routing.ev.Lanes;
 import com.graphhopper.routing.ev.MaxSpeed;
 import com.graphhopper.routing.ev.OSMWayID;
+import com.graphhopper.routing.ev.RoadClass;
+import com.graphhopper.routing.ev.RoadClassLink;
 import com.graphhopper.routing.ev.RoadEnvironment;
+import com.graphhopper.routing.ev.Roundabout;
 import com.graphhopper.routing.ev.VehicleAccess;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
+import com.graphhopper.routing.util.parsers.OSMRoadClassLinkParser;
+import com.graphhopper.routing.util.parsers.OSMRoadClassParser;
 import com.graphhopper.routing.util.parsers.OSMRoadEnvironmentParser;
+import com.graphhopper.routing.util.parsers.OSMRoundaboutParser;
 import com.graphhopper.routing.util.parsers.OSMWayIDParser;
-import com.graphhopper.util.PMap;
 
-import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
+import de.geofabrik.railway_routing.ev.Gauge;
+import de.geofabrik.railway_routing.parsers.OSMGaugeParser;
 
 public class RailImportRegistry implements ImportRegistry {
 
-    private Map<String, PMap> flagEncoderProperties;
-
-    public RailImportRegistry(List<FlagEncoderConfiguration> encoderConfigs) {
-        flagEncoderProperties = FlagEncoderConfiguration.toPMaps(encoderConfigs);
+    public RailImportRegistry() {
     }
 
     @Override
@@ -35,10 +36,30 @@ public class RailImportRegistry implements ImportRegistry {
                     (lookup, props) -> new OSMRoadEnvironmentParser(
                             lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class))
             );
+        else if (Roundabout.KEY.equals(name))
+            return ImportUnit.create(name, props -> Roundabout.create(),
+                    (lookup, props) -> new OSMRoundaboutParser(
+                            lookup.getBooleanEncodedValue(Roundabout.KEY))
+            );
+        else if (RoadClass.KEY.equals(name))
+            return ImportUnit.create(name, props -> RoadClass.create(),
+                    (lookup, props) -> new OSMRoadClassParser(
+                            lookup.getEnumEncodedValue(RoadClass.KEY, RoadClass.class))
+            );
+        else if (RoadClassLink.KEY.equals(name))
+            return ImportUnit.create(name, props -> RoadClassLink.create(),
+                    (lookup, props) -> new OSMRoadClassLinkParser(
+                            lookup.getBooleanEncodedValue(RoadClassLink.KEY))
+            );
         else if (MaxSpeed.KEY.equals(name))
             return ImportUnit.create(name, props -> MaxSpeed.create(),
                     (lookup, props) -> new OSMMaxSpeedParser(
                             lookup.getDecimalEncodedValue(MaxSpeed.KEY))
+            );
+        else if (Gauge.KEY.equals(name))
+            return ImportUnit.create(name, props -> Gauge.create(),
+                    (lookup, props) -> new OSMGaugeParser(
+                            lookup.getIntEncodedValue(Gauge.KEY))
             );
         else if (OSMWayID.KEY.equals(name))
             return ImportUnit.create(name, props -> OSMWayID.create(),
