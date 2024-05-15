@@ -1,34 +1,3 @@
-# encoder properties
-#flagEncoderProperties:
-#  - name: tramtrain
-#    electrified: contact_line
-#    voltages: 15000;15000;750
-#    frequencies: 16.7;16.67;0
-#    gauges: 1435
-#    maxspeed: 100
-#    speed_factor: 11
-#    railway: "rail;light_rail;tram"
-#  - name: tgv_all
-#    railway: rail
-#    electrified: contact_line
-#    voltages: 15000;25000;1500;3000
-#    frequencies: 16.7;16.67;50;0
-#    gauges: 1435
-#    maxspeed: 319
-#    speed_factor: 11
-#  - name: non_tgv
-#    gauges: 1435
-#    maxspeed: 120
-#    speed_factor: 5
-#  - name: alltracks
-#    railway: rail;light_rail;tram;subway;narrow_gauge
-#    maxspeed: 120
-#    speed_factor: 5
-#  - name: allelectric
-#    maxspeed: 140
-#    speed_factor: 5
-#    electrified: contact_line,yes
-
 graphhopper:
   import.osm.ignored_highways: ''
   # OpenStreetMap input file
@@ -65,17 +34,6 @@ graphhopper:
         vehicle_types: [train]
         u_turn_costs: 300
       custom_model_files: [rail.json, tgv_all.json]
-        #    - name: tramtrain
-        #      custom_model:
-        #        distance_influence: 0.0
-        #        speed:
-        #          # Limit speed of this profile to 100 kph
-        #          - if: true
-        #            limit_to: 100
-        #      turn_costs:
-        #        vehicle_types: []
-        #        u_turn_costs: 300
-        #      custom_model_files: [tramtrain.json]
 
   # instead of the inbuilt custom models (see ./core/src/main/resources/com/graphhopper/custom_models)
   # you can specify a folder where to find your own custom model files
@@ -111,7 +69,7 @@ graphhopper:
   #           hazmat,hazmat_tunnel,hazmat_water,lanes,osm_way_id,toll,track_type,mtb_rating,hike_rating,horse_rating,
   #           country,curvature,average_slope,max_slope,car_temporal_access,bike_temporal_access,foot_temporal_access
   # For railway routing, the encoded values rail_access and rail_average_speed must be mentioned.
-  graph.encoded_values: gauge,road_environment,max_speed,rail_access,rail_average_speed
+  graph.encoded_values: gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed
 
   #### Speed, hybrid and flexible mode ####
 

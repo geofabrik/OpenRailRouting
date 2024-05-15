@@ -4,7 +4,6 @@ import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.ImportRegistry;
 import com.graphhopper.routing.ev.ImportUnit;
-import com.graphhopper.routing.ev.Lanes;
 import com.graphhopper.routing.ev.MaxSpeed;
 import com.graphhopper.routing.ev.OSMWayID;
 import com.graphhopper.routing.ev.RoadClass;
@@ -21,8 +20,16 @@ import com.graphhopper.routing.util.parsers.OSMRoadEnvironmentParser;
 import com.graphhopper.routing.util.parsers.OSMRoundaboutParser;
 import com.graphhopper.routing.util.parsers.OSMWayIDParser;
 
+import de.geofabrik.railway_routing.ev.Electrified;
+import de.geofabrik.railway_routing.ev.Frequency;
 import de.geofabrik.railway_routing.ev.Gauge;
+import de.geofabrik.railway_routing.ev.RailwayClass;
+import de.geofabrik.railway_routing.ev.Voltage;
+import de.geofabrik.railway_routing.parsers.OSMElectrifiedParser;
+import de.geofabrik.railway_routing.parsers.OSMFrequencyParser;
 import de.geofabrik.railway_routing.parsers.OSMGaugeParser;
+import de.geofabrik.railway_routing.parsers.OSMRailwayClassParser;
+import de.geofabrik.railway_routing.parsers.OSMVoltageParser;
 
 public class RailImportRegistry implements ImportRegistry {
 
@@ -56,10 +63,30 @@ public class RailImportRegistry implements ImportRegistry {
                     (lookup, props) -> new OSMMaxSpeedParser(
                             lookup.getDecimalEncodedValue(MaxSpeed.KEY))
             );
+        else if (RailwayClass.KEY.equals(name))
+            return ImportUnit.create(name, props -> RailwayClass.create(),
+                    (lookup, props) -> new OSMRailwayClassParser(
+                            lookup.getEnumEncodedValue(RailwayClass.KEY, RailwayClass.class))
+            );
         else if (Gauge.KEY.equals(name))
             return ImportUnit.create(name, props -> Gauge.create(),
                     (lookup, props) -> new OSMGaugeParser(
                             lookup.getIntEncodedValue(Gauge.KEY))
+            );
+        else if (Electrified.KEY.equals(name))
+            return ImportUnit.create(name, props -> Electrified.create(),
+                    (lookup, props) -> new OSMElectrifiedParser(
+                            lookup.getEnumEncodedValue(Electrified.KEY, Electrified.class))
+            );
+        else if (Voltage.KEY.equals(name))
+            return ImportUnit.create(name, props -> Voltage.create(),
+                    (lookup, props) -> new OSMVoltageParser(
+                            lookup.getIntEncodedValue(Voltage.KEY))
+            );
+        else if (Frequency.KEY.equals(name))
+            return ImportUnit.create(name, props -> Frequency.create(),
+                    (lookup, props) -> new OSMFrequencyParser(
+                            lookup.getIntEncodedValue(Frequency.KEY))
             );
         else if (OSMWayID.KEY.equals(name))
             return ImportUnit.create(name, props -> OSMWayID.create(),

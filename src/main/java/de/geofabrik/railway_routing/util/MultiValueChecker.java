@@ -1,6 +1,7 @@
 package de.geofabrik.railway_routing.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -40,11 +41,27 @@ public class MultiValueChecker {
         for (String t : tokens) {
             try {
                 T val = parseFunction.apply(t);
+                l.add(val);
             } catch (NumberFormatException e) {
                 return new ArrayList<T>();
             }
         }
         return l;
+    }
+
+    /**
+     * Read multiple string values from a OSM tag value separated by semicolons.
+     * @param tagValue OSM tag value
+     * @return List of read values or an empty list if nothing could be read.
+     */
+    public static List<String> tagValueToList(String tagValue) {
+        List<String> l;
+        if (tagValue == null) {
+            l = new ArrayList<String>(1);
+            l.add(null);
+            return l;
+        }
+        return Arrays.asList(tagValue.split(";"));
     }
 
     /**

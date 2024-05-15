@@ -4,6 +4,7 @@ import static com.graphhopper.util.Helper.nf;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -44,6 +45,31 @@ public class OSMRailwayReader extends OSMReader {
         return false;
     }
 
+    private ReaderWay duplicateWay(ReaderWay source, Integer gauge, String electrified, Integer voltage, Integer frequency) {
+        ReaderWay dup = new ReaderWay(source);
+        if (gauge != null) {
+            dup.setTag("gauge", Integer.toString(gauge));
+        } else {
+            dup.removeTag("gauge");
+        }
+        if (electrified != null) {
+            dup.setTag("electrified", electrified);
+        } else {
+            dup.removeTag("electrified");
+        }
+        if (voltage != null) {
+            dup.setTag("voltage", Integer.toString(voltage));
+        } else {
+            dup.removeTag("voltage");
+        }
+        if (frequency != null) {
+            dup.setTag("frequency", Integer.toString(frequency));
+        } else {
+            dup.removeTag("frequency");
+        }
+        return dup;
+    }
+
     /**
      * In addition to upstream implementation, this method calls addEdge() multiple times if the way
      * supports multiple gauges.
@@ -52,14 +78,53 @@ public class OSMRailwayReader extends OSMReader {
     protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, List<Map<String, Object>> nodeTags) {
         String gauge = way.getTag("gauge");
         List<Integer> gauges = MultiValueChecker.getNumbersFromTagValue(gauge, Integer::parseInt);
+        String electrified = way.getTag("electrified");
+        List<String> eleList = MultiValueChecker.tagValueToList(electrified);
+        String voltage = way.getTag("voltage");
+        List<Integer> voltages = MultiValueChecker.getNumbersFromTagValue(voltage, Integer::parseInt);
+        String frequency = way.getTag("frequency");
+        List<Integer> frequencies = MultiValueChecker.getNumbersFromTagValue(frequency, Integer::parseInt);
+        // Duplicating ways with multiple power systems is a bit tricky.#
         for (Integer g : gauges) {
-            ReaderWay dup = new ReaderWay(way);
-            if (g != null) {
-                dup.setTag("gauge", Integer.toString(g));
+            // Note that electrified=null results in a list of size 1 with a null member.
+            if (eleList.size() == 1) {
+                if (voltages.size() == frequencies.size()) {
+                    for (int i = 0; i < voltages.size(); ++i) {
+                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                                duplicateWay(way, g, electrified, voltages.get(i), frequencies.get(i)),
+                                nodeTags);
+                    }
+                } else if (voltages.size() > 1 && frequencies.size() == 1) {
+                    for (Integer v : voltages) {
+                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                                duplicateWay(way, g, electrified, v, frequencies.get(0)),
+                                nodeTags);
+                    }
+                } else if (voltages.size() == 1 && frequencies.size() > 1) {
+                    for (Integer f : frequencies) {
+                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                                duplicateWay(way, g, electrified, voltages.get(0), f),
+                                nodeTags);
+                    }
+                } else {
+                    // If voltage or frequency is missing or the lists differ in size, the other tag is ignored as well.
+                    super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                            duplicateWay(way, g, electrified, null, null),
+                            nodeTags);
+                }
             } else {
-                dup.setTag("gauge", null);
+                if (voltages.size() == eleList.size() && frequencies.size() == eleList.size()) {
+                    for (String ele : eleList) {
+                        for (Integer v : voltages) {
+                            for (Integer f : frequencies) {
+                                super.addEdge(fromIndex, toIndex, pointList.clone(false), duplicateWay(way, g, ele, v, f), nodeTags);
+                            }
+                        }
+                    }
+                } else {
+                    super.addEdge(fromIndex, toIndex, pointList.clone(false), duplicateWay(way, g, null, null, null), nodeTags);
+                }
             }
-            super.addEdge(fromIndex, toIndex, pointList, dup, nodeTags);
         }
     }
 
