@@ -9,15 +9,20 @@ Following features are currently supported:
 
 * simple routing requests
 * map matching
+* isochrones
 * taking turn angles into account (to avoid U-turns on points)
 * disabling turns on railway crossings (OSM tag `railway=railway_crossing`)
-* using only tracks which have a compatible gauge
-* not using tracks without catenary if it is an electrical locomotive/electrical multiple unit
-* distinction between third rails and catenary
 * support of tracks with multiple gauges
 * support of tracks with switchable voltage and frequency
+* support of different speeds in forward and backward direction
 
-Lacking features:
+The configured vehicle profiles can:
+
+* use only tracks which have a compatible gauge
+* skip tracks without catenary if it is an electrical locomotive/electrical multiple unit
+* take the type of electrification (third rails vs. catenary) into account
+
+Missing features:
 
 * avoiding the usage of the opposite track (on double-track lines)
 * taking the low acceleration and the long breaking distances of trains into account
