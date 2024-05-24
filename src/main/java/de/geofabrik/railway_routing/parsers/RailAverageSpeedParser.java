@@ -14,37 +14,21 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
     public static final String DEFAULT_NAME = "rail";
 
     protected final Integer defaultSpeed = 25;
-    private double speedCorrectionFactor;
-    private PMap properties = new PMap();
 
-    public RailAverageSpeedParser(DecimalEncodedValue speedEnc, DecimalEncodedValue ferrySpeedEnc, PMap properties) {
+    public RailAverageSpeedParser(DecimalEncodedValue speedEnc, DecimalEncodedValue ferrySpeedEnc) {
         super(speedEnc, ferrySpeedEnc);
-        this.properties = properties;
-        initFromProperties(properties);
     }
 
     public RailAverageSpeedParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getDecimalEncodedValue(VehicleSpeed.key(properties.getString("name", DEFAULT_NAME))),
-                lookup.getDecimalEncodedValue(FerrySpeed.KEY),
-                properties
+                lookup.getDecimalEncodedValue(FerrySpeed.KEY)
         );
     }
 
-    protected void initFromProperties(PMap properties) {
-        if (this.properties == null) {
-            this.properties = properties;
-        } else {
-            this.properties.putAll(properties);
-        }
-        this.speedCorrectionFactor = properties.getDouble("speedCorrectionFactor", 0.9);
-    }
-
-    public void setSpeedCorrectionFactor(double factor) {
-        speedCorrectionFactor = factor;
-    }
-
-
+    /**
+     * Get assumed speed from railway type
+     */
     protected double getSpeed(ReaderWay way) {
         if (way.hasTag("service", "siding")) {
             return 40;
@@ -62,33 +46,22 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
 
     @Override
     public void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way) {
-        // get assumed speed from railway type
         double speed = getSpeed(way);
-        speed = applyMaxSpeed(way, speed);
-        double maxPossibleSpeed = avgSpeedEnc.getMaxStorableDecimal();
-        double minPossibleSpeed = avgSpeedEnc.getSmallestNonZeroValue();
-        if (speed > maxPossibleSpeed) {
-            speed = maxPossibleSpeed;
-        }
-        if (speed < minPossibleSpeed) {
-            speed = minPossibleSpeed;
-        }
-        setSpeed(false, edgeId, edgeIntAccess, speed);
-        if (avgSpeedEnc.isStoreTwoDirections()) {
-            setSpeed(true, edgeId, edgeIntAccess, speed);
-        }
+        setSpeed(false, edgeId, edgeIntAccess, applyMaxSpeed(way, speed, false));
+        setSpeed(true, edgeId, edgeIntAccess, applyMaxSpeed(way, speed, true));
     }
 
     /**
      * @param way needed to retrieve tags
      * @param speed speed guessed e.g. from the road type or other tags
+     * @param backward if speed for backward direction should be returned.
      * @return The assumed speed.
      */
-    protected double applyMaxSpeed(ReaderWay way, double speed) {
-        double maxSpeed = getMaxSpeed(way, false);
+    protected double applyMaxSpeed(ReaderWay way, double speed, boolean backward) {
+        double maxSpeed = getMaxSpeed(way, backward);
         if (!isValidSpeed(maxSpeed)) {
-            maxSpeed = speed;
+            return speed;
         }
-        return maxSpeed * speedCorrectionFactor;
+        return Math.min(Math.max(maxSpeed * 0.9, avgSpeedEnc.getSmallestNonZeroValue()), avgSpeedEnc.getMaxStorableDecimal());
     }
 }
