@@ -1,0 +1,10 @@
+{
+  "distance_influence": 0,
+  "speed": [
+    { "if": "!(electrified == CONTACT_LINE || electrified == UNSET)", "multiply_by": "0.0" },
+    { "else_if": "voltage >= 14000.0 && voltage <= 16000.0 && frequency >= 15.0 && frequency <= 17.5", "limit_to": "100" },
+    { "else_if": "voltage >= 700.0 && voltage <= 800.0 && frequency == 0.0", "limit_to": "100" },
+    { "else_if": "voltage == 0.0 && frequency == 0.0", "limit_to": "100" },
+    { "else": "", "multiply_by": "0.0" }
+  ]
+}

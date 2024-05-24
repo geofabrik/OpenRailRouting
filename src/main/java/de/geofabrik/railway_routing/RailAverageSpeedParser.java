@@ -5,12 +5,9 @@ import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.parsers.AbstractAverageSpeedParser;
-import com.graphhopper.storage.IntsRef;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.util.PMap;
-
-import de.geofabrik.railway_routing.http.FlagEncoderConfiguration;
 
 public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
 
@@ -18,7 +15,6 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
 
     protected final Integer defaultSpeed = 25;
     private double speedCorrectionFactor;
-    private boolean acceptYardSpur;
     private PMap properties = new PMap();
 
     public RailAverageSpeedParser(DecimalEncodedValue speedEnc, DecimalEncodedValue ferrySpeedEnc, PMap properties) {

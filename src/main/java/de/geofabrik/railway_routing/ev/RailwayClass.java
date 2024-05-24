@@ -1,7 +1,6 @@
 package de.geofabrik.railway_routing.ev;
 
 import com.graphhopper.routing.ev.EnumEncodedValue;
-import com.graphhopper.routing.ev.RoadClass;
 import com.graphhopper.util.Helper;
 
 /**
@@ -12,8 +11,8 @@ public enum RailwayClass {
 
     public static final String KEY = "railway_class";
 
-    public static EnumEncodedValue<RoadClass> create() {
-        return new EnumEncodedValue<>(RoadClass.KEY, RoadClass.class);
+    public static EnumEncodedValue<RailwayClass> create() {
+        return new EnumEncodedValue<>(RailwayClass.KEY, RailwayClass.class);
     }
 
     @Override

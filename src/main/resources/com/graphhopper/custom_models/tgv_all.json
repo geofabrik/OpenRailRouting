@@ -3,14 +3,22 @@
 //    - name: rail
 //      turn_costs:
 //        vehicle_types: []
-//      custom_model_files: [rail.json]
+//      custom_model_files: [rail.json, tgv_all.json]
+
+// This model represents a TGV train supporting power systems 25kV AC, 15kV AC, 3kV DC, 1.5kV DC.
+// maximum speed: 310 km/h
+// This model does not use yard and spur tracks.
 
 {
   "distance_influence": 0,
-  "priority": [
-    { "if": "!rail_access", "multiply_by": "0" }
-  ],
   "speed": [
-    { "if": "true", "limit_to": "310" }
+    { "if": "railway_service == YARD || railway_service == SPUR", "multiply_by": "0.0" },
+    { "else_if": "!(electrified == CONTACT_LINE || electrified == UNSET)", "multiply_by": "0.0" },
+    { "else_if": "voltage >= 14000.0 && voltage <= 16000.0 && frequency >= 15.0 && frequency <= 17.5", "limit_to": "310" },
+    { "else_if": "voltage >= 24000.0 && voltage <= 26000.0 && frequency >= 47.5 && frequency <= 52.5", "limit_to": "310" },
+    { "else_if": "voltage >= 1400.0 && voltage <= 1600.0 && frequency == 0.0", "limit_to": "310" },
+    { "else_if": "voltage >= 2900.0 && voltage <= 3100.0 && frequency == 0.0", "limit_to": "310" },
+    { "else_if": "voltage == 0.0 && frequency == 0.0", "limit_to": "310" },
+    { "else": "", "multiply_by": "0.0" }
   ]
 }

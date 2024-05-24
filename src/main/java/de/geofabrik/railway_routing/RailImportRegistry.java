@@ -24,11 +24,13 @@ import de.geofabrik.railway_routing.ev.Electrified;
 import de.geofabrik.railway_routing.ev.Frequency;
 import de.geofabrik.railway_routing.ev.Gauge;
 import de.geofabrik.railway_routing.ev.RailwayClass;
+import de.geofabrik.railway_routing.ev.RailwayService;
 import de.geofabrik.railway_routing.ev.Voltage;
 import de.geofabrik.railway_routing.parsers.OSMElectrifiedParser;
 import de.geofabrik.railway_routing.parsers.OSMFrequencyParser;
 import de.geofabrik.railway_routing.parsers.OSMGaugeParser;
 import de.geofabrik.railway_routing.parsers.OSMRailwayClassParser;
+import de.geofabrik.railway_routing.parsers.OSMRailwayServiceParser;
 import de.geofabrik.railway_routing.parsers.OSMVoltageParser;
 
 public class RailImportRegistry implements ImportRegistry {
@@ -68,6 +70,11 @@ public class RailImportRegistry implements ImportRegistry {
                     (lookup, props) -> new OSMRailwayClassParser(
                             lookup.getEnumEncodedValue(RailwayClass.KEY, RailwayClass.class))
             );
+        else if (RailwayService.KEY.equals(name))
+            return ImportUnit.create(name, props -> RailwayService.create(),
+                    (lookup, props) -> new OSMRailwayServiceParser(
+                            lookup.getEnumEncodedValue(RailwayService.KEY, RailwayService.class))
+            );
         else if (Gauge.KEY.equals(name))
             return ImportUnit.create(name, props -> Gauge.create(),
                     (lookup, props) -> new OSMGaugeParser(
@@ -81,12 +88,12 @@ public class RailImportRegistry implements ImportRegistry {
         else if (Voltage.KEY.equals(name))
             return ImportUnit.create(name, props -> Voltage.create(),
                     (lookup, props) -> new OSMVoltageParser(
-                            lookup.getIntEncodedValue(Voltage.KEY))
+                            lookup.getDecimalEncodedValue(Voltage.KEY))
             );
         else if (Frequency.KEY.equals(name))
             return ImportUnit.create(name, props -> Frequency.create(),
                     (lookup, props) -> new OSMFrequencyParser(
-                            lookup.getIntEncodedValue(Frequency.KEY))
+                            lookup.getDecimalEncodedValue(Frequency.KEY))
             );
         else if (OSMWayID.KEY.equals(name))
             return ImportUnit.create(name, props -> OSMWayID.create(),

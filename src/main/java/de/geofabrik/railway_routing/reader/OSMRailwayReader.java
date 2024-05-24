@@ -4,6 +4,8 @@ import static com.graphhopper.util.Helper.nf;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,14 +17,12 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.WaySegmentParser;
 import com.graphhopper.routing.OSMReaderConfig;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.OSMParsers;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.util.PointList;
 
 import de.geofabrik.railway_routing.CrossingsSetHook;
 import de.geofabrik.railway_routing.SwitchTurnCostTask;
-import de.geofabrik.railway_routing.util.MultiValueChecker;
 
 public class OSMRailwayReader extends OSMReader {
 
@@ -45,10 +45,10 @@ public class OSMRailwayReader extends OSMReader {
         return false;
     }
 
-    private ReaderWay duplicateWay(ReaderWay source, Integer gauge, String electrified, Integer voltage, Integer frequency) {
+    private ReaderWay duplicateWay(ReaderWay source, String gauge, String electrified, String voltage, String frequency) {
         ReaderWay dup = new ReaderWay(source);
         if (gauge != null) {
-            dup.setTag("gauge", Integer.toString(gauge));
+            dup.setTag("gauge", gauge);
         } else {
             dup.removeTag("gauge");
         }
@@ -58,12 +58,12 @@ public class OSMRailwayReader extends OSMReader {
             dup.removeTag("electrified");
         }
         if (voltage != null) {
-            dup.setTag("voltage", Integer.toString(voltage));
+            dup.setTag("voltage", voltage);
         } else {
             dup.removeTag("voltage");
         }
         if (frequency != null) {
-            dup.setTag("frequency", Integer.toString(frequency));
+            dup.setTag("frequency", frequency);
         } else {
             dup.removeTag("frequency");
         }
@@ -74,58 +74,81 @@ public class OSMRailwayReader extends OSMReader {
      * In addition to upstream implementation, this method calls addEdge() multiple times if the way
      * supports multiple gauges.
      */
-    @Override
-    protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, List<Map<String, Object>> nodeTags) {
+    protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way,
+            List<Map<String, Object>> nodeTags) {
+        duplicateAndAddEdge(fromIndex, toIndex, pointList, way, nodeTags, super::addEdge);
+    }
+
+    /**
+     * Read multiple string values from a OSM tag value separated by semicolons.
+     * @param tagValue OSM tag value
+     * @return List of read values or an empty list if nothing could be read.
+     */
+    static List<String> tagValueToList(String tagValue) {
+        List<String> l;
+        if (tagValue == null) {
+            l = new ArrayList<String>(1);
+            l.add(null);
+            return l;
+        }
+        return Arrays.asList(tagValue.split(";"));
+    }
+
+    protected void duplicateAndAddEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way,
+            List<Map<String, Object>> nodeTags, AddEdgeCallback callback) {
         String gauge = way.getTag("gauge");
-        List<Integer> gauges = MultiValueChecker.getNumbersFromTagValue(gauge, Integer::parseInt);
+        List<String> gauges = tagValueToList(gauge);
         String electrified = way.getTag("electrified");
-        List<String> eleList = MultiValueChecker.tagValueToList(electrified);
+        List<String> eleList = tagValueToList(electrified);
         String voltage = way.getTag("voltage");
-        List<Integer> voltages = MultiValueChecker.getNumbersFromTagValue(voltage, Integer::parseInt);
+        List<String> voltages = tagValueToList(voltage);
         String frequency = way.getTag("frequency");
-        List<Integer> frequencies = MultiValueChecker.getNumbersFromTagValue(frequency, Integer::parseInt);
+        List<String> frequencies = tagValueToList(frequency);
         // Duplicating ways with multiple power systems is a bit tricky.#
-        for (Integer g : gauges) {
+        for (String g : gauges) {
             // Note that electrified=null results in a list of size 1 with a null member.
             if (eleList.size() == 1) {
                 if (voltages.size() == frequencies.size()) {
                     for (int i = 0; i < voltages.size(); ++i) {
-                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                        callback.apply(fromIndex, toIndex, pointList.clone(false),
                                 duplicateWay(way, g, electrified, voltages.get(i), frequencies.get(i)),
                                 nodeTags);
                     }
                 } else if (voltages.size() > 1 && frequencies.size() == 1) {
-                    for (Integer v : voltages) {
-                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                    for (String v : voltages) {
+                        callback.apply(fromIndex, toIndex, pointList.clone(false),
                                 duplicateWay(way, g, electrified, v, frequencies.get(0)),
                                 nodeTags);
                     }
                 } else if (voltages.size() == 1 && frequencies.size() > 1) {
-                    for (Integer f : frequencies) {
-                        super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                    for (String f : frequencies) {
+                        callback.apply(fromIndex, toIndex, pointList.clone(false),
                                 duplicateWay(way, g, electrified, voltages.get(0), f),
                                 nodeTags);
                     }
                 } else {
                     // If voltage or frequency is missing or the lists differ in size, the other tag is ignored as well.
-                    super.addEdge(fromIndex, toIndex, pointList.clone(false),
+                    callback.apply(fromIndex, toIndex, pointList.clone(false),
                             duplicateWay(way, g, electrified, null, null),
                             nodeTags);
                 }
             } else {
                 if (voltages.size() == eleList.size() && frequencies.size() == eleList.size()) {
-                    for (String ele : eleList) {
-                        for (Integer v : voltages) {
-                            for (Integer f : frequencies) {
-                                super.addEdge(fromIndex, toIndex, pointList.clone(false), duplicateWay(way, g, ele, v, f), nodeTags);
-                            }
-                        }
+                    for (int i = 0; i < voltages.size(); ++i) {
+                        callback.apply(fromIndex, toIndex, pointList.clone(false),
+                            duplicateWay(way, g, eleList.get(i), voltages.get(i), frequencies.get(i)),
+                            nodeTags);
                     }
                 } else {
                     super.addEdge(fromIndex, toIndex, pointList.clone(false), duplicateWay(way, g, null, null, null), nodeTags);
                 }
             }
         }
+    }
+
+    @FunctionalInterface
+    protected interface AddEdgeCallback {
+        void apply(int fromIndex, int toIndex, PointList pointList, ReaderWay way, List<Map<String, Object>> nodeTags);
     }
 
     @Override

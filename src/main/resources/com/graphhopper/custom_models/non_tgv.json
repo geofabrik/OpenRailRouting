@@ -3,14 +3,17 @@
 //    - name: rail
 //      turn_costs:
 //        vehicle_types: []
-//      custom_model_files: [rail.json]
+//      custom_model_files: [rail.json, non_tgv.json]
+
+// This model represents a diesel-powered train.
+// maximum speed: 120 km/h
 
 {
   "distance_influence": 0,
   "priority": [
-    { "if": "!rail_access || railway_class != RAIL", "multiply_by": "0" }
+    { "if": "!rail_access", "multiply_by": "0" }
   ],
   "speed": [
-    { "if": "true", "limit_to": "rail_average_speed" }
+    { "if": "true", "limit_to": "120" }
   ]
 }

@@ -17,7 +17,7 @@ public class OSMRailwayClassParser implements TagParser {
 
     @Override
     public void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay readerWay, IntsRef relationFlags) {
-        String railwayClassTag = readerWay.getTag("highway");
+        String railwayClassTag = readerWay.getTag("railway");
         if (railwayClassTag == null)
             return;
         RailwayClass railwayClass = RailwayClass.find(railwayClassTag);

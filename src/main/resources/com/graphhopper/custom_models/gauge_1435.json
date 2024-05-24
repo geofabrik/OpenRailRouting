@@ -6,11 +6,7 @@
 //      custom_model_files: [rail.json]
 
 {
-  "distance_influence": 0,
-  "priority": [
-    { "if": "!rail_access || railway_class != RAIL", "multiply_by": "0" }
-  ],
   "speed": [
-    { "if": "true", "limit_to": "rail_average_speed" }
+    { "if": "gauge != 0 && gauge != 1435", "multiply_by": "0.0" }
   ]
 }

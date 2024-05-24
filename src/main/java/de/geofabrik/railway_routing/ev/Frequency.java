@@ -1,12 +1,13 @@
 package de.geofabrik.railway_routing.ev;
 
-import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 
 public class Frequency {
     public static final String KEY = "frequency";
 
-    public static IntEncodedValue create() {
-        return new IntEncodedValueImplWithFactor(KEY, 4, 5, false);
+    public static DecimalEncodedValue create() {
+        return new DecimalEncodedValueImpl(KEY, 5, 2.5, false);
     }
 
 }
