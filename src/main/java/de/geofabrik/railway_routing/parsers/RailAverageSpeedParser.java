@@ -1,4 +1,4 @@
-package de.geofabrik.railway_routing;
+package de.geofabrik.railway_routing.parsers;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValueLookup;

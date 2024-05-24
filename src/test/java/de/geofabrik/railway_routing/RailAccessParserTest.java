@@ -13,6 +13,8 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.WayAccess;
 import com.graphhopper.util.PMap;
 
+import de.geofabrik.railway_routing.parsers.RailAccessParser;
+
 public class RailAccessParserTest {
 
     private static final String carName = "rail";
