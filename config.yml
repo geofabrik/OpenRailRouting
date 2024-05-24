@@ -16,7 +16,7 @@ graphhopper:
   # - name (required): a unique string identifier for the profile
   # - weighting (optional): by default 'custom'
   # - turn_costs (optional):
-  #     vehicle_types: [motorcar, motor_vehicle] (vehicle types used for vehicle-specific turn restrictions)
+  #     vehicle_types: [train, tram, light_rail, subway] (vehicle types used for vehicle-specific turn restrictions)
   #     u_turn_costs: 60 (time-penalty for doing a u-turn in seconds)
   #
   # Depending on the above fields there are other properties that can be used, e.g.
@@ -60,7 +60,7 @@ graphhopper:
         u_turn_costs: 180
       custom_model_files: [all_tracks.json, gauge_1435.json]
 
-  # instead of the inbuilt custom models (see ./core/src/main/resources/com/graphhopper/custom_models)
+  # instead of the inbuilt custom models (see ./src/main/resources/com/graphhopper/custom_models)
   # you can specify a folder where to find your own custom model files
   custom_models.directory: custom_models
 
