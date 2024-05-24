@@ -27,12 +27,14 @@ import com.graphhopper.routing.util.parsers.OSMWayIDParser;
 import de.geofabrik.railway_routing.ev.Electrified;
 import de.geofabrik.railway_routing.ev.Frequency;
 import de.geofabrik.railway_routing.ev.Gauge;
+import de.geofabrik.railway_routing.ev.PreferredDirection;
 import de.geofabrik.railway_routing.ev.RailwayClass;
 import de.geofabrik.railway_routing.ev.RailwayService;
 import de.geofabrik.railway_routing.ev.Voltage;
 import de.geofabrik.railway_routing.parsers.OSMElectrifiedParser;
 import de.geofabrik.railway_routing.parsers.OSMFrequencyParser;
 import de.geofabrik.railway_routing.parsers.OSMGaugeParser;
+import de.geofabrik.railway_routing.parsers.OSMPreferredDirectionParser;
 import de.geofabrik.railway_routing.parsers.OSMRailwayClassParser;
 import de.geofabrik.railway_routing.parsers.OSMRailwayServiceParser;
 import de.geofabrik.railway_routing.parsers.OSMVoltageParser;
@@ -100,6 +102,11 @@ public class RailImportRegistry implements ImportRegistry {
             return ImportUnit.create(name, props -> Frequency.create(),
                     (lookup, props) -> new OSMFrequencyParser(
                             lookup.getDecimalEncodedValue(Frequency.KEY))
+            );
+        else if (PreferredDirection.KEY.equals(name))
+            return ImportUnit.create(name, props -> PreferredDirection.create(),
+                    (lookup, props) -> new OSMPreferredDirectionParser(
+                            lookup.getBooleanEncodedValue(PreferredDirection.KEY))
             );
         else if (OSMWayID.KEY.equals(name))
             return ImportUnit.create(name, props -> OSMWayID.create(),

@@ -1,0 +1,15 @@
+// to use this custom model you need to set the following option in the config.yml
+// profiles:
+//    - name: rail
+//      turn_costs:
+//        vehicle_types: []
+//      custom_model_files: [preferred_direction.json]
+
+// This model adds support for railway:preferred_direction=* tags. Routing requests (not map matching)
+// will avoid to use tracks against their tagged preferred direction.
+
+{
+  "priority": [
+    { "if": "!preferred_direction", "multiply_by": "0.7" }
+  ]
+}

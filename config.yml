@@ -34,19 +34,19 @@ graphhopper:
         vehicle_types: [train]
         # Reversing costs 5 minutes.
         u_turn_costs: 300
-      custom_model_files: [rail.json, tgv_all.json]
+      custom_model_files: [rail.json, tgv_all.json, preferred_direction.json]
     - name: non_tgv
       turn_costs:
         vehicle_types: [train]
         # Reversing costs 15 minutes.
         u_turn_costs: 900
-      custom_model_files: [rail.json, non_tgv.json]
+      custom_model_files: [rail.json, non_tgv.json, preferred_direction.json]
     - name: tramtrain
       turn_costs:
         vehicle_types: [train, tram, light_rail]
         # Reversing costs 3 minutes.
         u_turn_costs: 180
-      custom_model_files: [tramtrain.json, 15kv-ac_750v-dc.json, gauge_1435.json]
+      custom_model_files: [tramtrain.json, 15kv-ac_750v-dc.json, gauge_1435.json, preferred_direction.json]
     - name: all_tracks
       turn_costs:
         vehicle_types: [train, tram, light_rail, subway]
@@ -97,7 +97,7 @@ graphhopper:
   #           hazmat,hazmat_tunnel,hazmat_water,lanes,osm_way_id,toll,track_type,mtb_rating,hike_rating,horse_rating,
   #           country,curvature,average_slope,max_slope,car_temporal_access,bike_temporal_access,foot_temporal_access
   # For railway routing, the encoded values rail_access and rail_average_speed must be mentioned.
-  graph.encoded_values: gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service
+  graph.encoded_values: gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction
 
   #### Speed, hybrid and flexible mode ####
 

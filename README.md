@@ -21,10 +21,10 @@ The configured vehicle profiles can:
 * use only tracks which have a compatible gauge
 * skip tracks without catenary if it is an electrical locomotive/electrical multiple unit
 * take the type of electrification (third rails vs. catenary) into account
+* avoid using tracks against theire preferred direction (useful for railway lines with multiple tracks)
 
 Missing features:
 
-* avoiding the usage of the opposite track (on double-track lines)
 * taking the low acceleration and the long breaking distances of trains into account
 * a lot of features which would need data which is not in OSM (incline, structure gauges)
 * support for barriers (e.g. gates)
@@ -71,6 +71,7 @@ In addition to the encoded values supported by GraphHopper, OpenRailRouting can 
 * `gauge`: integer, missing values are encoded as `0.0`
 * `railway_class`: enum for the value of the OSM `railway=*` tag: `RAIL`, `LIGHT_RAIL`, `TRAM`, `SUBWAY`, `NARROW_GAUGE`, `FUNICULAR`
 * `railway_service`: enum for the value of the OSM `service=*` tag: `NONE`, `SIDING`, `YARD`, `SPUR`, `CROSSOVER`
+* `preferred_direction`: boolean value, true if the requested direction matches the preferred direction of operation of the track
 
 In order to make use of these encoded values, you have to set them in the GraphHopper configuration using:
 
