@@ -61,7 +61,7 @@ Each profile consists of
   * `u_turn_costs`: time penality in seconds for reversing
 * `custom_model_files`: list of files that define the profile. The files are searched in `src/main/resources/com/graphhopper/custom_profiles` and, if set, the path specified by `custom_models.directory`.
 
-Please refer to the [GraphHopper documentation about custum models](https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md) for a detailed explanation how custom models work. The following contains a few notes about differences between GraphHopper and OpenRailRouting.
+Please refer to the [GraphHopper documentation about custom models](https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md) for a detailed explanation how custom models work. The following contains a few notes about differences between GraphHopper and OpenRailRouting.
 
 In addition to the encoded values supported by GraphHopper, OpenRailRouting can encoded the following encoded values per edge:
 
