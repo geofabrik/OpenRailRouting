@@ -59,7 +59,16 @@ Each profile consists of
 * `turn_costs`: turn costs
   * `vehicle_types`: vehicle types used for vehicle-specific turn restrictions. Available values: `train`, `light_rail`, `tram`, `subway`
   * `u_turn_costs`: time penality in seconds for reversing
-* `custom_model_files`: list of files that define the profile. The files are searched in `src/main/resources/com/graphhopper/custom_profiles` and, if set, the path specified by `custom_models.directory`.
+* `custom_model_files`: list of files that define the profile. The files are searched in `src/main/resources/com/graphhopper/custom_profiles`.
+
+You can add an additional directory to the custom models search path by:
+
+```yaml
+graphhopper:
+  custom_models.directory: path/to/your/custom_models_directory
+```
+
+If you have your own separate custom models directory, you do not have to recompile OpenRailRouting after every change of the models.
 
 Please refer to the [GraphHopper documentation about custom models](https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md) for a detailed explanation how custom models work. The following contains a few notes about differences between GraphHopper and OpenRailRouting.
 
@@ -90,6 +99,7 @@ OpenRailRouting provides a few basic profiles where you can combine and built up
 * `gauge_1435.json` limits accessible tracks to those with `gauge=1435` or missing gauge.
 * `15kv-ac_750v-dc.json` limits accessible tracks to those with 15 kV 16.7 Hz AC, 750 V DC or missing information about power systems. Tracks with `electrified=no/rail` will be assumed as inaccessible.
 
+Don't forget that clients can submit their own profiles at runtime if they use POST requests.
 
 ## Running
 
