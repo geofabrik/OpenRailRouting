@@ -1,0 +1,57 @@
+{
+  "data_format": 1,
+  "data_url": "https://github.com/geofabrik/OpenRailRouting/blob/master/taginfo.json",
+  "project": {
+    "name": "OpenRailRouting",
+    "description": "Routing on railway tracks using OpenStreetMap data and the GraphHopper routing engine",
+    "project_url": "https://github.com/geofabrik/OpenRailRouting",
+    "doc_url": "https://github.com/geofabrik/OpenRailRouting-doc/blob/railway-routing/src/index.md",
+    "contact_name": "Geofabrik GmbH",
+    "contact_email": "info@geofabrik.de",
+  },
+  "tags": [
+    {
+      "key": "railway",
+      "value": "rail",
+    },
+    {
+      "key": "maxspeed",
+    },
+    {
+      "key": "electrified",
+    },
+    {
+      "key": "voltage",
+    },
+    {
+      "key": "frequency",
+    },
+    {
+      "key": "gauge",
+    },
+    {
+      "key": "service",
+      "value": "siding",
+    },
+    {
+      "key": "service",
+      "value": "yard",
+    },
+    {
+      "key": "service",
+      "value": "crossover",
+    },
+    {
+      "key": "service",
+      "value": "spur",
+    },
+    {
+      "key": "usage",
+      "value": "main",
+    },
+    {
+      "key": "usage",
+      "value": "branch",
+    },
+  ],
+}
