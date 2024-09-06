@@ -230,7 +230,7 @@ graphhopper:
 server:
   application_connectors:
   - type: http
-    port: 8989
+    port: 8991
     # for security reasons bind to localhost
     bind_host: localhost
     # increase GET request limit - not necessary if /maps UI is not used or used without custom models
@@ -239,7 +239,7 @@ server:
       appenders: []
   admin_connectors:
   - type: http
-    port: 8990
+    port: 8992
     bind_host: localhost
 # See https://www.dropwizard.io/en/latest/manual/core.html#logging
 logging:

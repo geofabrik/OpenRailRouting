@@ -109,6 +109,7 @@ fabric.properties
 *.zip
 *.tar.gz
 *.rar
+*.pbf
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -152,5 +153,5 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
-
+/*-gh
 # End of https://www.gitignore.io/api/java,macos,maven,intellij
