@@ -26,6 +26,8 @@ import com.graphhopper.http.MultiExceptionGPXMessageBodyWriter;
 import com.graphhopper.http.MultiExceptionMapper;
 import com.graphhopper.http.TypeGPXFilter;
 import com.graphhopper.http.health.GraphHopperHealthCheck;
+import com.graphhopper.isochrone.algorithm.JTSTriangulator;
+import com.graphhopper.isochrone.algorithm.Triangulator;
 import com.graphhopper.jackson.Jackson;
 import com.graphhopper.resources.HealthCheckResource;
 import com.graphhopper.resources.I18NResource;
@@ -236,6 +238,7 @@ public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServ
                 //bind(graphHopperManaged).to(RailwayRoutingManaged.class);
                 bind(graphHopperManaged.getGraphHopper()).to(GraphHopper.class);
 
+                bind(new JTSTriangulator(hopper.getRouterConfig())).to(Triangulator.class);
                 bindFactory(PathDetailsBuilderFactoryFactory.class).to(PathDetailsBuilderFactory.class);
                 bindFactory(ProfileResolverFactory.class).to(ProfileResolver.class);
                 bindFactory(GHRequestTransformerFactory.class).to(GHRequestTransformer.class);
