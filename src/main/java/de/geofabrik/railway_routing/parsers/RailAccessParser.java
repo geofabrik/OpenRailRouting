@@ -1,5 +1,7 @@
 package de.geofabrik.railway_routing.parsers;
 
+import java.util.Set;
+
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.VehicleAccess;
@@ -13,6 +15,9 @@ import com.graphhopper.util.PMap;
 public class RailAccessParser extends AbstractAccessParser {
 
     public static final String DEFAULT_NAME = "rail";
+    private static final Set<String> ALLOWED_RAIL_TYPES = Set.of(
+        "rail", "light_rail", "tram", "subway", "construction", "proposed", "funicular", "monorail",
+    );
 
     public RailAccessParser(BooleanEncodedValue accessEnc) {
         super(accessEnc, TransportationMode.TRAIN);
@@ -29,7 +34,7 @@ public class RailAccessParser extends AbstractAccessParser {
         if (railway == null) {
             return WayAccess.CAN_SKIP;
         }
-        if (railway.equals("rail") || railway.equals("light_rail") || railway.equals("tram") || railway.equals("subway") || railway.equals("narrow_gauge")) {
+        if (ALLOWED_RAIL_TYPES.contains(railway)) {
             return WayAccess.WAY;
         }
         return WayAccess.CAN_SKIP;
