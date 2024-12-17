@@ -16,7 +16,7 @@ public class RailAccessParser extends AbstractAccessParser {
 
     public static final String DEFAULT_NAME = "rail";
     private static final Set<String> ALLOWED_RAIL_TYPES = Set.of(
-        "rail", "light_rail", "tram", "subway", "construction", "proposed", "funicular", "monorail",
+        "rail", "light_rail", "tram", "subway", "construction", "proposed", "funicular", "monorail"
     );
 
     public RailAccessParser(BooleanEncodedValue accessEnc) {
