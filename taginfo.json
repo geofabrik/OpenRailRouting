@@ -7,51 +7,51 @@
     "project_url": "https://github.com/geofabrik/OpenRailRouting",
     "doc_url": "https://github.com/geofabrik/OpenRailRouting-doc/blob/railway-routing/src/index.md",
     "contact_name": "Geofabrik GmbH",
-    "contact_email": "info@geofabrik.de",
+    "contact_email": "info@geofabrik.de"
   },
   "tags": [
     {
       "key": "railway",
-      "value": "rail",
+      "value": "rail"
     },
     {
-      "key": "maxspeed",
+      "key": "maxspeed"
     },
     {
-      "key": "electrified",
+      "key": "electrified"
     },
     {
-      "key": "voltage",
+      "key": "voltage"
     },
     {
-      "key": "frequency",
+      "key": "frequency"
     },
     {
-      "key": "gauge",
-    },
-    {
-      "key": "service",
-      "value": "siding",
+      "key": "gauge"
     },
     {
       "key": "service",
-      "value": "yard",
+      "value": "siding"
     },
     {
       "key": "service",
-      "value": "crossover",
+      "value": "yard"
     },
     {
       "key": "service",
-      "value": "spur",
+      "value": "crossover"
+    },
+    {
+      "key": "service",
+      "value": "spur"
     },
     {
       "key": "usage",
-      "value": "main",
+      "value": "main"
     },
     {
       "key": "usage",
-      "value": "branch",
-    },
-  ],
+      "value": "branch"
+    }
+  ]
 }
