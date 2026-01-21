@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.util.List;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;

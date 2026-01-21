@@ -34,7 +34,9 @@ public class OSMRailwayReaderTest {
         EnumEncodedValue<RoadAccess> roadAccessEnc = RoadAccess.create();
         EncodingManager em = new EncodingManager.Builder().add(roadAccessEnc).build();
         RailwayOSMParsers osmParsers = new RailwayOSMParsers();
-        osmParsers.addWayTagParser(new OSMRoadAccessParser(roadAccessEnc, OSMRoadAccessParser.toOSMRestrictions(CAR)));
+        osmParsers.addWayTagParser(new OSMRoadAccessParser<>(roadAccessEnc,
+                        OSMRoadAccessParser.toOSMRestrictions(CAR), RoadAccess::countryHook,
+                        RoadAccess::find));
         BaseGraph graph = new BaseGraph.Builder(em).create();
         reader = new OSMRailwayReader(graph, osmParsers, new OSMReaderConfig());
         ways = new ArrayList<ReaderWay>(5);

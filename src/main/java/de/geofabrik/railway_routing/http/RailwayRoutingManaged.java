@@ -8,7 +8,7 @@ package de.geofabrik.railway_routing.http;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.graphhopper.GraphHopperConfig;
 import de.geofabrik.railway_routing.RailwayHopper;

@@ -7,7 +7,7 @@
 package de.geofabrik.railway_routing.http;
 
 import java.util.EnumSet;
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 
 import com.graphhopper.application.resources.RootResource;
 import com.graphhopper.http.CORSFilter;

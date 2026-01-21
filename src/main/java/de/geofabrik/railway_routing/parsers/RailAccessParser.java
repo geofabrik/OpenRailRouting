@@ -6,6 +6,7 @@ import com.graphhopper.routing.ev.VehicleAccess;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.util.WayAccess;
 import com.graphhopper.routing.util.parsers.AbstractAccessParser;
+import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.util.PMap;
@@ -15,7 +16,7 @@ public class RailAccessParser extends AbstractAccessParser {
     public static final String DEFAULT_NAME = "rail";
 
     public RailAccessParser(BooleanEncodedValue accessEnc) {
-        super(accessEnc, TransportationMode.TRAIN);
+        super(accessEnc, OSMRoadAccessParser.toOSMRestrictions(TransportationMode.TRAIN));
     }
 
     public RailAccessParser(EncodedValueLookup lookup, PMap properties) {

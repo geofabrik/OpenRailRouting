@@ -3,8 +3,10 @@ package de.geofabrik.railway_routing.parsers;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.FerrySpeed;
+import com.graphhopper.routing.ev.MaxSpeed;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.parsers.AbstractAverageSpeedParser;
+import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.util.PMap;
@@ -58,8 +60,8 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
      * @return The assumed speed.
      */
     protected double applyMaxSpeed(ReaderWay way, double speed, boolean backward) {
-        double maxSpeed = getMaxSpeed(way, backward);
-        if (!isValidSpeed(maxSpeed)) {
+        double maxSpeed = OSMMaxSpeedParser.parseMaxSpeed(way, backward);
+        if (maxSpeed == MaxSpeed.MAXSPEED_MISSING) {
             return speed;
         }
         return Math.min(Math.max(maxSpeed * 0.9, avgSpeedEnc.getSmallestNonZeroValue()), avgSpeedEnc.getMaxStorableDecimal());

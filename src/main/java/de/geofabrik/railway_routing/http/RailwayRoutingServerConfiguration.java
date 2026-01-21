@@ -6,7 +6,7 @@
 
 package de.geofabrik.railway_routing.http;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
+import com.graphhopper.http.RealtimeConfiguration;
 
 import io.dropwizard.core.Configuration;
 
@@ -31,6 +32,11 @@ public class RailwayRoutingServerConfiguration extends Configuration implements 
     @Override
     public GraphHopperConfig getGraphHopperConfiguration() {
         return graphhopper;
+    }
+
+    @Override
+    public RealtimeConfiguration gtfsrealtime() {
+        return null;
     }
 
     /**

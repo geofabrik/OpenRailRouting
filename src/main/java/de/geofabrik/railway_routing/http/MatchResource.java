@@ -9,18 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,7 @@ import de.geofabrik.railway_routing.RailwayHopper;
 import static com.graphhopper.resources.RouteResource.removeLegacyParameters;
 import static com.graphhopper.util.Parameters.Routing.*;
 
-@javax.ws.rs.Path("match")
+@jakarta.ws.rs.Path("match")
 public class MatchResource {
     private static final Logger logger = LoggerFactory.getLogger(MatchResource.class);
 
@@ -132,7 +131,7 @@ public class MatchResource {
     }
 
     public List<Observation> parseInput(InputStream inputStream, String contentType, char separator, char quoteChar)
-            throws SAXException, IOException, ParserConfigurationException {
+            throws SAXException, IOException {
         if (contentType.equals(MediaType.APPLICATION_XML) || contentType.equals("application/gpx+xml")) {
             return importGpx(inputStream);
         }
@@ -414,7 +413,7 @@ public class MatchResource {
             }
         } catch (IllegalArgumentException ex) {
             throw ex;
-        } catch (java.lang.RuntimeException | SAXException | IOException | ParserConfigurationException err) {
+        } catch (java.lang.RuntimeException | SAXException | IOException err) {
             logger.error(logStr + ", took:" + took + ", error:" + err);
             throw err;
         }
