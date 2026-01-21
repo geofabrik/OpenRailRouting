@@ -47,9 +47,9 @@ import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 
 import de.geofabrik.railway_routing.RailwayHopper;
-import io.dropwizard.ConfiguredBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.ConfiguredBundle;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 
 
 public class RailwayRoutingBundle implements ConfiguredBundle<RailwayRoutingServerConfiguration> {

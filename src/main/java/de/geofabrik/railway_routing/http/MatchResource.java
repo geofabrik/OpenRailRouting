@@ -238,10 +238,10 @@ public class MatchResource {
         QueryGraph queryGraph = QueryGraph.create(hopper.getBaseGraph(), snaps);
         PathCalculator pathCalculator = solver.createPathCalculator(queryGraph);
         boolean passThrough = false;
-        boolean forceCurbsides = false;
+        String curbsideStrictness = router.getCurbsideStrictness(request.getHints());
         // We do not use Solver.createWeighting but use our own weighting which is used for matched segments as well.
         ViaRouting.Result result = ViaRouting.calcPaths(request.getPoints(), queryGraph, snaps,
-                solver.createDirectedEdgeFilter(), pathCalculator, request.getCurbsides(), forceCurbsides,
+                solver.createDirectedEdgeFilter(), pathCalculator, request.getCurbsides(), curbsideStrictness,
                 request.getHeadings(), passThrough);
         
         RoutedPath path = new RoutedPath(result.paths.get(0), queryGraph);

@@ -166,7 +166,7 @@ public class OSMRailwayReader extends OSMReader {
             throw new IllegalStateException("BaseGraph must be initialize before we can read OSM");
 
         WaySegmentParser waySegmentParser = new WaySegmentParser.Builder(baseGraph.getNodeAccess(), baseGraph.getDirectory())
-        .setElevationProvider(eleProvider)
+        .setElevationProvider(this::getElevation)
         .setWayFilter(this::acceptWay)
         .setSplitNodeFilter(this::isBarrierNode)
         .setWayPreprocessor(this::preprocessWay)
@@ -177,7 +177,7 @@ public class OSMRailwayReader extends OSMReader {
         .registerPass2Handler(crossingsHandler)
         .build();
         waySegmentParser.readOSM(osmFile);
-        osmDataDate = waySegmentParser.getTimeStamp();
+        osmDataDate = waySegmentParser.getTimestamp();
         if (baseGraph.getNodes() == 0)
             throw new RuntimeException("Graph after reading OSM must not be empty");
         LOGGER.info("Finished reading OSM file: {}, nodes: {}, edges: {}, zero distance edges: {}",

@@ -22,8 +22,8 @@ import com.graphhopper.util.TranslationMap;
 
 import de.geofabrik.railway_routing.RailwayHopper;
 import de.geofabrik.railway_routing.util.PatternMatching;
-import io.dropwizard.cli.ConfiguredCommand;
-import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.core.cli.ConfiguredCommand;
+import io.dropwizard.core.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 

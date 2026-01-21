@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.http.GraphHopperBundleConfiguration;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 public class RailwayRoutingServerConfiguration extends Configuration implements GraphHopperBundleConfiguration {
 
