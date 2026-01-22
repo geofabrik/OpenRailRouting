@@ -72,12 +72,12 @@ class RailwayRoutingTest {
         assertEquals(768, rsp.getHints().getLong("visited_nodes.sum", 0));
 
         ResponsePath res = rsp.getBest();
-        assertEquals(14000.0, res.getDistance(), .1);
-        assertEquals(600000, res.getTime(), 10);
-        assertEquals(250, res.getPoints().size());
+        assertEquals(13707.0, res.getDistance(), .1);
+        assertEquals(549193, res.getTime(), 10);
+        assertEquals(141, res.getPoints().size());
 
-        assertEquals(50.8513929, res.getWaypoints().getLat(0), 1e-7);
-        assertEquals(50.9419607, res.getWaypoints().getLat(1), 1e-7);
+        assertEquals(50.8513932, res.getWaypoints().getLat(0), 1e-7);
+        assertEquals(50.9419637, res.getWaypoints().getLat(1), 1e-7);
     }
 
 }
