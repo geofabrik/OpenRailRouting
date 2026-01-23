@@ -2,6 +2,10 @@
 
 This repository contains code by other open source projects.
 
+## OpenStreetMap data
+
+This project contains test data by OpenStreetMap contributors licensed under Open Database License 1.0.
+See [https://www.openstreetmap.org/copyright](https://www.openstreetmap.org/copyright) for further information.
 
 ## Fork of GraphHopper
 
