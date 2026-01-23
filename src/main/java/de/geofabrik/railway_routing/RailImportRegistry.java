@@ -17,6 +17,7 @@ import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.parsers.BikePriorityParser;
+import com.graphhopper.routing.util.parsers.CarAccessParser;
 import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
 import com.graphhopper.routing.util.parsers.OSMRoadClassLinkParser;
 import com.graphhopper.routing.util.parsers.OSMRoadClassParser;
@@ -126,6 +127,13 @@ public class RailImportRegistry implements ImportRegistry {
                             name, props.getInt("speed_bits", 5), props.getDouble("speed_factor", 5), props.getBool("speed_two_directions", true)),
                     (lookup, props) -> new RailAverageSpeedParser(lookup, props),
                     "ferry_speed"
+            );
+        // This property is hard-coded in GraphHopper in order to create turn instructions in roundabouts for pedestrians.
+        // TODO Change implementation of instructions in order to get rid of unnecessary encoded values.
+        else if (VehicleAccess.key("car").equals(name))
+            return ImportUnit.create(name, props -> VehicleAccess.create("car"),
+                    CarAccessParser::new,
+                    "roundabout"
             );
         return null;
     }
