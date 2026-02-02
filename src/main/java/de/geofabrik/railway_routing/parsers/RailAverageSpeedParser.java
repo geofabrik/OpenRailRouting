@@ -60,7 +60,7 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
      * @return The assumed speed.
      */
     protected double applyMaxSpeed(ReaderWay way, double speed, boolean backward) {
-        double maxSpeed = OSMMaxSpeedParser.parseMaxSpeed(way, backward);
+        double maxSpeed = OSMRailwayMaxSpeedParser.parseMaxSpeed(way, backward);
         if (maxSpeed == MaxSpeed.MAXSPEED_MISSING) {
             return speed;
         }

@@ -18,7 +18,6 @@ import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.parsers.BikePriorityParser;
 import com.graphhopper.routing.util.parsers.CarAccessParser;
-import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
 import com.graphhopper.routing.util.parsers.OSMRoadClassLinkParser;
 import com.graphhopper.routing.util.parsers.OSMRoadClassParser;
 import com.graphhopper.routing.util.parsers.OSMRoadEnvironmentParser;
@@ -37,6 +36,7 @@ import de.geofabrik.railway_routing.parsers.OSMFrequencyParser;
 import de.geofabrik.railway_routing.parsers.OSMGaugeParser;
 import de.geofabrik.railway_routing.parsers.OSMPreferredDirectionParser;
 import de.geofabrik.railway_routing.parsers.OSMRailwayClassParser;
+import de.geofabrik.railway_routing.parsers.OSMRailwayMaxSpeedParser;
 import de.geofabrik.railway_routing.parsers.OSMRailwayServiceParser;
 import de.geofabrik.railway_routing.parsers.OSMVoltageParser;
 import de.geofabrik.railway_routing.parsers.RailAccessParser;
@@ -71,7 +71,7 @@ public class RailImportRegistry implements ImportRegistry {
             );
         else if (MaxSpeed.KEY.equals(name))
             return ImportUnit.create(name, props -> MaxSpeed.create(),
-                    (lookup, props) -> new OSMMaxSpeedParser(
+                    (lookup, props) -> new OSMRailwayMaxSpeedParser(
                             lookup.getDecimalEncodedValue(MaxSpeed.KEY))
             );
         else if (RailwayClass.KEY.equals(name))

@@ -26,7 +26,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.config.TurnCostsConfig;
+import com.graphhopper.util.TurnCostsConfig;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters.CH;
@@ -94,8 +94,8 @@ class RailwayRoutingTest {
             ASTAR + ",false,768",
             DIJKSTRA_BI + ",false,958",
             ASTAR_BI + ",false,848",
-            DIJKSTRA_BI + ",true,85",
-            ASTAR_BI + ",true,98",
+            DIJKSTRA_BI + ",true,58",
+            ASTAR_BI + ",true,68",
     })
     public void test(String algo, boolean withCH, int expectedVisitedNodes) {
         String profileName = "intercity";
@@ -155,7 +155,7 @@ class RailwayRoutingTest {
                 setEncodedValuesString("gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction").
                 setProfiles(
                     intercityProfile("electric_freight_tr", true, 80, false).
-                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300))
+                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true))
                     ).
                 setStoreOnFlush(true);
         hopper.setMinNetworkSize(0);
@@ -176,7 +176,7 @@ class RailwayRoutingTest {
                 setEncodedValuesString("gauge,rail_access,rail_average_speed,railway_class,preferred_direction").
                 setProfiles(
                     intercityProfile("diesel_freight_tr", false, 80, false).
-                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300)),
+                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true)),
                     intercityProfile("diesel_freight", false, 80, false)
                     ).
                 setStoreOnFlush(true);
