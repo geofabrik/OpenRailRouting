@@ -19,7 +19,7 @@ function loadInfos() {
             if (!xhr.response.hasOwnProperty('profiles')) {
                 displayError('The response by the routing API does not list any supported routing profile.');
             }
-            var supported_vehicles = xhr.response.profiles;
+            var supported_vehicles = xhr.response.profiles.map((v) => v.name);
             var vehicleSelect = document.getElementById('vehicle');
             supported_vehicles.forEach(function(elem) {
                 var optionElement = document.createElement("option");
