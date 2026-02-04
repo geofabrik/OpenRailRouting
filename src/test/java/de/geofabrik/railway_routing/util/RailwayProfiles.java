@@ -6,6 +6,9 @@ import static com.graphhopper.json.Statement.If;
 import static com.graphhopper.json.Statement.Op.LIMIT;
 import static com.graphhopper.json.Statement.Op.MULTIPLY;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.graphhopper.config.Profile;
 import com.graphhopper.util.CustomModel;
 
@@ -35,5 +38,11 @@ public final class RailwayProfiles {
         }
         profile.setCustomModel(customModel);
         return profile;
+    }
+    
+    public static List<Profile> mapMatchingcreateProfiles() {
+        Profile ice = RailwayProfiles.create("ice", true, 300, true);
+        Profile intercity = RailwayProfiles.create("intercity", true, 160, true);
+        return Arrays.asList(ice, intercity);
     }
 }

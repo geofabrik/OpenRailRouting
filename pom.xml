@@ -10,8 +10,8 @@
   <name>railway_routing</name>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <graphhopper.version>9.1-osm-reader-callbacks</graphhopper.version>
   </properties>
@@ -64,6 +64,12 @@
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
       <version>5.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-testing</artifactId>
+      <version>2.1.11</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

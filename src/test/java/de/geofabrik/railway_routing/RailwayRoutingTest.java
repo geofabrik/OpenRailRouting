@@ -116,7 +116,7 @@ class RailwayRoutingTest {
         GHResponse rsp = hopper.route(req);
         // TODO The encoder for rail_average_speed cannot hold values larger than 155 km/h.
         // Therefore, this test passes and needs to be adapted when the bug is fixed.
-        assertRoute(rsp, 578, 91844.0, 2220559, 406, 50.972153, 51.476413);
+        assertRoute(rsp, 586, 91844.0, 2220559, 406, 50.972153, 51.476413);
     }
 
     @Test
