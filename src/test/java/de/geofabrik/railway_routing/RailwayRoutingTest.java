@@ -1,10 +1,5 @@
 package de.geofabrik.railway_routing;
 
-import static com.graphhopper.json.Statement.If;
-import static com.graphhopper.json.Statement.ElseIf;
-import static com.graphhopper.json.Statement.Else;
-import static com.graphhopper.json.Statement.Op.LIMIT;
-import static com.graphhopper.json.Statement.Op.MULTIPLY;
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR;
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
 import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA;
@@ -31,9 +26,12 @@ import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters.CH;
 
+import de.geofabrik.railway_routing.util.RailwayProfiles;
+
 class RailwayRoutingTest {
     public static final String DIR = "files";
     private static final String COLOGNE = DIR + "/cologne-railway.osm.pbf";
+    private static final String VDE82 = DIR + "/vde8.2-rail.osm.pbf";
 
     // when creating GH instances make sure to use this as the GH location such that it will be cleaned between tests
     private static final String GH_LOCATION = "target/graphhopper-test-gh";
@@ -42,31 +40,6 @@ class RailwayRoutingTest {
     @AfterEach
     public void setup() {
         Helper.removeDir(new File(GH_LOCATION));
-    }
-
-    private static Profile intercityProfile(String name, boolean electric, int maxSpeed, boolean noYards) {
-        Profile profile = new Profile(name);
-        String speed = Integer.toString(maxSpeed);
-        CustomModel customModel = new CustomModel().
-            addToPriority(If("!rail_access || railway_class != RAIL", MULTIPLY, "0")).
-            addToPriority(If("!preferred_direction", MULTIPLY, "0.7")).
-            addToSpeed(If("true", LIMIT, "rail_average_speed")).
-            addToSpeed(If("true", LIMIT, speed));
-        if (electric) {
-            if (noYards) {
-                customModel.addToSpeed(If("railway_service == YARD || railway_service == SPUR", MULTIPLY, "0.0")).
-                    addToSpeed(ElseIf("!(electrified == CONTACT_LINE || electrified == UNSET)", MULTIPLY, "0.0"));
-            } else {
-                customModel.addToSpeed(If("!(electrified == CONTACT_LINE || electrified == UNSET)", MULTIPLY, "0.0"));
-            }
-            customModel.addToSpeed(ElseIf("voltage >= 14000.0 && voltage <= 16000.0 && frequency >= 15.0 && frequency <= 17.5", MULTIPLY, "1.0")).
-                addToSpeed(ElseIf("voltage == 0.0 && frequency == 0.0", MULTIPLY, "1.0")).
-                addToSpeed(Else(MULTIPLY, "0.0"));
-        } else if (noYards) {
-            customModel.addToSpeed(If("railway_service == YARD || railway_service == SPUR", MULTIPLY, "0.0"));
-        }
-        profile.setCustomModel(customModel);
-        return profile;
     }
 
     void assertRoute(GHResponse response, double distance, int milliseconds, int points,
@@ -103,7 +76,7 @@ class RailwayRoutingTest {
                 setGraphHopperLocation(GH_LOCATION).
                 setOSMFile(COLOGNE).
                 setEncodedValuesString("gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction").
-                setProfiles(intercityProfile(profileName, true, 160, true)).
+                setProfiles(RailwayProfiles.create(profileName, true, 160, true)).
                 setStoreOnFlush(true);
         hopper.getCHPreparationHandler()
                 .setCHProfiles(new CHProfile(profileName));
@@ -127,12 +100,32 @@ class RailwayRoutingTest {
     }
 
     @Test
+    public void testHighspeed() {
+        GraphHopper hopper = new RailwayHopper().
+                setGraphHopperLocation(GH_LOCATION).
+                setOSMFile(VDE82).
+                setEncodedValuesString("voltage,electrified,frequency,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction").
+                setProfiles(RailwayProfiles.create("ice", true, 300, true)).
+                setStoreOnFlush(true);
+        hopper.setMinNetworkSize(0);
+        hopper.importOrLoad();
+        GHRequest req = new GHRequest(50.9721, 11.0388, 51.4764, 11.9878)
+                .setAlgorithm(ASTAR)
+                .setProfile("ice");
+        req.putHint(CH.DISABLE, true);
+        GHResponse rsp = hopper.route(req);
+        // TODO The encoder for rail_average_speed cannot hold values larger than 155 km/h.
+        // Therefore, this test passes and needs to be adapted when the bug is fixed.
+        assertRoute(rsp, 553, 91860.0, 2220746, 413, 50.972153, 51.476413);
+    }
+
+    @Test
     public void testElectricDieselNoTurnCosts() {
         GraphHopper hopper = new RailwayHopper().
                 setGraphHopperLocation(GH_LOCATION).
                 setOSMFile(COLOGNE).
                 setEncodedValuesString("gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction").
-                setProfiles(intercityProfile("electric_freight", true, 80, false), intercityProfile("diesel_freight", false, 80, false)).
+                setProfiles(RailwayProfiles.create("electric_freight", true, 80, false), RailwayProfiles.create("diesel_freight", false, 80, false)).
                 setStoreOnFlush(true);
         hopper.setMinNetworkSize(0);
         hopper.importOrLoad();
@@ -154,9 +147,9 @@ class RailwayRoutingTest {
                 setOSMFile(COLOGNE).
                 setEncodedValuesString("gauge,voltage,electrified,frequency,road_environment,max_speed,rail_access,rail_average_speed,railway_class,railway_service,preferred_direction").
                 setProfiles(
-                    intercityProfile("electric_freight_tr", true, 80, false).
-                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true))
-                    ).
+                    RailwayProfiles.create("electric_freight_tr", true, 80, false).
+                    setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true))
+                ).
                 setStoreOnFlush(true);
         hopper.setMinNetworkSize(0);
         hopper.importOrLoad();
@@ -175,10 +168,10 @@ class RailwayRoutingTest {
                 setOSMFile(COLOGNE).
                 setEncodedValuesString("gauge,rail_access,rail_average_speed,railway_class,preferred_direction").
                 setProfiles(
-                    intercityProfile("diesel_freight_tr", false, 80, false).
-                        setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true)),
-                    intercityProfile("diesel_freight", false, 80, false)
-                    ).
+                RailwayProfiles.create("diesel_freight_tr", false, 80, false).
+                    setTurnCostsConfig(new TurnCostsConfig(List.of("train"), 300).setEnableUTurnTimes(true)),
+                RailwayProfiles.create("diesel_freight", false, 80, false)
+                ).
                 setStoreOnFlush(true);
         hopper.setMinNetworkSize(0);
         hopper.importOrLoad();

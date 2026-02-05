@@ -16,10 +16,10 @@ function loadInfos() {
     xhr.responseType = "json";
     xhr.onreadystatechange = function() {
         if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
-            if (!xhr.response.hasOwnProperty('supported_vehicles')) {
+            if (!xhr.response.hasOwnProperty('profiles')) {
                 displayError('The response by the routing API does not list any supported routing profile.');
             }
-            var supported_vehicles = xhr.response.supported_vehicles;
+            var supported_vehicles = xhr.response.profiles.map((v) => v.name);
             var vehicleSelect = document.getElementById('vehicle');
             supported_vehicles.forEach(function(elem) {
                 var optionElement = document.createElement("option");
@@ -158,7 +158,7 @@ function retrieveResult(gpxData) {
     var url = "/match?";
     url += "&gps_accuracy=" + document.getElementById('gpsAccuracy').value;
     url += "&max_visited_nodes=" + document.getElementById('maxNodes').value;
-    url += "&vehicle=" + document.getElementById('vehicle').value;
+    url += "&profile=" + document.getElementById('vehicle').value;
     url += "&fill_gaps=" + document.getElementById('fillGaps').checked;
     url += "&type=gpx&gpx.route=false";
     xhr.open("POST", url, true);

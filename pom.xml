@@ -4,14 +4,14 @@
 
   <groupId>de.geofabrik</groupId>
   <artifactId>railway_routing</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>railway_routing</name>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <graphhopper.version>11.0-osm-reader-callbacks-SNAPSHOT</graphhopper.version>
   </properties>
@@ -64,6 +64,12 @@
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
       <version>5.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-testing</artifactId>
+      <version>4.0.16</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

@@ -113,7 +113,7 @@ public class MatchResource {
         }
     }
 
-    private List<Observation> importGpx(InputStream inputStream) {
+    public static List<Observation> importGpx(InputStream inputStream) {
         XmlMapper xmlMapper = new XmlMapper();
         Gpx gpx;
         try {
