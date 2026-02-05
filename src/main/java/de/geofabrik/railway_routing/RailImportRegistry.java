@@ -29,6 +29,7 @@ import de.geofabrik.railway_routing.ev.Frequency;
 import de.geofabrik.railway_routing.ev.Gauge;
 import de.geofabrik.railway_routing.ev.PreferredDirection;
 import de.geofabrik.railway_routing.ev.RailwayClass;
+import de.geofabrik.railway_routing.ev.RailwayMaxSpeed;
 import de.geofabrik.railway_routing.ev.RailwayService;
 import de.geofabrik.railway_routing.ev.Voltage;
 import de.geofabrik.railway_routing.parsers.OSMElectrifiedParser;
@@ -69,7 +70,9 @@ public class RailImportRegistry implements ImportRegistry {
                     (lookup, props) -> new OSMRoadClassLinkParser(
                             lookup.getBooleanEncodedValue(RoadClassLink.KEY))
             );
-        else if (MaxSpeed.KEY.equals(name))
+        // We use RailwayMaxSpeed, not com.graphhopper.routing.ev.MaxSpeed because MaxSpeed
+        // creates an encoded values with only 7 bits. For railways, we need 9 bits.
+        else if (RailwayMaxSpeed.KEY.equals(name))
             return ImportUnit.create(name, props -> MaxSpeed.create(),
                     (lookup, props) -> new OSMRailwayMaxSpeedParser(
                             lookup.getDecimalEncodedValue(MaxSpeed.KEY))
@@ -125,7 +128,7 @@ public class RailImportRegistry implements ImportRegistry {
         else if (VehicleSpeed.key("rail").equals(name))
             return ImportUnit.create(name, props -> new DecimalEncodedValueImpl(
                             name, props.getInt("speed_bits", 7), props.getDouble("speed_factor", 5), props.getBool("speed_two_directions", true)),
-                    (lookup, props) -> new RailAverageSpeedParser(lookup, props),
+                    (lookup, props) -> new RailAverageSpeedParser(lookup),
                     "ferry_speed"
             );
         // This property is hard-coded in GraphHopper in order to create turn instructions in roundabouts for pedestrians.

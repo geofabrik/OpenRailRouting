@@ -6,14 +6,10 @@ import com.graphhopper.routing.ev.FerrySpeed;
 import com.graphhopper.routing.ev.MaxSpeed;
 import com.graphhopper.routing.ev.VehicleSpeed;
 import com.graphhopper.routing.util.parsers.AbstractAverageSpeedParser;
-import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
-import com.graphhopper.util.PMap;
 
 public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
-
-    public static final String DEFAULT_NAME = "rail";
 
     protected final Integer defaultSpeed = 25;
 
@@ -21,9 +17,9 @@ public class RailAverageSpeedParser extends AbstractAverageSpeedParser {
         super(speedEnc, ferrySpeedEnc);
     }
 
-    public RailAverageSpeedParser(EncodedValueLookup lookup, PMap properties) {
+    public RailAverageSpeedParser(EncodedValueLookup lookup) {
         this(
-                lookup.getDecimalEncodedValue(VehicleSpeed.key(properties.getString("name", DEFAULT_NAME))),
+                lookup.getDecimalEncodedValue(VehicleSpeed.key("rail")),
                 lookup.getDecimalEncodedValue(FerrySpeed.KEY)
         );
     }
