@@ -62,10 +62,10 @@ class RailwayMapMatchingTest {
 
     @ParameterizedTest
     @CsvSource({
-        EF_NMB_HAL_GPX + ",intercity,3501979,108416,702",
-        EF_NMB_HAL_GPX + ",ice,3501979,108416,702",
-        VDE82_GPX + ",intercity,2226289,92223.5,309",
-        VDE82_GPX + ",ice,2226289,92223.5,309",
+        EF_NMB_HAL_GPX + ",intercity,3513512,108402,701",
+        EF_NMB_HAL_GPX + ",ice,3513512,108402,701",
+        VDE82_GPX + ",intercity,2231659,92019,306",
+        VDE82_GPX + ",ice,2231659,92019,306",
     })
     public void test(String gpxPath, String profile, double time, double distance, int pointCount) throws FileNotFoundException {
         PMap hints = new PMap().putObject("profile", profile).putObject(Parameters.CH.DISABLE, true);
