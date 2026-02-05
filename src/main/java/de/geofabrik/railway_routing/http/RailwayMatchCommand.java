@@ -1,8 +1,7 @@
 package de.geofabrik.railway_routing.http;
 
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.graphhopper.ResponsePath;
@@ -36,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerConfiguration> {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     public RailwayMatchCommand() {
         super("match", "matches GPX tracks to the railway network");
     }
@@ -75,7 +75,6 @@ public class RailwayMatchCommand extends ConfiguredCommand<RailwayRoutingServerC
         hopper.init(configuration.getGraphHopperConfiguration());
         
 
-        final Logger logger = LogManager.getLogger(RailwayMatchCommand.class);
         logger.info("Loading graph from cache at {}", hopper.getGraphHopperLocation());
         hopper.load();
         String profile = namespace.get("profile");
