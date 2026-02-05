@@ -124,7 +124,7 @@ public class RailImportRegistry implements ImportRegistry {
             );
         else if (VehicleSpeed.key("rail").equals(name))
             return ImportUnit.create(name, props -> new DecimalEncodedValueImpl(
-                            name, props.getInt("speed_bits", 5), props.getDouble("speed_factor", 5), props.getBool("speed_two_directions", true)),
+                            name, props.getInt("speed_bits", 7), props.getDouble("speed_factor", 5), props.getBool("speed_two_directions", true)),
                     (lookup, props) -> new RailAverageSpeedParser(lookup, props),
                     "ferry_speed"
             );

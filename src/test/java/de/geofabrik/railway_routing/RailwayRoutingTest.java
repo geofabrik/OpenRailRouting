@@ -63,12 +63,12 @@ class RailwayRoutingTest {
 
     @ParameterizedTest
     @CsvSource({
-            DIJKSTRA + ",false,1044",
-            ASTAR + ",false,768",
-            DIJKSTRA_BI + ",false,958",
-            ASTAR_BI + ",false,848",
-            DIJKSTRA_BI + ",true,58",
-            ASTAR_BI + ",true,68",
+            DIJKSTRA + ",false,1010",
+            ASTAR + ",false,758",
+            DIJKSTRA_BI + ",false,910",
+            ASTAR_BI + ",false,806",
+            DIJKSTRA_BI + ",true,116",
+            ASTAR_BI + ",true,123",
     })
     public void test(String algo, boolean withCH, int expectedVisitedNodes) {
         String profileName = "intercity";
@@ -114,9 +114,7 @@ class RailwayRoutingTest {
                 .setProfile("ice");
         req.putHint(CH.DISABLE, true);
         GHResponse rsp = hopper.route(req);
-        // TODO The encoder for rail_average_speed cannot hold values larger than 155 km/h.
-        // Therefore, this test passes and needs to be adapted when the bug is fixed.
-        assertRoute(rsp, 553, 91860.0, 2220746, 413, 50.972153, 51.476413);
+        assertRoute(rsp, 595, 91860.0, 1461026, 413, 50.972153, 51.476413);
     }
 
     @Test
@@ -158,7 +156,7 @@ class RailwayRoutingTest {
                 .setProfile("electric_freight_tr");
         req.putHint(CH.DISABLE, true);
         GHResponse rsp = hopper.route(req);
-        assertRoute(rsp, 483, 3084.8, 518053, 58, 50.939894, 50.950945);
+        assertRoute(rsp, 475, 3084.8, 518053, 58, 50.939894, 50.950945);
     }
 
     @Test

@@ -20,7 +20,7 @@ public final class RailwayProfiles {
         String speed = Integer.toString(maxSpeed);
         CustomModel customModel = new CustomModel().
             addToPriority(If("!rail_access || railway_class != RAIL", MULTIPLY, "0")).
-            addToPriority(If("!preferred_direction", MULTIPLY, "0.7")).
+            addToPriority(If("!preferred_direction", MULTIPLY, "0.5")).
             addToSpeed(If("true", LIMIT, "rail_average_speed")).
             addToSpeed(If("true", LIMIT, speed));
         if (electric) {
