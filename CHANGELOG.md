@@ -1,6 +1,7 @@
 ### 1.1 [not yet released]
 
 * Upgrade to GraphHopper 11.0 with osm-reader-callbacks patches
+* Upgrade from JDK 8 to JDK 17
 * Times penalities for u-turn are no longer taken into account for calculating travel times due to a change in GraphHopper (they continue to influence which route will be chosen). You have to set `profiles[].turn_costs.enable_uturn_times` to true for all profiles. Otherwise the calculated travel times will be shorter than usual.
 * Add more tests to ensure that routing results in order to detect if routing results change due to GraphHopper upgrades.
 * Remove unnecessary dependencies
