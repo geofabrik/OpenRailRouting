@@ -17,7 +17,8 @@ graphhopper:
   # - weighting (optional): by default 'custom'
   # - turn_costs (optional):
   #     vehicle_types: [train, tram, light_rail, subway] (vehicle types used for vehicle-specific turn restrictions)
-  #     u_turn_costs: 60 (time-penalty for doing a u-turn in seconds)
+  #     u_turn_costs: 60 (penalty for doing a u-turn in seconds)
+  #     enable_uturn_times: true/false (whether time penalties for u-turns should be taken into account when travel times are calculated)
   #
   # Depending on the above fields there are other properties that can be used, e.g.
   # - custom_model_files: when you specified "weighting: custom" you need to set one or more json files which are searched in
@@ -34,30 +35,35 @@ graphhopper:
         vehicle_types: [train]
         # Reversing costs 5 minutes.
         u_turn_costs: 300
+        enable_uturn_times: true
       custom_model_files: [rail.json, tgv_all.json, preferred_direction.json]
     - name: non_tgv
       turn_costs:
         vehicle_types: [train]
         # Reversing costs 15 minutes.
         u_turn_costs: 900
+        enable_uturn_times: true
       custom_model_files: [rail.json, non_tgv.json, preferred_direction.json]
     - name: tramtrain
       turn_costs:
         vehicle_types: [train, tram, light_rail]
         # Reversing costs 3 minutes.
         u_turn_costs: 180
+        enable_uturn_times: true
       custom_model_files: [tramtrain.json, 15kv-ac_750v-dc.json, gauge_1435.json, preferred_direction.json]
     - name: all_tracks
       turn_costs:
         vehicle_types: [train, tram, light_rail, subway]
         # Reversing costs 3 minutes.
         u_turn_costs: 180
+        enable_uturn_times: true
       custom_model_files: [all_tracks.json]
     - name: all_tracks_1435
       turn_costs:
         vehicle_types: [train, tram, light_rail, subway]
         # Reversing costs 3 minutes.
         u_turn_costs: 180
+        enable_uturn_times: true
       custom_model_files: [all_tracks.json, gauge_1435.json]
 
   # instead of the inbuilt custom models (see ./src/main/resources/com/graphhopper/custom_models)
