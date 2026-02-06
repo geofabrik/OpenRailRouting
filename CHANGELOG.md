@@ -1,4 +1,6 @@
-### 1.1 [not yet released]
+### 1.1 [6 Feb 2026]
+
+This is a maintenance release with a couple of bugfixes, increased test coverage and a new GraphHopper version.
 
 * Upgrade to GraphHopper 11.0 with osm-reader-callbacks patches
 * Upgrade from JDK 8 to JDK 17
