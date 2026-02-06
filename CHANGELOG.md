@@ -1,10 +1,12 @@
 ### 1.1 [not yet released]
 
 * Upgrade to GraphHopper 11.0 with osm-reader-callbacks patches
+* Add more tests to ensure that routing results in order to detect if routing results change due to GraphHopper upgrades.
 * Remove unnecessary dependencies
 * Reduce priority of tracks in opposite direction (against `railway:preferred_direction=*`) from `0.7` to `0.5`.
 * Bugfix: Increase encoder for `rail_average_speed` from 5 to 7 bits in order to store speeds larger than 155 km/h. This will reduce travel times returned by all API endpoints if high speed trains (>= 160 km/h) are involved.
 * Bugfix: Allow encoded value `max_speed` to store speed limits up to 510 km/h (instead of 256 km/h upstream).
+* Bugfix: Adapt map matching frontend to current GraphHopper API.
 
 ### 1.0 [9 July 2024]
 
