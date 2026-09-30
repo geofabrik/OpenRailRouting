@@ -1,5 +1,6 @@
-### 1.2 [not released]
+### 1.2 [30 Sep 2026]
 
+* Upgrade to GraphHopper 11.1 (security patch).
 * Reduce minimum size for subnetworks from 200 to 30 in example configuration file ([#46](https://github.com/geofabrik/OpenRailRouting/issues/46)).
 * Replace old web frontend by a new one which is a fork of the current GraphHopper web frontend.
   Replace the source code of the frontend by pre-built JavaScript assets in order to avoid the JavaScript dependency hell.
