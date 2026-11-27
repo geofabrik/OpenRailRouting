@@ -30,6 +30,7 @@ import de.geofabrik.railway_routing.ev.Gauge;
 import de.geofabrik.railway_routing.ev.PreferredDirection;
 import de.geofabrik.railway_routing.ev.RailwayClass;
 import de.geofabrik.railway_routing.ev.RailwayMaxSpeed;
+import de.geofabrik.railway_routing.ev.TrainRoute;
 import de.geofabrik.railway_routing.ev.RailwayService;
 import de.geofabrik.railway_routing.ev.Voltage;
 import de.geofabrik.railway_routing.parsers.OSMElectrifiedParser;
@@ -82,6 +83,10 @@ public class RailImportRegistry implements ImportRegistry {
                     (lookup, props) -> new OSMRailwayClassParser(
                             lookup.getEnumEncodedValue(RailwayClass.KEY, RailwayClass.class))
             );
+        // The tag parser is a relation parser and is added by RailwayHopper.buildOSMParsers,
+        // like GraphHopper does for the bike networks.
+        else if (TrainRoute.KEY.equals(name))
+            return ImportUnit.create(name, props -> TrainRoute.create(), null);
         else if (RailwayService.KEY.equals(name))
             return ImportUnit.create(name, props -> RailwayService.create(),
                     (lookup, props) -> new OSMRailwayServiceParser(
